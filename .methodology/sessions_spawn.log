@@ -1,0 +1,10 @@
+{"timestamp": "2026-05-13T00:00:00", "fr_id": "P1", "sub_task": "SRS.md", "role": "requirements_engineer", "session_id": "dev-srs-001", "status": "success", "confidence": 9}
+{"timestamp": "2026-05-13T00:05:00", "fr_id": "P1", "sub_task": "SRS.md", "role": "business_analyst", "session_id": "a1d8924d83d725fab", "status": "success", "review_status": "APPROVE"}
+{"timestamp": "2026-05-13T00:10:00", "fr_id": "P1", "sub_task": "CONSTRAINTS.md", "role": "requirements_engineer", "session_id": "dev-constraints-001", "status": "success", "confidence": 8}
+{"timestamp": "2026-05-13T00:15:00", "fr_id": "P1", "sub_task": "CONSTRAINTS.md", "role": "business_analyst", "session_id": "a308feda06204473c", "status": "success", "review_status": "APPROVE"}
+{"timestamp": "2026-05-13T00:20:00", "fr_id": "P1", "sub_task": "SPEC_TRACKING.md", "role": "requirements_engineer", "session_id": "dev-track-001", "status": "success", "confidence": 9}
+{"timestamp": "2026-05-13T00:25:00", "fr_id": "P1", "sub_task": "SPEC_TRACKING.md", "role": "business_analyst", "session_id": "a0289b9b62b516a7e", "status": "success", "review_status": "APPROVE"}
+{"timestamp": "2026-05-13T00:30:00", "fr_id": "P1", "sub_task": "TRACEABILITY_MATRIX.md", "role": "requirements_engineer", "session_id": "dev-trace-001", "status": "success", "confidence": 9}
+{"timestamp": "2026-05-13T00:35:00", "fr_id": "P1", "sub_task": "TRACEABILITY_MATRIX.md", "role": "business_analyst", "session_id": "a3e1c6e30c0349479", "status": "success", "review_status": "APPROVE"}
+{"timestamp": "2026-05-13T00:40:00", "fr_id": "P1", "sub_task": "SPEC_TRACKING.md", "role": "business_analyst", "session_id": "aed9bb79276dc8f21", "round": 2, "status": "success", "review_status": "APPROVE", "note": "re-review: T-GAP-01/02/03/04 fixes verified"}
+{"timestamp": "2026-05-13T00:45:00", "fr_id": "P1", "sub_task": "TRACEABILITY_MATRIX.md", "role": "business_analyst", "session_id": "a09b293321d957dde", "round": 2, "status": "success", "review_status": "APPROVE", "note": "re-review: TM-GAP-01/02 fixes verified"}
