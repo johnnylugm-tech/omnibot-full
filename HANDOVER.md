@@ -1,123 +1,84 @@
 # Harness Methodology — Session Handover
 
-**Phase**: P1 exit → P2 ready  
-**Checkpoint**: P1 human peer review APPROVED  
-**Generated**: 2026-05-13  
-**Last commit**: `9c57d5f` (merge remote + submodule resolve)
+**Checkpoint**: `P1-exit-20260512`  
+**Phase**: P1 — Spec & Discovery  
+**Generated**: 2026-05-12T19:57:06Z
+
+> ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
 ---
 
-## 快速接手
+## 快速接手指令
 
 ```bash
-git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.git
-cd omnibot-full
-git submodule update --init --recursive   # harness at ed815db
-cat .methodology/state.json               # phase=1, state=ACTIVE
-cat .methodology/phase2_plan.md           # 下一階段計畫
+# 1. Clone repo (if working directory cleared)
+git clone https://github.com/johnnylugm-tech/omnibot-full.git /tmp/$(basename https://github.com/johnnylugm-tech/omnibot-full.git .git)
+
+# 2. Confirm latest commits
+git log --oneline -3
+
+# 3. Confirm FSM state
+cat .methodology/state.json   # expected: phase=1 state=ACTIVE
+
+# 4. Read active plan
+cat .methodology/phase2_plan.md
 ```
 
----
-
-## 目前進度
-
-**Phase 1 (Requirements Specification) — 完成。** Human peer review approved，push-checkpoint 已執行。
-
-### 產出檔案
-
-| 檔案 | 內容 | Agent B 審查 |
-|------|------|-------------|
-| `SRS.md` | 13 FRs + 6 NFRs，含 acceptance criteria | APPROVE (8), 5 low gaps |
-| `CONSTRAINTS.md` | 技術棧、SLA、成本、安全、合規、開發約束 | APPROVE (8), 3 low cosmetic gaps |
-| `SPEC_TRACKING.md` | FR/NFR 狀態矩陣 + Phase mapping + 8-gap register | APPROVE (8) → re-review (9) |
-| `TRACEABILITY_MATRIX.md` | 雙向追溯（13 FR → design → 16 test cases → acceptance） | APPROVE (8) → re-review (9) |
-| `.methodology/sessions_spawn.log` | 10 entries（4 sub-tasks × 2 + 2 re-reviews） | HR-10 ✅ |
-| `.methodology/state.json` | `state=ACTIVE, current_phase=1` | — |
-| `.methodology/phase2_plan.md` | P2 執行計畫（已生成） | — |
-
-### FR 清單（13 functional + 6 non-functional）
-
-FR-01–FR-13: Platform Adapter, Webhook Verification, Unified Message, Input Sanitizer, PII Masking, Rate Limiter, Knowledge Layer V1, Escalation Manager, Structured Logger, API Response Format, Health Check, DB Schema, Docker Compose
-
-NFR-01–NFR-06: FCR≥50%, p95<3.0s, Telegram+LINE, Webhook 100%, JSON Logging, PII Coverage
+| 欄位 | 值 |
+|------|----|
+| Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
+| Branch | `main` |
+| State | `phase=1 state=ACTIVE` |
+| Plan | `.methodology/phase2_plan.md` |
 
 ---
 
-## 待辦事項（Phase 2 入口）
+## 任務背景
 
-從 `.methodology/phase2_plan.md` 開始執行 P2 (Architecture Design)：
+P1 human review APPROVED — SRS + deliverables complete.
 
-1. 產出 `SAD.md`（系統架構設計文件）
-2. 產出 `ADR.md`（關鍵架構決策記錄）
-3. 初始化 `quality_manifest.json`：`harness_cli.py manifest --fr-ids FR-01...FR-13`
-4. Agent A (ARCHITECT) → Agent B (TECH_LEAD) A/B 審查
-5. P2 exit: human peer review → push-checkpoint
+## 目前執行狀況
 
----
+13 FR(s) defined in SRS [FR-01,FR-02,FR-03,FR-04,FR-05,…+8]. 4 deliverables produced and Agent-B APPROVED.
 
-## Review Gap Register（繼承至後續 Phase）
+**A/B Session Results:**
+  - SRS.md / requirements_engineer: **success**
+  - SRS.md / business_analyst: **APPROVE**
+  - CONSTRAINTS.md / requirements_engineer: **success**
+  - CONSTRAINTS.md / business_analyst: **APPROVE**
+  - SPEC_TRACKING.md / requirements_engineer: **success**
+  - SPEC_TRACKING.md / business_analyst: **APPROVE**
+  - TRACEABILITY_MATRIX.md / requirements_engineer: **success**
+  - TRACEABILITY_MATRIX.md / business_analyst: **APPROVE**
+  - SPEC_TRACKING.md / business_analyst r2: **APPROVE**
+  - TRACEABILITY_MATRIX.md / business_analyst r2: **APPROVE**
 
-全部 non-blocking，記錄於 `SPEC_TRACKING.md` §Review Gap Register：
+**Review Gaps (carry-forward to P2+):**
+  8 gap(s): GAP-01, GAP-02, GAP-03, GAP-04, GAP-05, M-GAP-01, M-GAP-02, M-GAP-03
+  ⚠️ medium-priority: M-GAP-01, M-GAP-02, M-GAP-03
 
-| Gap | 來源 | 領域 | 處置 | 目標 Phase |
-|-----|------|------|------|-----------|
-| GAP-01 | B-1/4 | NFR-04 measurement | security_logs counters in FR-12 AC | P3 |
-| GAP-02 | B-1/4 | FR-07 tie-breaking | Deferred to impl detail | P3 |
-| GAP-03 | B-1/4 | FR-05 PII precedence | email→phone→address adopted | P3 |
-| GAP-04 | B-1/4 | Cross-platform identity | Out-of-scope | P2 |
-| GAP-05 | B-1/4 | Security event logging FR | Added to scope | P3 |
-| M-GAP-01 | B-2/4 | Cost model ambiguous | Clarify budget line item | P1 (next revision) |
-| M-GAP-02 | B-2/4 | Self-hosting breakdown | Detail PG/Redis cost split | P1 (next revision) |
-| M-GAP-03 | B-2/4 | NFR-03 traceability in tech stack | Confirm Python/FastAPI capability | P1 (next revision) |
+**Changed Files:**
+  - `harness`
 
----
+## 接下來的工作
 
-## 環境狀態
+1. Open `.methodology/phase2_plan.md` and follow from the top
+2. Follow SKILL.md §0.1 for P2 entry
+3. Review carry-forward gaps before P2 (see SPEC_TRACKING.md gap register)
+4. Confirm HERMES_REVIEWER_TARGET is exported in shell
 
-| 項目 | 狀態 | 備註 |
-|------|------|------|
-| `git config quality.phase` | `1` | 本地 |
-| `vars.CURRENT_PHASE` (GitHub) | 未設定 | optional — CI fallback = `1` |
-| `HERMES_REVIEWER_TARGET` | `weixin:o9cq8...@im.wechat` | ✅ A/B agent from P1 |
-| `ANTHROPIC_API_KEY` | 不在 CI 中 | gate eval 為本地執行，CI 不需此 secret |
-| GitHub CI workflow | `.github/workflows/harness_quality_gate.yml` | PR trigger, `run-phase` only |
-| Git hooks | prepare-commit-msg, pre-push, post-merge | blocking commit + push |
+## 注意事項
 
----
+- 100% follow SKILL.md
+- Do NOT commit `.sessi-work/` or `.methodology/` runtime artifacts
+- Git failures are warnings — they never block the pipeline
+- Human peer review passed
+- All deliverables reviewed and approved
 
-## 技術細節 / 潛在坑位
+## 附加資訊
 
-### Harness submodule
-- **Commit**: `ed815db`（含 preflight state.json auto-init、CI readiness filename fix）
-- **Merge 歷史**: 本地和 remote 有 diverged history，已透過 `merge --allow-unrelated-histories` 合併。重 clone 後無此問題
-- **更新**: `git submodule update --remote harness`（harness-methodology 上游持續修復中）
-
-### CLI 變更
-- `plan-phase --repo` → `--project`（新版 CLI 參數名已改）
-
-### Constitution / Preflight
-- 全部 PASS（constitution 100%, drift 92%, CI readiness OK）
-- P1/P2 無自動 gate，exit 為 human peer review
-- SAB.json、traceability 在 P1/P2 預期為 skipped
-
-### Git hooks 行為
-- `git commit` 觸發 `prepare-commit-msg` → `run-phase --fast`（blocking）
-- `git push` 觸發 `pre-push` → `run-phase`（blocking，完整 preflight）
-- Bypass: `git commit --no-verify` / `STAGE_PASS=1 git push`
-
-### Medium gap 修復歷程
-- Sub-Task 3/4 (SPEC_TRACKING): acceptance column P3→P5，Agent B re-review 確認
-- Sub-Task 4/4 (TRACEABILITY_MATRIX): NFR verification P4→P3–P5，Agent B re-review 確認
-- 教訓: Agent B APPROVE 後若修改 medium+ gaps，必須回送 re-review
+- **fr_count**: 13
+- **HERMES_REVIEWER_TARGET**: ✅ set (weixin:o9cq808YRb-FoS5Ek9CwSHm1q-2w@im.wechat)
 
 ---
-
-## 下一個 Session 啟動指令
-
-```
-讀取 HANDOVER.md → 讀取 .methodology/phase2_plan.md → 按 SKILL.md §0.1 執行 P2
-```
-
----
-
-*手寫 HANDOVER，取代自動生成版本。上游 `HandoverGenerator` 已知缺陷待修。*
+*由 `HandoverGenerator` 自動生成。下次 push 時此檔案將被覆寫。*
