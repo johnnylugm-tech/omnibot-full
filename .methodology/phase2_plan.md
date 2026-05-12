@@ -256,43 +256,43 @@ are not re-opened. This bounds backtracking to a single step.
 
 ### FR Architecture Mapping (13 total)
 
-#### FR-01: FR-01: Platform Adapter — Telegram + LINE Webhook
+#### FR-01: Platform Adapter — Telegram + LINE Webhook
 **Requirement**: 系統必須接收來自 Telegram Bot API 和 LINE Messaging API 的 webhook 請求，轉換為內部統一消息格式（UnifiedMessage）。
 
-#### FR-02: FR-02: Webhook Signature Verification
+#### FR-02: Webhook Signature Verification
 **Requirement**: 每個 webhook 請求必須先通過簽名驗證，未通過者拒絕處理。
 
-#### FR-03: FR-03: Unified Message Format
+#### FR-03: Unified Message Format
 **Requirement**: 所有平台消息必須轉換為統一的 `UnifiedMessage` dataclass，對下游模組隱藏平台差異。
 
-#### FR-04: FR-04: Input Sanitizer L2 — Character Normalization
+#### FR-04: Input Sanitizer L2 — Character Normalization
 **Requirement**: 所有使用者輸入文字必須經過 NFKC 正規化，移除非列印控制字元。
 
-#### FR-05: FR-05: PII Masking L4 — Phone / Email / Address
+#### FR-05: PII Masking L4 — Phone / Email / Address
 **Requirement**: 使用者訊息中的台灣電話、Email、地址必須在記錄或輸出前遮蔽。敏感關鍵字觸發轉接。
 
-#### FR-06: FR-06: Rate Limiter — Token Bucket
+#### FR-06: Rate Limiter — Token Bucket
 **Requirement**: 每個平台用戶必須有獨立的請求速率限制，防止濫用。
 
-#### FR-07: FR-07: Knowledge Layer V1 — Rule Match + Escalate
+#### FR-07: Knowledge Layer V1 — Rule Match + Escalate
 **Requirement**: 查詢知識庫時先執行 SQL 精確/模糊匹配（Layer 1），信心度 > 0.7 直接回覆，否則轉接人工。
 
-#### FR-08: FR-08: Basic Escalation Manager — No SLA
+#### FR-08: Basic Escalation Manager — No SLA
 **Requirement**: 無法匹配的查詢必須進入轉接佇列，支援指派與結案。
 
-#### FR-09: FR-09: Structured Logger — JSON Format
+#### FR-09: Structured Logger — JSON Format
 **Requirement**: 所有日誌必須以 JSON 結構化格式輸出，包含 timestamp / level / service / message。
 
-#### FR-10: FR-10: API Response Format — ApiResponse / PaginatedResponse
+#### FR-10: API Response Format — ApiResponse / PaginatedResponse
 **Requirement**: 所有 API 回應必須使用統一的 `ApiResponse[T]` 或 `PaginatedResponse[T]` 泛型格式。
 
-#### FR-11: FR-11: Health Check Endpoint
+#### FR-11: Health Check Endpoint
 **Requirement**: 系統必須提供健康檢查端點供 Docker / 監控系統使用。
 
-#### FR-12: FR-12: Database Schema — All Core Tables
+#### FR-12: Database Schema — All Core Tables
 **Requirement**: 必須建立所有核心資料表，包含 Phase 2/3 預留欄位，避免後續 ALTER TABLE。
 
-#### FR-13: FR-13: Docker Compose Development Environment
+#### FR-13: Docker Compose Development Environment
 **Requirement**: 提供一鍵啟動的開發環境，包含 API、PostgreSQL (pgvector)、Redis。
 
 ### SAB Generation (Machine-Readable Architecture Baseline)
