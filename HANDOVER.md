@@ -2,7 +2,7 @@
 
 **Checkpoint**: `P1-exit-20260512`  
 **Phase**: P1 — Spec & Discovery  
-**Generated**: 2026-05-12T20:17:56Z
+**Generated**: 2026-05-12T20:22:13Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -15,7 +15,7 @@
 git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.git && cd omnibot-full
 
 # 2. Set required env vars
-export HERMES_REVIEWER_TARGET=<value>   # see 附加資訊
+export HERMES_REVIEWER_TARGET=weixin:o9cq808YRb-FoS5Ek9CwSHm1q-2w@im.wechat
 
 # 3. Read plan and start Phase 2
 cat .methodology/phase2_plan.md
@@ -60,6 +60,7 @@ P1 human review APPROVED — SRS + deliverables complete.
 - `CONSTRAINTS.md` ✅ (120L)
 - `SPEC_TRACKING.md` ✅ (68L)
 - `TRACEABILITY_MATRIX.md` ✅ (77L)
+
 ## 目前執行狀況
 
 13 FR(s) defined in SRS [FR-01,FR-02,FR-03,FR-04,FR-05,…+8]. 4/4 deliverables present, Agent-B APPROVED.
