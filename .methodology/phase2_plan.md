@@ -70,29 +70,29 @@ are not re-opened. This bounds backtracking to a single step.
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (TECH_LEAD) — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md (full)`
-  - `docs/CONSTRAINTS.md (full)`
-  - `draft docs/SAD.md (full)`
+  - `01-requirements/SRS.md (full)`
+  - `01-requirements/CONSTRAINTS.md (full)`
+  - `draft 02-architecture/SAD.md (full)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are TECH_LEAD. Your task: review the following deliverable (SAD.md).
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md (full)] ===
+  === [DOC 1: 01-requirements/SRS.md (full)] ===
   {paste full content here}
 
-  === [DOC 2: docs/CONSTRAINTS.md (full)] ===
+  === [DOC 2: 01-requirements/CONSTRAINTS.md (full)] ===
   {paste full content here}
 
-  === [DOC 3: draft docs/SAD.md (full)] ===
+  === [DOC 3: draft 02-architecture/SAD.md (full)] ===
   {paste full content here}
 
   Review checklist:
@@ -131,7 +131,7 @@ are not re-opened. This bounds backtracking to a single step.
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (TECH_LEAD) — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
@@ -139,9 +139,9 @@ are not re-opened. This bounds backtracking to a single step.
 
   **Embed these documents in full** (copy content, not paths):
   - `Previous Sub-Task B-2 review JSON — SAD.md (Sub-Task 1/3, gaps field may contain non-blocking caveats)`
-  - `docs/SRS.md (full)`
-  - `docs/SAD.md (APPROVED — full content)`
-  - `draft docs/ADR.md (full)`
+  - `01-requirements/SRS.md (full)`
+  - `02-architecture/SAD.md (APPROVED — full content)`
+  - `draft 02-architecture/adr/ADR.md (full)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
@@ -151,13 +151,13 @@ are not re-opened. This bounds backtracking to a single step.
   === [DOC 1: Previous Sub-Task B-2 review JSON — SAD.md (Sub-Task 1/3, gaps field may contain non-blocking caveats)] ===
   {paste full content here}
 
-  === [DOC 2: docs/SRS.md (full)] ===
+  === [DOC 2: 01-requirements/SRS.md (full)] ===
   {paste full content here}
 
-  === [DOC 3: docs/SAD.md (APPROVED — full content)] ===
+  === [DOC 3: 02-architecture/SAD.md (APPROVED — full content)] ===
   {paste full content here}
 
-  === [DOC 4: draft docs/ADR.md (full)] ===
+  === [DOC 4: draft 02-architecture/adr/ADR.md (full)] ===
   {paste full content here}
 
   Review checklist:
@@ -196,7 +196,7 @@ are not re-opened. This bounds backtracking to a single step.
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (TECH_LEAD) — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 02-architecture/SAD.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
@@ -205,9 +205,9 @@ are not re-opened. This bounds backtracking to a single step.
   **Embed these documents in full** (copy content, not paths):
   - `Previous Sub-Task B-2 review JSON — SAD.md (Sub-Task 1/3, gaps field may contain non-blocking caveats)`
   - `Previous Sub-Task B-2 review JSON — ADR.md (Sub-Task 2/3, gaps field may contain non-blocking caveats)`
-  - `docs/SAD.md (APPROVED — full content)`
-  - `docs/ADR.md (APPROVED — full content)`
-  - `draft docs/ARCHITECTURE_DIAGRAM.md (full content)`
+  - `02-architecture/SAD.md (APPROVED — full content)`
+  - `02-architecture/adr/ADR.md (APPROVED — full content)`
+  - `draft 02-architecture/ARCHITECTURE_DIAGRAM.md (full content)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
@@ -220,13 +220,13 @@ are not re-opened. This bounds backtracking to a single step.
   === [DOC 2: Previous Sub-Task B-2 review JSON — ADR.md (Sub-Task 2/3, gaps field may contain non-blocking caveats)] ===
   {paste full content here}
 
-  === [DOC 3: docs/SAD.md (APPROVED — full content)] ===
+  === [DOC 3: 02-architecture/SAD.md (APPROVED — full content)] ===
   {paste full content here}
 
-  === [DOC 4: docs/ADR.md (APPROVED — full content)] ===
+  === [DOC 4: 02-architecture/adr/ADR.md (APPROVED — full content)] ===
   {paste full content here}
 
-  === [DOC 5: draft docs/ARCHITECTURE_DIAGRAM.md (full content)] ===
+  === [DOC 5: draft 02-architecture/ARCHITECTURE_DIAGRAM.md (full content)] ===
   {paste full content here}
 
   Review checklist:
