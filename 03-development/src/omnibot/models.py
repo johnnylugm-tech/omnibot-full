@@ -1,6 +1,6 @@
-"""[FR-01] UnifiedMessage and supporting enums.
+"""[FR-01][FR-03] UnifiedMessage, UnifiedResponse, and supporting enums.
 
-Citations: SRS.md:13-25, SAD.md:142-167
+Citations: SRS.md:13-25,44-55, SAD.md:140-167
 """
 
 from dataclasses import dataclass, field
@@ -10,6 +10,10 @@ from typing import Any, Dict, Optional
 
 
 class Platform(str, Enum):
+    """Supported messaging platforms.
+
+    Citations: SRS.md:51
+    """
     TELEGRAM = "TELEGRAM"
     LINE = "LINE"
     MESSENGER = "MESSENGER"
@@ -17,6 +21,10 @@ class Platform(str, Enum):
 
 
 class MessageType(str, Enum):
+    """Supported message types.
+
+    Citations: SRS.md:52
+    """
     TEXT = "TEXT"
     IMAGE = "IMAGE"
     STICKER = "STICKER"
@@ -26,6 +34,10 @@ class MessageType(str, Enum):
 
 @dataclass(frozen=True)
 class UnifiedMessage:
+    """Platform-agnostic inbound message.
+
+    Citations: SRS.md:50, SAD.md:142-153
+    """
     platform: Platform
     platform_user_id: str
     message_type: MessageType
@@ -34,3 +46,15 @@ class UnifiedMessage:
     received_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     unified_user_id: str = ""
     reply_token: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class UnifiedResponse:
+    """Platform-agnostic outbound response.
+
+    Citations: SRS.md:53, SAD.md:155-161
+    """
+    content: str
+    source: str
+    confidence: float
+    knowledge_id: int
