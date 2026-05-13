@@ -74,29 +74,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-01 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-01.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -160,29 +160,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-02 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-02.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -246,29 +246,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-03 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-03.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -332,29 +332,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-04 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-04.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -418,29 +418,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-05 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-05.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -504,29 +504,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-06 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-06.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -590,29 +590,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-07 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-07.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -676,29 +676,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-08 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-08.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -762,29 +762,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-09 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-09.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -848,29 +848,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-10 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-10.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -934,29 +934,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-11 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-11.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -1020,29 +1020,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-12 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-12.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:
@@ -1106,29 +1106,29 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (REVIEWER) for FR-13 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec for FR-XX`
-  - `src/…/fr_xx.py (implemented code + tests)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec for FR-XX`
+  - `03-development/src/…/fr_xx.py (implemented code + tests)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are REVIEWER. Your task: review the following deliverable for FR-13.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec for FR-XX] ===
+  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py (implemented code + tests)] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
   {paste full content here}
 
   Review checklist:

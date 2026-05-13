@@ -68,37 +68,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-01 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-01.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -145,7 +145,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-02: Webhook Signature Verification
 **Test Target**: Verify 每個 webhook 請求必須先通過簽名驗證，未通過者拒絕處理。
@@ -157,37 +157,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-02 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-02.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -234,7 +234,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-03: Unified Message Format
 **Test Target**: Verify 所有平台消息必須轉換為統一的 `UnifiedMessage` dataclass，對下游模組隱藏平台差異。
@@ -246,37 +246,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-03 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-03.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -323,7 +323,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-04: Input Sanitizer L2 — Character Normalization
 **Test Target**: Verify 所有使用者輸入文字必須經過 NFKC 正規化，移除非列印控制字元。
@@ -335,37 +335,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-04 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-04.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -412,7 +412,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-05: PII Masking L4 — Phone / Email / Address
 **Test Target**: Verify 使用者訊息中的台灣電話、Email、地址必須在記錄或輸出前遮蔽。敏感關鍵字觸發轉接。
@@ -424,37 +424,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-05 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-05.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -501,7 +501,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-06: Rate Limiter — Token Bucket
 **Test Target**: Verify 每個平台用戶必須有獨立的請求速率限制，防止濫用。
@@ -513,37 +513,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-06 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-06.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -590,7 +590,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-07: Knowledge Layer V1 — Rule Match + Escalate
 **Test Target**: Verify 查詢知識庫時先執行 SQL 精確/模糊匹配（Layer 1），信心度 > 0.7 直接回覆，否則轉接人工。
@@ -602,37 +602,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-07 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-07.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -679,7 +679,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-08: Basic Escalation Manager — No SLA
 **Test Target**: Verify 無法匹配的查詢必須進入轉接佇列，支援指派與結案。
@@ -691,37 +691,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-08 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-08.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -768,7 +768,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-09: Structured Logger — JSON Format
 **Test Target**: Verify 所有日誌必須以 JSON 結構化格式輸出，包含 timestamp / level / service / message。
@@ -780,37 +780,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-09 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-09.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -857,7 +857,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-10: API Response Format — ApiResponse / PaginatedResponse
 **Test Target**: Verify 所有 API 回應必須使用統一的 `ApiResponse[T]` 或 `PaginatedResponse[T]` 泛型格式。
@@ -869,37 +869,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-10 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-10.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -946,7 +946,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-11: Health Check Endpoint
 **Test Target**: Verify 系統必須提供健康檢查端點供 Docker / 監控系統使用。
@@ -958,37 +958,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-11 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-11.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -1035,7 +1035,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-12: Database Schema — All Core Tables
 **Test Target**: Verify 必須建立所有核心資料表，包含 Phase 2/3 預留欄位，避免後續 ALTER TABLE。
@@ -1047,37 +1047,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-12 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-12.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -1124,7 +1124,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
 #### FR-13: Docker Compose Development Environment
 **Test Target**: Verify 提供一鍵啟動的開發環境，包含 API、PostgreSQL (pgvector)、Redis。
@@ -1136,37 +1136,37 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-13 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read docs/SRS.md' in the prompt — it will fail silently.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
   >
   > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `docs/SRS.md §FR-XX section`
-  - `docs/SAD.md module spec`
-  - `src/…/fr_xx.py`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `02-architecture/SAD.md module spec`
+  - `03-development/src/…/fr_xx.py`
   - `tests/…/test_fr_xx.py`
-  - `TEST_PLAN.md entry for FR-XX`
+  - `04-testing/TEST_PLAN.md entry for FR-XX`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
   You are ARCHITECT. Your task: review the following deliverable for FR-13.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: docs/SRS.md §FR-XX section] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: docs/SAD.md module spec] ===
+  === [DOC 2: 02-architecture/SAD.md module spec] ===
   {paste full content here}
 
-  === [DOC 3: src/…/fr_xx.py] ===
+  === [DOC 3: 03-development/src/…/fr_xx.py] ===
   {paste full content here}
 
   === [DOC 4: tests/…/test_fr_xx.py] ===
   {paste full content here}
 
-  === [DOC 5: TEST_PLAN.md entry for FR-XX] ===
+  === [DOC 5: 04-testing/TEST_PLAN.md entry for FR-XX] ===
   {paste full content here}
 
   Review checklist:
@@ -1213,7 +1213,28 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   git log --oneline -1
   ```
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
+
+### P4 Milestone Pushes (10-Push Strategy ③④)
+
+> Per-FR Gate 1 only commits locally. The two **milestone pushes** below
+> write `HANDOVER.md` and push to origin — these are the crash-recovery checkpoints.
+> All FR IDs in this project: FR-01,FR-02,FR-03,FR-04,FR-05,…+8
+
+- [ ] **PUSH ③ — P4-mid** (trigger when ≥6/13 FRs have Gate 1 PASS):
+  ```bash
+  python3 harness_cli.py push-milestone --type p4-mid --project . \
+    --fr-done 6 --fr-total 13 --fr-ids FR-01,FR-02,FR-03,FR-04,FR-05,FR-06
+  ```
+  > `--fr-ids` lists the FRs with Gate 1 PASS so far. Replace `FR-01,FR-02,FR-03,FR-04,FR-05,FR-06` with actual.
+  > Writes HANDOVER.md + commits + pushes. Next session reads HANDOVER.md to resume.
+
+- [ ] **PUSH ④ — P4-pre-SSI** (trigger when all 13 FRs Gate 1 PASS, before SSI):
+  ```bash
+  python3 harness_cli.py push-milestone --type p4-pre-ssi --project . \
+    --fr-ids FR-01,FR-02,FR-03,FR-04,FR-05,FR-06,FR-07,FR-08,FR-09,FR-10,FR-11,FR-12,FR-13
+  ```
+  > Last stable snapshot before SSI modifies files. HANDOVER.md + push.
 
 
 ### 🔒 CHECKPOINT-14: Gate 3 — Phase 4 Exit
