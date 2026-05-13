@@ -24,19 +24,29 @@
       "file": "02-architecture/adr/ADR.md",
       "status": "APPROVED",
       "agent_a_session": "a-p2-adr-001",
-      "agent_b_rounds": 2,
-      "final_review_session": "b-p2-adr-r2-a8d0f260",
-      "gaps_resolved": ["ADR-GAP-01", "ADR-GAP-02", "ADR-GAP-03", "ADR-GAP-04", "ADR-GAP-05"],
-      "confidence": 8
+      "agent_b_rounds": 4,
+      "final_review_session": "a83936f10142ade00",
+      "gaps_resolved": ["ADR-GAP-01", "ADR-GAP-02", "ADR-GAP-03", "ADR-GAP-04", "ADR-GAP-05", "ADR-GAP-SQL-01", "ADR-GAP-SQL-02"],
+      "confidence": 9
     },
     {
       "id": "P2-D3",
       "file": "02-architecture/ARCHITECTURE_DIAGRAM.md",
       "status": "APPROVED",
       "agent_a_session": "a-p2-arch-001",
+      "agent_b_rounds": 2,
+      "final_review_session": "a8c0b37270e3db2dc",
+      "gaps_resolved": ["ARCH-GAP-01", "ARCH-GAP-POST-01"],
+      "confidence": 9
+    },
+    {
+      "id": "P2-D4",
+      "file": ".methodology/SAB.json",
+      "status": "APPROVED",
+      "agent_a_session": "a-p2-sad-001",
       "agent_b_rounds": 1,
-      "final_review_session": "b-p2-arch-r1-a64fe979",
-      "gaps_resolved": ["ARCH-GAP-01"],
+      "final_review_session": "a8291d81796a195fc",
+      "gaps_resolved": ["SAB-GAP-01", "SAB-GAP-02"],
       "confidence": 9
     }
   ],

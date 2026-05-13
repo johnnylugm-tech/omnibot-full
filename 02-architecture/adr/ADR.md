@@ -138,7 +138,10 @@ FR-07 requires a knowledge query engine. Phase 1 budget does not justify LLM per
 ### Decision
 Implement **Layer 1 SQL rule matching** using `ILIKE` on `knowledge_base.question` and `ANY(keywords)` array search. Fixed confidence scores: exact match = 0.95, partial match = 0.70. Threshold: score **>= 0.70** → reply; score **< 0.70** → escalate (boundary score 0.70 treated as partial-match/reply, consistent with FR-07 intent that only scores strictly below the threshold escalate). Tie-breaking by `version DESC`.
 
-SQL query pattern: `SELECT ... WHERE question ILIKE '%{term}%' OR '{term}' = ANY(keywords) AND is_active = TRUE ORDER BY version DESC LIMIT 1`
+SQL query pattern (parameterized; `$1` bound to the search term at runtime — no string interpolation per SAD.md §2.3.1):
+`SELECT ... WHERE (question ILIKE '%' || $1 || '%' OR $1 = ANY(keywords)) AND is_active = TRUE ORDER BY version DESC LIMIT 1`
+
+Note: parentheses around the OR clause are required because AND binds tighter than OR; without them, the `is_active = TRUE` filter only applies to the `ANY(keywords)` branch, allowing inactive rows through the ILIKE path.
 
 ### Rationale
 - Zero LLM cost per query in Phase 1 (LLM cost ~$0.002–$0.01/query)
@@ -280,7 +283,7 @@ Use **environment variables** injected at container start. A `.env` file (gitign
 - Zero additional infrastructure for Phase 1 MVP — no Vault or cloud secrets service required
 - Docker Compose natively supports `${VAR}` substitution from `.env` files
 - Environment variables are the de-facto standard for 12-factor apps; compatible with any cloud platform's secrets injection (GCP Cloud Run, AWS ECS, Railway)
-- A committed `.env.example` with placeholder values documents the required variable names without exposing values
+- A committed `.env.example` with placeholder values documents the required variable names without exposing values (e.g. `TELEGRAM_BOT_TOKEN={your_token}`, `LINE_CHANNEL_SECRET={your_channel_secret}`)
 
 ### Consequences
 - **Positive**: Simple; no extra service; compatible with any cloud runtime; secrets rotate without image rebuild

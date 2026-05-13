@@ -462,7 +462,7 @@ Legend: ██ = primary owner  (all 13 FRs covered, 0 unmapped)
 | Redis rate-limit key | `ratelimit:{platform}:{user_id}` | RateLimiter (FR-06) |
 | Webhook endpoint template | `POST /api/v1/webhook/{platform}` | TelegramAdapter, LINEAdapter (FR-01) |
 | Health response schema | `{status, postgres, redis, uptime_seconds}` | HealthCheck (FR-11) |
-| SQL pattern | `question ILIKE '%{term}%' OR '{term}' = ANY(keywords)` | KnowledgeRepository (FR-07) |
+| SQL pattern | `(question ILIKE '%' \|\| $1 \|\| '%' OR $1 = ANY(keywords)) AND is_active = TRUE` | KnowledgeRepository (FR-07) |
 | API response envelope | `{success, data, error, error_code}` | ApiResponse (FR-10) |
 
 ---

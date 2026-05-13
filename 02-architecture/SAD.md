@@ -238,7 +238,7 @@ class UnifiedResponse:
 **Logical Constraints**:
 - Query only `is_active = TRUE` entries
 - Exact match: `query_text` substring of `question` → confidence 0.95
-- Partial match: `question ILIKE '%{term}%'` OR `'{term}' = ANY(keywords)` → confidence 0.70
+- Partial match: `(question ILIKE '%{term}%' OR {term} = ANY(keywords))` → confidence 0.70 (parentheses required; `AND is_active = TRUE` must apply to the whole OR expression)
 - Order by `version DESC`, take first result
 - No match → `KnowledgeResult(id=-1, source="escalate", confidence=0.0)`
 - Confidence threshold: `>= 0.7` → reply; `< 0.7` → escalate
