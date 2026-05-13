@@ -1,7 +1,7 @@
 # Phase 2 Full Execution Plan -- dreamy-lederberg-2dc606
 
 > **Version**: v2.3.0 (project plan)
-> **Project**: dreamy-lederberg-2dc606
+> **Project**: omnibot-full
 > **Date**: 2026-05-13
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 2 - Architecture Design
