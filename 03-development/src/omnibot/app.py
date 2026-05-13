@@ -14,9 +14,14 @@ from fastapi.responses import JSONResponse
 from omnibot.adapters.telegram import parse_telegram_update
 from omnibot.adapters.line import parse_line_event
 from omnibot.auth.verifier import verify_signature
+from omnibot.health import HealthCheckService
 from omnibot.models import Platform
 
 app = FastAPI()
+health_service = HealthCheckService(
+    postgres_check=lambda: False,  # stub — Phase 1 no DB
+    redis_check=lambda: False,     # stub — Phase 1 no Redis
+)
 
 PLATFORM_ROUTES: Dict[str, tuple[Platform, Callable]] = {
     "telegram": (Platform.TELEGRAM, parse_telegram_update),
@@ -53,3 +58,10 @@ async def webhook(platform: str, request: Request):
             status_code=400, content={"detail": str(e)}
         )
     return JSONResponse(content=_serialize_message(message))
+
+
+@app.get("/api/v1/health")
+async def health():
+    """Health check endpoint — returns postgres/redis status and uptime."""
+    result = health_service.check()
+    return JSONResponse(content=result)
