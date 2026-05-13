@@ -1,7 +1,7 @@
 {
   "state": "ACTIVE",
-  "current_phase": 3,
-  "last_gate": 2,
+  "current_phase": 4,
+  "last_gate": null,
   "last_fr": null,
-  "last_update": "2026-05-13T16:03:53.299169+00:00"
+  "last_update": "2026-05-13T17:05:31.034853+00:00"
 }
