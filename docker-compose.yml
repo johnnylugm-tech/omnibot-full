@@ -1,0 +1,50 @@
+# [FR-13] Docker Compose Development Environment
+# 3-service stack: API + PostgreSQL (pgvector) + Redis
+# Citations: SRS.md FR-13, SAD.md 2.8.1
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: omnibot-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: omnibot
+      POSTGRES_PASSWORD: omnibot_dev
+      POSTGRES_DB: omnibot
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omnibot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: omnibot-redis
+    ports:
+      - "6379:6379"
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:-dev_redis_password}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-dev_redis_password}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  omnibot-api:
+    build:
+      context: .
+      dockerfile: 03-development/Dockerfile
+    container_name: omnibot-api
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_DSN: postgresql://omnibot:omnibot_dev@postgres:5432/omnibot
+      REDIS_URL: redis://:${REDIS_PASSWORD:-dev_redis_password}@redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
