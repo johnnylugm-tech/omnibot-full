@@ -56,6 +56,13 @@
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
+      },
+      "FR-06": {
+        "score": 99.6,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
       }
     },
     "gate2": null,
