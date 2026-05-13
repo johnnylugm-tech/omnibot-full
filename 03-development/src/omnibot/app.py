@@ -1,21 +1,27 @@
-"""[FR-01] FastAPI application with platform webhook endpoints.
+"""[FR-01][FR-02] FastAPI application with platform webhook endpoints.
 
-Citations: SAD.md:287-288 (API routes), SRS.md:13-25
+Citations: SAD.md:287-288 (API routes), SRS.md:13-41
 """
 
+import json
 from dataclasses import asdict
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from omnibot.adapters.telegram import parse_telegram_update
 from omnibot.adapters.line import parse_line_event
+from omnibot.auth.verifier import verify_signature
+from omnibot.models import Platform
 
 app = FastAPI()
 
-SUPPORTED_PLATFORMS = {"telegram": parse_telegram_update, "line": parse_line_event}
+PLATFORM_ROUTES: Dict[str, tuple[Platform, Callable]] = {
+    "telegram": (Platform.TELEGRAM, parse_telegram_update),
+    "line": (Platform.LINE, parse_line_event),
+}
 
 
 def _serialize_message(msg: Any) -> Dict[str, Any]:
@@ -29,16 +35,20 @@ def _serialize_message(msg: Any) -> Dict[str, Any]:
 
 @app.post("/api/v1/webhook/{platform}")
 async def webhook(platform: str, request: Request):
-    """Receive webhook from a platform, parse into UnifiedMessage."""
-    parser = SUPPORTED_PLATFORMS.get(platform.lower())
-    if parser is None:
+    """Receive webhook from a platform, verify signature, parse into UnifiedMessage."""
+    route = PLATFORM_ROUTES.get(platform.lower())
+    if route is None:
         return JSONResponse(
             status_code=400, content={"detail": f"Unsupported platform: {platform}"}
         )
+    platform_enum, parser = route
+
+    body = await verify_signature(request, platform_enum)
+
     try:
-        payload = await request.json()
+        payload = json.loads(body)
         message = parser(payload)
-    except (ValueError, KeyError) as e:
+    except (ValueError, KeyError, json.JSONDecodeError) as e:
         return JSONResponse(
             status_code=400, content={"detail": str(e)}
         )
