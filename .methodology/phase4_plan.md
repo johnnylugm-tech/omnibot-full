@@ -1215,13 +1215,13 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p4-mid` / `p4-pre-ssi` / Gate exit.
 
-### P4 Milestone Pushes (10-Push Strategy ③④)
+### P4 Milestone Pushes
 
 > Per-FR Gate 1 only commits locally. The two **milestone pushes** below
 > write `HANDOVER.md` and push to origin — these are the crash-recovery checkpoints.
 > All FR IDs in this project: FR-01,FR-02,FR-03,FR-04,FR-05,…+8
 
-- [ ] **PUSH ③ — P4-mid** (trigger when ≥6/13 FRs have Gate 1 PASS):
+- [ ] **P4-mid** (trigger when ≥6/13 FRs have Gate 1 PASS):
   ```bash
   python3 harness_cli.py push-milestone --type p4-mid --project . \
     --fr-done 6 --fr-total 13 --fr-ids FR-01,FR-02,FR-03,FR-04,FR-05,FR-06
@@ -1229,7 +1229,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   > `--fr-ids` lists the FRs with Gate 1 PASS so far. Replace `FR-01,FR-02,FR-03,FR-04,FR-05,FR-06` with actual.
   > Writes HANDOVER.md + commits + pushes. Next session reads HANDOVER.md to resume.
 
-- [ ] **PUSH ④ — P4-pre-SSI** (trigger when all 13 FRs Gate 1 PASS, before SSI):
+- [ ] **P4-pre-SSI** (trigger when all 13 FRs Gate 1 PASS, before SSI):
   ```bash
   python3 harness_cli.py push-milestone --type p4-pre-ssi --project . \
     --fr-ids FR-01,FR-02,FR-03,FR-04,FR-05,FR-06,FR-07,FR-08,FR-09,FR-10,FR-11,FR-12,FR-13
