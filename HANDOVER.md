@@ -2,7 +2,7 @@
 
 **Checkpoint**: `P2-exit-20260513`  
 **Phase**: P2 — Architecture & Design  
-**Generated**: 2026-05-13T12:03:23Z
+**Generated**: 2026-05-13T12:46:32Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -90,17 +90,18 @@ P2 human review APPROVED — SAD + ADR + quality manifest complete.
   - SAB.json / TECH_LEAD: **APPROVE**
 
 **Recently Committed Files:**
+  - `.methodology/phase2_plan.md`
+  - `.methodology/quality_manifest.json`
+  - `harness`
+  - `HANDOVER.md`
   - `.methodology/SAB.json`
   - `.methodology/sessions_spawn.log`
   - `02-architecture/ARCHITECTURE_DIAGRAM.md`
   - `02-architecture/SAD.md`
   - `02-architecture/adr/ADR.md`
   - `.methodology/phase3_plan.md`
-  - `HANDOVER.md`
-  - `harness`
   - `tests/fr_coverage_stub.py`
   - `.github/workflows/harness_quality_gate.yml`
-  - `.methodology/phase2_plan.md`
   - `.methodology/state.json`
   - `01-requirements/CONSTRAINTS.md`
   - `01-requirements/SPEC_TRACKING.md`
@@ -109,7 +110,6 @@ P2 human review APPROVED — SAD + ADR + quality manifest complete.
   - `CLAUDE.md`
   - `.gitignore`
   - `.gitmodules`
-  - `.methodology/phase1_plan.md`
 
 ## 接下來的工作
 
