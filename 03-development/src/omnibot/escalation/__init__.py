@@ -34,6 +34,7 @@ class EscalationManager:
     """
 
     def __init__(self) -> None:
+        """Initialize in-memory escalation queue with auto-incrementing IDs."""
         self._records: Dict[int, EscalationRecord] = {}
         self._next_id: int = 1
 

@@ -3,7 +3,7 @@
 Citations: SRS.md:13-25,44-55, SAD.md:140-167
 """
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, Optional
@@ -46,6 +46,14 @@ class UnifiedMessage:
     received_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     unified_user_id: str = ""
     reply_token: Optional[str] = None
+
+    def to_json_dict(self) -> Dict[str, Any]:
+        """Serialize to a JSON-safe dict with ISO8601 datetime conversion."""
+        data = asdict(self)
+        for key, value in data.items():
+            if isinstance(value, datetime):
+                data[key] = value.isoformat()
+        return data
 
 
 @dataclass(frozen=True)

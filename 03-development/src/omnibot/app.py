@@ -4,9 +4,9 @@ Citations: SAD.md:287-288 (API routes), SRS.md:13-41
 """
 
 import json
-from dataclasses import asdict
-from datetime import datetime
-from typing import Any, Callable, Dict
+import logging
+from datetime import datetime, timezone
+from typing import Callable, Dict
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -15,9 +15,37 @@ from omnibot.adapters.telegram import parse_telegram_update
 from omnibot.adapters.line import parse_line_event
 from omnibot.auth.verifier import verify_signature
 from omnibot.health import HealthCheckService
-from omnibot.models import Platform
+from omnibot.models import Platform, UnifiedMessage
+
+logger = logging.getLogger("omnibot.app")
 
 app = FastAPI()
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Global error handler — log structured error and return consistent 500 response.
+
+    Citations: SRS.md NFR-SEC-03 (secure error handling)
+    """
+    logger.error(
+        "Unhandled exception",
+        extra={
+            "path": request.url.path,
+            "method": request.method,
+            "error_type": type(exc).__name__,
+            "error_message": str(exc),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        },
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "internal_error",
+            "error_type": type(exc).__name__,
+            "detail": "An unexpected error occurred. The incident has been logged.",
+        },
+    )
 health_service = HealthCheckService(
     postgres_check=lambda: False,  # stub — Phase 1 no DB
     redis_check=lambda: False,     # stub — Phase 1 no Redis
@@ -27,15 +55,6 @@ PLATFORM_ROUTES: Dict[str, tuple[Platform, Callable]] = {
     "telegram": (Platform.TELEGRAM, parse_telegram_update),
     "line": (Platform.LINE, parse_line_event),
 }
-
-
-def _serialize_message(msg: Any) -> Dict[str, Any]:
-    """Serialize a UnifiedMessage to a JSON-safe dict."""
-    data = asdict(msg)
-    for key, value in data.items():
-        if isinstance(value, datetime):
-            data[key] = value.isoformat()
-    return data
 
 
 @app.post("/api/v1/webhook/{platform}")
@@ -52,12 +71,12 @@ async def webhook(platform: str, request: Request):
 
     try:
         payload = json.loads(body)
-        message = parser(payload)
+        message: UnifiedMessage = parser(payload)
     except (ValueError, KeyError, json.JSONDecodeError) as e:
         return JSONResponse(
             status_code=400, content={"detail": str(e)}
         )
-    return JSONResponse(content=_serialize_message(message))
+    return JSONResponse(content=message.to_json_dict())
 
 
 @app.get("/api/v1/health")
