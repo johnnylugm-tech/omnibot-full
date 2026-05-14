@@ -1,0 +1,230 @@
+"""[FR-12] Database Schema — All Core Tables.
+
+8-table PostgreSQL schema with pgvector extension.
+Phase 1 core columns + Phase 2/3 reserved columns (e.g. sla_deadline, vector(384)).
+
+Citations: SRS.md FR-12 section, SAD.md 2.7.1 Schema Summary
+"""
+
+TABLE_DEFS = [
+    ("users", """
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    unified_user_id UUID NOT NULL DEFAULT gen_random_uuid(),
+    platform VARCHAR(32) NOT NULL,
+    platform_user_id VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(platform, platform_user_id)
+);
+"""),
+    ("conversations", """
+CREATE TABLE IF NOT EXISTS conversations (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    satisfaction_score FLOAT,
+    first_contact_resolution BOOLEAN,
+    scope_type VARCHAR(64),
+    dst_state JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""),
+    ("messages", """
+CREATE TABLE IF NOT EXISTS messages (
+    id SERIAL PRIMARY KEY,
+    conversation_id INTEGER NOT NULL REFERENCES conversations(id),
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    content TEXT NOT NULL,
+    message_type VARCHAR(32) NOT NULL DEFAULT 'TEXT',
+    intent_detected VARCHAR(128),
+    sentiment_category VARCHAR(32),
+    sentiment_intensity FLOAT,
+    knowledge_source VARCHAR(64),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""),
+    ("knowledge_base", """
+CREATE TABLE IF NOT EXISTS knowledge_base (
+    id SERIAL PRIMARY KEY,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    keywords TEXT[] NOT NULL DEFAULT '{}',
+    embeddings vector(384),
+    version INTEGER NOT NULL DEFAULT 1,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""),
+    ("platform_configs", """
+CREATE TABLE IF NOT EXISTS platform_configs (
+    id SERIAL PRIMARY KEY,
+    platform VARCHAR(32) NOT NULL UNIQUE,
+    rate_limit_rps INTEGER NOT NULL DEFAULT 10,
+    webhook_secret_key_ref TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""),
+    ("escalation_queue", """
+CREATE TABLE IF NOT EXISTS escalation_queue (
+    id SERIAL PRIMARY KEY,
+    conversation_id INTEGER NOT NULL REFERENCES conversations(id),
+    reason TEXT NOT NULL,
+    assigned_agent VARCHAR(128),
+    picked_at TIMESTAMPTZ,
+    resolved_at TIMESTAMPTZ,
+    priority INTEGER NOT NULL DEFAULT 1,
+    sla_deadline TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""),
+    ("user_feedback", """
+CREATE TABLE IF NOT EXISTS user_feedback (
+    id SERIAL PRIMARY KEY,
+    message_id INTEGER NOT NULL REFERENCES messages(id),
+    feedback VARCHAR(16) NOT NULL CHECK (feedback IN ('thumbs_up', 'thumbs_down')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""),
+    ("security_logs", """
+CREATE TABLE IF NOT EXISTS security_logs (
+    id SERIAL PRIMARY KEY,
+    layer VARCHAR(32) NOT NULL,
+    blocked BOOLEAN NOT NULL DEFAULT FALSE,
+    source_ip TEXT,
+    details JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""),
+]
+from inspect import signature as _mutmut_signature
+from typing import Annotated
+from typing import Callable
+from typing import ClassVar
+
+
+MutantDict = Annotated[dict[str, Callable], "Mutant"]
+
+
+def _mutmut_trampoline(orig, mutants, call_args, call_kwargs, self_arg = None):
+    """Forward call to original or mutated function, depending on the environment"""
+    import os
+    mutant_under_test = os.environ['MUTANT_UNDER_TEST']
+    if mutant_under_test == 'fail':
+        from mutmut.__main__ import MutmutProgrammaticFailException
+        raise MutmutProgrammaticFailException('Failed programmatically')      
+    elif mutant_under_test == 'stats':
+        from mutmut.__main__ import record_trampoline_hit
+        record_trampoline_hit(orig.__module__ + '.' + orig.__name__)
+        result = orig(*call_args, **call_kwargs)
+        return result
+    prefix = orig.__module__ + '.' + orig.__name__ + '__mutmut_'
+    if not mutant_under_test.startswith(prefix):
+        result = orig(*call_args, **call_kwargs)
+        return result
+    mutant_name = mutant_under_test.rpartition('.')[-1]
+    if self_arg:
+        # call to a class method where self is not bound
+        result = mutants[mutant_name](self_arg, *call_args, **call_kwargs)
+    else:
+        result = mutants[mutant_name](*call_args, **call_kwargs)
+    return result
+
+
+def x_get_schema_sql__mutmut_orig() -> str:
+    """Return the complete schema as a SQL string.
+
+    Combines all table DDLs in dependency order.
+    Enable pgvector extension first.
+    """
+    setup = "CREATE EXTENSION IF NOT EXISTS vector;\n"
+    return setup + "\n".join(ddl for _, ddl in TABLE_DEFS)
+
+
+def x_get_schema_sql__mutmut_1() -> str:
+    """Return the complete schema as a SQL string.
+
+    Combines all table DDLs in dependency order.
+    Enable pgvector extension first.
+    """
+    setup = None
+    return setup + "\n".join(ddl for _, ddl in TABLE_DEFS)
+
+
+def x_get_schema_sql__mutmut_2() -> str:
+    """Return the complete schema as a SQL string.
+
+    Combines all table DDLs in dependency order.
+    Enable pgvector extension first.
+    """
+    setup = "XXCREATE EXTENSION IF NOT EXISTS vector;\nXX"
+    return setup + "\n".join(ddl for _, ddl in TABLE_DEFS)
+
+
+def x_get_schema_sql__mutmut_3() -> str:
+    """Return the complete schema as a SQL string.
+
+    Combines all table DDLs in dependency order.
+    Enable pgvector extension first.
+    """
+    setup = "create extension if not exists vector;\n"
+    return setup + "\n".join(ddl for _, ddl in TABLE_DEFS)
+
+
+def x_get_schema_sql__mutmut_4() -> str:
+    """Return the complete schema as a SQL string.
+
+    Combines all table DDLs in dependency order.
+    Enable pgvector extension first.
+    """
+    setup = "CREATE EXTENSION IF NOT EXISTS VECTOR;\n"
+    return setup + "\n".join(ddl for _, ddl in TABLE_DEFS)
+
+
+def x_get_schema_sql__mutmut_5() -> str:
+    """Return the complete schema as a SQL string.
+
+    Combines all table DDLs in dependency order.
+    Enable pgvector extension first.
+    """
+    setup = "CREATE EXTENSION IF NOT EXISTS vector;\n"
+    return setup - "\n".join(ddl for _, ddl in TABLE_DEFS)
+
+
+def x_get_schema_sql__mutmut_6() -> str:
+    """Return the complete schema as a SQL string.
+
+    Combines all table DDLs in dependency order.
+    Enable pgvector extension first.
+    """
+    setup = "CREATE EXTENSION IF NOT EXISTS vector;\n"
+    return setup + "\n".join(None)
+
+
+def x_get_schema_sql__mutmut_7() -> str:
+    """Return the complete schema as a SQL string.
+
+    Combines all table DDLs in dependency order.
+    Enable pgvector extension first.
+    """
+    setup = "CREATE EXTENSION IF NOT EXISTS vector;\n"
+    return setup + "XX\nXX".join(ddl for _, ddl in TABLE_DEFS)
+
+x_get_schema_sql__mutmut_mutants : ClassVar[MutantDict] = {
+'x_get_schema_sql__mutmut_1': x_get_schema_sql__mutmut_1, 
+    'x_get_schema_sql__mutmut_2': x_get_schema_sql__mutmut_2, 
+    'x_get_schema_sql__mutmut_3': x_get_schema_sql__mutmut_3, 
+    'x_get_schema_sql__mutmut_4': x_get_schema_sql__mutmut_4, 
+    'x_get_schema_sql__mutmut_5': x_get_schema_sql__mutmut_5, 
+    'x_get_schema_sql__mutmut_6': x_get_schema_sql__mutmut_6, 
+    'x_get_schema_sql__mutmut_7': x_get_schema_sql__mutmut_7
+}
+
+def get_schema_sql(*args, **kwargs):
+    result = _mutmut_trampoline(x_get_schema_sql__mutmut_orig, x_get_schema_sql__mutmut_mutants, args, kwargs)
+    return result 
+
+get_schema_sql.__signature__ = _mutmut_signature(x_get_schema_sql__mutmut_orig)
+x_get_schema_sql__mutmut_orig.__name__ = 'x_get_schema_sql'
