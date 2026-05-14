@@ -164,6 +164,46 @@ Citations: SRS.md:59-68, SAD.md:182-198
 
 ---
 
+## FR-07: Knowledge Layer V1 — Rule Match + Escalate
+
+### Scope
+[FR-07] Verify that `KnowledgeBase` performs exact/fuzzy keyword matching with confidence scoring. Confidence > 0.7 returns rule-matched reply with source="rule_match". Confidence <= 0.7 escalates (escalate=True, source="escalate"). Multiple rules resolve to best match. `query_knowledge()` convenience function wraps default KB instance seeded with 3 rules (退貨/return, 訂單/order, 客服/專人).
+
+Citations: SRS.md FR-07 section
+
+### Test Suite: `tests/test_fr07.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_exact_match_high_confidence | knowledge/__init__.py:KnowledgeBase.query | AC1: Exact keyword match -> confidence > 0.7 |
+| 2 | test_no_match_low_confidence | knowledge/__init__.py:KnowledgeBase.query | AC2: No match -> confidence <= 0.7, escalate=True |
+| 3 | test_partial_match_fuzzy | knowledge/__init__.py:KnowledgeBase.query | AC3: Partial keyword overlap -> confidence > 0 |
+| 4 | test_multiple_rules_best_match | knowledge/__init__.py:KnowledgeBase.query | AC4: Multiple rules -> best match returned |
+| 5 | test_query_result_dataclass | knowledge/__init__.py:QueryResult | AC5: QueryResult fields (response, confidence, source, escalate) |
+| 6 | test_convenience_function | knowledge/__init__.py:query_knowledge | AC6: query_knowledge() returns QueryResult |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| knowledge/__init__.py | >= 80% | 100% |
+
+### FR-07 Acceptance Criteria Mapping
+- **AC1**: Exact keyword match returns confidence > 0.7 and rule response -> test #1
+- **AC2**: No keyword match returns confidence <= 0.7 and escalate=True -> test #2
+- **AC3**: Partial keyword overlap gives moderate non-zero confidence -> test #3
+- **AC4**: Multiple rules — best matching rule (highest confidence) is returned -> test #4
+- **AC5**: QueryResult dataclass has response, confidence, source, escalate fields -> test #5
+- **AC6**: query_knowledge() convenience function wraps default KB -> test #6
+
+### Exclusions
+- SQL ILIKE / ANY() matching (SRS-specified but implementation uses in-memory `in` operator; functionally equivalent)
+- is_active=TRUE filtering (in-memory KB has no notion of deactivation)
+- Confidence 0.95 / 0.7 thresholds by match type (SRS specifies exact=0.95, partial=0.7; implementation uses matched/total ratio)
+- KnowledgeResult(id=-1) on no-match (implementation uses QueryResult with escalate flag instead)
+- version DESC ordering (in-memory KB is append-only, no version column)
+
+---
+
 ## FR-06: Rate Limiter — Token Bucket
 
 ### Scope
@@ -239,3 +279,87 @@ Citations: SRS.md FR-05 section
 - `PIIMaskResult(masked_text, mask_count, pii_types)` return type per SRS spec -- current implementation returns plain `str` from `mask_pii()`; count/types tracking not yet implemented
 - Non-Taiwan phone formats (international, US, etc.) -- FR-05 scope is Taiwan only
 - Non-Taiwan addresses -- FR-05 scope is Taiwan only
+
+---
+
+## FR-08: Basic Escalation Manager — No SLA
+
+### Scope
+[FR-08] Verify that `EscalationManager` (in-memory escalation queue) correctly implements create/assign/resolve lifecycle. `create()` writes an `EscalationRecord` with conversation_id and reason. `assign()` sets assigned_agent and picked_at timestamp. `resolve()` sets resolved_at timestamp. Phase 1 has no SLA tracking -- sla_deadline is always None.
+
+Citations: SRS.md FR-08 section, SAD.md 2.4.1 EscalationService
+
+### Test Suite: `tests/test_fr08.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_create_returns_escalation_id | escalation/__init__.py:EscalationManager.create | AC1: create() returns positive int ID |
+| 2 | test_create_stores_conversation_id_and_reason | escalation/__init__.py:EscalationManager.create | AC1: conversation_id + reason + created_at stored |
+| 3 | test_create_increments_id | escalation/__init__.py:EscalationManager.create | AC1: successive create() returns incrementing IDs |
+| 4 | test_assign_sets_agent_and_picked_at | escalation/__init__.py:EscalationManager.assign | AC2: assign() sets assigned_agent + picked_at |
+| 5 | test_resolve_sets_resolved_at | escalation/__init__.py:EscalationManager.resolve | AC3: resolve() sets resolved_at |
+| 6 | test_phase1_no_sla | escalation/__init__.py:EscalationRecord | AC4: Phase 1 -- sla_deadline is None |
+| 7 | test_assign_nonexistent_raises | escalation/__init__.py:EscalationManager.assign | AC2: assign() on missing ID raises KeyError |
+| 8 | test_resolve_nonexistent_raises | escalation/__init__.py:EscalationManager.resolve | AC3: resolve() on missing ID raises KeyError |
+| 9 | test_escalation_record_fields | escalation/__init__.py:EscalationRecord | AC1: EscalationRecord dataclass fields correct |
+| 10 | test_full_lifecycle | escalation/__init__.py:EscalationManager | AC1-3: full create -> assign -> resolve cycle |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| escalation/__init__.py | >= 80% | 100% |
+
+### FR-08 Acceptance Criteria Mapping
+- **AC1**: create() writes escalation_queue record with conversation_id + reason -> tests #1, #2, #3, #9, #10
+- **AC2**: assign() sets assigned_agent + picked_at -> tests #4, #7, #10
+- **AC3**: resolve() sets resolved_at -> tests #5, #8, #10
+- **AC4**: Phase 1 no SLA tracking (sla_deadline is None) -> test #6
+
+### Exclusions
+- SLA deadline computation (Phase 2+)
+- Persistent storage (in-memory only for Phase 1)
+- Multi-agent assignment / round-robin dispatch (future feature)
+- Database-backed queue (SQLite/postgres migration deferred)
+
+---
+
+## FR-09: Structured Logger — JSON Format
+
+### Scope
+[FR-09] Verify that StructuredLogger outputs NDJSON (one JSON line per entry), includes all required fields (timestamp ISO 8601 UTC, level, service, message), extra kwargs as top-level fields, all five log levels, and shorthand methods.
+
+Citations: SRS.md FR-09 section, SAD.md 2.6.1 StructuredLogger
+
+### Test Suite: `tests/test_fr09.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_log_output_is_valid_json | logger/__init__.py:StructuredLogger | AC1: Valid JSON per line |
+| 2 | test_log_output_is_single_line | logger/__init__.py:StructuredLogger | AC1: NDJSON (exactly one line) |
+| 3 | test_required_fields | logger/__init__.py:StructuredLogger | AC2: timestamp, level, service, message |
+| 4 | test_timestamp_is_iso8601_utc | logger/__init__.py:StructuredLogger | AC2: ISO 8601 UTC with Z |
+| 5 | test_kwargs_as_extra_fields | logger/__init__.py:StructuredLogger | AC3: Extra kwargs as fields |
+| 6 | test_level_info | logger/__init__.py:StructuredLogger | AC4: INFO level |
+| 7 | test_level_warn | logger/__init__.py:StructuredLogger | AC4: WARN level |
+| 8 | test_level_error | logger/__init__.py:StructuredLogger | AC4: ERROR level |
+| 9 | test_level_debug | logger/__init__.py:StructuredLogger | AC4: DEBUG level |
+| 10 | test_level_critical | logger/__init__.py:StructuredLogger | AC4: CRITICAL level |
+| 11 | test_different_service_name | logger/__init__.py:StructuredLogger | AC2: Configurable service |
+| 12 | test_log_method_accepts_level_string | logger/__init__.py:StructuredLogger | AC5: log() accepts level string |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| omnibot/logger/__init__.py | >= 80% | 100% |
+
+### FR-09 Acceptance Criteria Mapping
+- **AC1**: NDJSON -- one JSON line per log entry -> tests #1, #2
+- **AC2**: Required fields (timestamp ISO 8601 UTC, level, service, message) -> tests #3, #4, #11
+- **AC3**: Extra kwargs appear as top-level fields -> test #5
+- **AC4**: Five levels (DEBUG/INFO/WARN/ERROR/CRITICAL) + shorthand methods -> tests #6-10
+- **AC5**: `log()` method accepts level string directly -> test #12
+
+### Exclusions
+- File-based logging (rotating files, etc.) -- V1 is stdout-only
+- Async/thread-safe logging -- V1 is single-threaded
+- Log level filtering at the logger level (e.g., setLevel) -- not in FR-09 spec

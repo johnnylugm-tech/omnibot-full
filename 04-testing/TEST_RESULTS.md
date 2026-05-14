@@ -325,3 +325,191 @@ No missed lines. All 21 statements in omnibot/pii/__init__.py are exercised.
 - FR-05 PII masking: HIGH (100% line coverage, all 6 AC verified)
 - FR-05 escalation: HIGH (both positive and negative paths covered)
 - Overall FR-05: 9/10 (deducted 1 for PIIMaskResult return type gap vs SRS spec)
+
+---
+
+## FR-07: Knowledge Layer V1 — Rule Match + Escalate
+
+Citations: SRS.md FR-07 section
+
+### Run Summary
+- **Date**: 2026-05-14
+- **Python**: 3.11.15
+- **pytest**: 9.0.3
+- **pytest-cov**: 7.1.0
+
+### Test Results
+```
+tests/test_fr07.py::test_exact_match_high_confidence PASSED
+tests/test_fr07.py::test_no_match_low_confidence PASSED
+tests/test_fr07.py::test_partial_match_fuzzy PASSED
+tests/test_fr07.py::test_multiple_rules_best_match PASSED
+tests/test_fr07.py::test_query_result_dataclass PASSED
+tests/test_fr07.py::test_convenience_function PASSED
+
+6 passed, 0 failed, 0 skipped in 0.02s
+```
+
+### Coverage Report — FR-07 Modules
+
+| Module | Stmts | Miss | Cover | Missing |
+|--------|-------|------|-------|---------|
+| knowledge/__init__.py | 33 | 0 | 100% | — |
+| **TOTAL** | 33 | 0 | **100%** | — |
+
+### Missed Lines Analysis
+No missed lines. All 33 statements in knowledge/__init__.py are exercised.
+
+### Acceptance Criteria Verification
+- **AC1** (Exact keyword match returns confidence > 0.7 with rule response): PASSED via test #1
+- **AC2** (No keyword match returns confidence <= 0.7 and escalate=True): PASSED via test #2
+- **AC3** (Partial keyword overlap gives moderate non-zero confidence): PASSED via test #3
+- **AC4** (Multiple rules — best matching rule returned): PASSED via test #4
+- **AC5** (QueryResult dataclass fields): PASSED via test #5
+- **AC6** (query_knowledge() convenience function): PASSED via test #6
+
+### SRS Gap Analysis
+| SRS Spec | Implementation | Delta |
+|----------|---------------|-------|
+| SQL ILIKE + ANY(keywords) | Python `in` operator substring match | Functionally equivalent for in-memory store |
+| is_active=TRUE filter | Not implemented | In-memory KB has no deactivation concept |
+| exact confidence 0.95, partial 0.7 | matched/total ratio (0.0-1.0) | Same ordering semantics, different magnitudes |
+| KnowledgeResult(id=-1, source="escalate") | QueryResult(escalate=True, source="escalate") | Naming differs, semantics preserved |
+| version DESC ordering | Not implemented | Append-only KB, no version column |
+
+### Risk Assessment
+- **Core keyword matching**: FULLY covered, 6/6 tests pass, 33/33 statements covered
+- **Confidence scoring**: Both high-confidence (0.5->0.7 boundary) and low-confidence (0.0) paths exercised
+- **Escalation gate**: Both escalate=True (no match) and escalate=False (high match) paths covered
+- **Multiple rules**: Best-match resolution verified
+- **Dataclass integrity**: All fields verified
+- **SRS gaps**: Implementation uses in-memory substring matching instead of SQL ILIKE. Low risk for V1 prototype; needs migration path if KB grows beyond ~100 rules.
+
+### Confidence
+- FR-07 knowledge layer: HIGH (100% line coverage, all 6 AC verified)
+- Overall FR-07: 9/10 (deducted 1 for SQL ILIKE / is_active / version DESC gaps vs SRS spec)
+
+---
+
+## FR-08: Basic Escalation Manager -- No SLA
+
+Citations: SRS.md FR-08 section, SAD.md 2.4.1 EscalationService
+
+### Run Summary
+- **Date**: 2026-05-14
+- **Python**: 3.11.15
+- **pytest**: 9.0.3
+- **pytest-cov**: 7.1.0
+
+### Test Results
+```
+tests/test_fr08.py::test_create_returns_escalation_id PASSED
+tests/test_fr08.py::test_create_stores_conversation_id_and_reason PASSED
+tests/test_fr08.py::test_create_increments_id PASSED
+tests/test_fr08.py::test_assign_sets_agent_and_picked_at PASSED
+tests/test_fr08.py::test_resolve_sets_resolved_at PASSED
+tests/test_fr08.py::test_phase1_no_sla PASSED
+tests/test_fr08.py::test_assign_nonexistent_raises PASSED
+tests/test_fr08.py::test_resolve_nonexistent_raises PASSED
+tests/test_fr08.py::test_escalation_record_fields PASSED
+tests/test_fr08.py::test_full_lifecycle PASSED
+
+10 passed, 0 failed, 0 skipped in 0.02s
+```
+
+### Coverage Report -- FR-08 Modules
+
+| Module | Stmts | Miss | Cover | Missing |
+|--------|-------|------|-------|---------|
+| escalation/__init__.py | 36 | 0 | 100% | -- |
+| **TOTAL** | 36 | 0 | **100%** | -- |
+
+### Missed Lines Analysis
+No missed lines. All 36 statements in escalation/__init__.py are exercised.
+
+### Acceptance Criteria Verification
+- **AC1** (create() writes escalation_queue record with conversation_id + reason): PASSED via tests #1, #2, #3, #9, #10
+- **AC2** (assign() sets assigned_agent + picked_at): PASSED via tests #4, #7, #10
+- **AC3** (resolve() sets resolved_at): PASSED via tests #5, #8, #10
+- **AC4** (Phase 1 no SLA tracking -- sla_deadline is None): PASSED via test #6
+
+### Risk Assessment
+- **Core lifecycle (AC1-AC3)**: FULLY covered -- create, assign, resolve all exercised with both success and error paths
+- **EscalationRecord dataclass**: All 7 fields verified, including Optional defaults (assigned_agent, picked_at, resolved_at, sla_deadline)
+- **Error handling**: Both assign() and resolve() KeyError paths on non-existent IDs covered
+- **Full lifecycle**: End-to-end create -> assign -> resolve cycle verified with temporal ordering (resolved_at >= picked_at)
+- **Phase 1 constraint**: sla_deadline is None confirmed; no SLA computation leaks into Phase 1
+- **No gaps or missed lines**
+
+### Confidence
+- FR-08 escalation manager: HIGH (100% line coverage, all 4 AC verified)
+- Overall FR-08: 10/10
+
+---
+
+## FR-09: Structured Logger — JSON Format
+
+Citations: SRS.md FR-09 section, SAD.md 2.6.1 StructuredLogger
+
+### Run Summary
+- **Date**: 2026-05-14
+- **Python**: 3.11.15
+- **pytest**: 9.0.3
+- **pytest-cov**: 7.1.0
+
+### Test Results
+```
+tests/test_fr09.py::test_log_output_is_valid_json PASSED
+tests/test_fr09.py::test_log_output_is_single_line PASSED
+tests/test_fr09.py::test_required_fields PASSED
+tests/test_fr09.py::test_timestamp_is_iso8601_utc PASSED
+tests/test_fr09.py::test_kwargs_as_extra_fields PASSED
+tests/test_fr09.py::test_level_info PASSED
+tests/test_fr09.py::test_level_warn PASSED
+tests/test_fr09.py::test_level_error PASSED
+tests/test_fr09.py::test_level_debug PASSED
+tests/test_fr09.py::test_level_critical PASSED
+tests/test_fr09.py::test_different_service_name PASSED
+tests/test_fr09.py::test_log_method_accepts_level_string PASSED
+
+12 passed, 0 failed, 0 skipped in 0.02s
+```
+
+### Coverage Report — FR-09 Module
+
+| Module | Stmts | Miss | Cover | Missing |
+|--------|-------|------|-------|---------|
+| omnibot/logger/__init__.py | 23 | 0 | 100% | -- |
+| **TOTAL** | **23** | **0** | **100%** | -- |
+
+### Missed Lines Analysis
+No missed lines. All 23 statements in omnibot/logger/__init__.py are exercised.
+
+### Acceptance Criteria Verification
+- **AC1** (NDJSON -- one JSON line per log entry): PASSED via tests #1, #2
+- **AC2** (Required fields: timestamp ISO 8601 UTC, level, service, message): PASSED via tests #3, #4, #11
+- **AC3** (Extra kwargs appear as top-level fields): PASSED via test #5
+- **AC4** (Five levels + shorthand methods): PASSED via tests #6-10
+- **AC5** (`log()` method accepts level string directly): PASSED via test #12
+
+### SRS Gap Analysis
+| SRS Spec | Implementation | Delta |
+|----------|---------------|-------|
+| NDJSON one JSON line per entry | `print(json.dumps(...))` to stdout | Exact match |
+| timestamp ISO 8601 UTC | `datetime.utcnow().isoformat() + "Z"` | Exact match |
+| Required fields (timestamp, level, service, message) | All four always emitted | Exact match |
+| Extra kwargs as fields | kwargs merged into JSON dict | Exact match |
+| 5 levels + shorthand methods | debug/info/warn/error/critical + log() | Exact match |
+
+### Risk Assessment
+- **NDJSON format**: 2/2 tests pass, valid JSON parse + single-line verified
+- **Required fields**: 3/3 tests pass, timestamp ISO 8601 UTC, service configurability, all required keys present
+- **Extra kwargs**: 1/1 test pass, confidence and source fields correctly added
+- **Log levels**: 5/5 tests pass, all five levels emit correct level string
+- **Generic log() method**: 1/1 test pass, level/service/message args accepted
+- **SRS compliance**: FULL -- no gaps detected between SRS spec and implementation
+- **No missed lines or edge case gaps**
+
+### Confidence
+- FR-09 structured logger: HIGH (100% line coverage, 23/23 statements, all 5 AC verified)
+- Overall FR-09: 10/10 (all AC directly verified, zero SRS gaps)
