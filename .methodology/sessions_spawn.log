@@ -76,3 +76,10 @@
 {"timestamp": "2026-05-14T12:25:00", "fr_id": "FR-12", "role": "reviewer", "session_id": "p5-rev-8cada890", "status": "success", "confidence": 10}
 {"timestamp": "2026-05-14T12:26:00", "fr_id": "FR-13", "role": "developer", "session_id": "p5-dev-a490f0a0", "status": "success", "confidence": 10}
 {"timestamp": "2026-05-14T12:27:00", "fr_id": "FR-13", "role": "reviewer", "session_id": "p5-rev-d09175d4", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T14:14:00", "fr_id": "FR-07", "role": "reviewer", "session_id": "p5-remedial-rev-1d65ea9e", "status": "APPROVE", "confidence": 10, "phase": 5, "remedial": true}
+{"timestamp": "2026-05-14T14:16:00", "fr_id": "FR-08", "role": "reviewer", "session_id": "p5-remedial-rev-9dbbdf25", "status": "APPROVE", "confidence": 10, "phase": 5, "remedial": true}
+{"timestamp": "2026-05-14T14:18:00", "fr_id": "FR-09", "role": "reviewer", "session_id": "p5-remedial-rev-4aa1f887", "status": "APPROVE", "confidence": 10, "phase": 5, "remedial": true}
+{"timestamp": "2026-05-14T14:20:00", "fr_id": "FR-10", "role": "reviewer", "session_id": "p5-remedial-rev-90861aa7", "status": "APPROVE", "confidence": 10, "phase": 5, "remedial": true}
+{"timestamp": "2026-05-14T14:22:00", "fr_id": "FR-11", "role": "reviewer", "session_id": "p5-remedial-rev-d1226e84", "status": "APPROVE", "confidence": 10, "phase": 5, "remedial": true}
+{"timestamp": "2026-05-14T14:24:00", "fr_id": "FR-12", "role": "reviewer", "session_id": "p5-remedial-rev-9190710d", "status": "APPROVE", "confidence": 10, "phase": 5, "remedial": true}
+{"timestamp": "2026-05-14T14:26:00", "fr_id": "FR-13", "role": "reviewer", "session_id": "p5-remedial-rev-f7212473", "status": "APPROVE", "confidence": 10, "phase": 5, "remedial": true}
