@@ -26,6 +26,12 @@
 
 > *Mutation testing: mutmut not installed (same as Gate 3, accepted at 70)
 
+## Phase 5 Baseline Reference
+
+> **Traceability**: This report builds upon Phase 5 system testing.
+> - Baseline: `05-verification/BASELINE.md` (acceptance criteria verified)
+> - Verification report: `05-verification/VERIFICATION_REPORT.md` (13/13 FRs accepted)
+
 ## Test Summary
 
 - **126/126 tests pass** (0.42s runtime)
