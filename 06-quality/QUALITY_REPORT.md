@@ -3,6 +3,7 @@
 > **Gate**: 4 | **Phase**: 6 — Quality Assurance
 > **Date**: 2026-05-14 | **Score**: 89.6/100 (Target: >=85)
 > **CRG**: 222 nodes, 1121 edges, 27 communities, 44 flows
+> **Traceability**: Built on Phase 5 outputs — BASELINE.md and VERIFICATION_REPORT.md (ASPICE SWE.6)
 
 ---
 

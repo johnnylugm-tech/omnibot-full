@@ -16,7 +16,14 @@
       "agent_a_session": "a-p2-sad-001",
       "agent_b_rounds": 3,
       "final_review_session": "b-p2-sad-r3-a883d0cb",
-      "gaps_resolved": ["SAD-GAP-01", "SAD-GAP-02", "SAD-GAP-03", "SAD-GAP-04", "SAD-GAP-05", "SAD-GAP-06"],
+      "gaps_resolved": [
+        "SAD-GAP-01",
+        "SAD-GAP-02",
+        "SAD-GAP-03",
+        "SAD-GAP-04",
+        "SAD-GAP-05",
+        "SAD-GAP-06"
+      ],
       "confidence": 9
     },
     {
@@ -26,7 +33,15 @@
       "agent_a_session": "a-p2-adr-001",
       "agent_b_rounds": 4,
       "final_review_session": "a83936f10142ade00",
-      "gaps_resolved": ["ADR-GAP-01", "ADR-GAP-02", "ADR-GAP-03", "ADR-GAP-04", "ADR-GAP-05", "ADR-GAP-SQL-01", "ADR-GAP-SQL-02"],
+      "gaps_resolved": [
+        "ADR-GAP-01",
+        "ADR-GAP-02",
+        "ADR-GAP-03",
+        "ADR-GAP-04",
+        "ADR-GAP-05",
+        "ADR-GAP-SQL-01",
+        "ADR-GAP-SQL-02"
+      ],
       "confidence": 9
     },
     {
@@ -36,7 +51,10 @@
       "agent_a_session": "a-p2-arch-001",
       "agent_b_rounds": 2,
       "final_review_session": "a8c0b37270e3db2dc",
-      "gaps_resolved": ["ARCH-GAP-01", "ARCH-GAP-POST-01"],
+      "gaps_resolved": [
+        "ARCH-GAP-01",
+        "ARCH-GAP-POST-01"
+      ],
       "confidence": 9
     },
     {
@@ -46,72 +64,155 @@
       "agent_a_session": "a-p2-sad-001",
       "agent_b_rounds": 1,
       "final_review_session": "a8291d81796a195fc",
-      "gaps_resolved": ["SAB-GAP-01", "SAB-GAP-02"],
+      "gaps_resolved": [
+        "SAB-GAP-01",
+        "SAB-GAP-02"
+      ],
       "confidence": 9
     }
   ],
   "layers": [
     {
       "name": "harness_tooling",
-      "modules": ["harness/**/"],
+      "modules": [
+        "harness/**/"
+      ],
       "allowed_dependencies": []
     },
     {
       "name": "platform_adapter",
-      "modules": [],
-      "allowed_dependencies": ["pipeline", "observability"]
+      "modules": [
+        "03-development/src/omnibot/adapters/"
+      ],
+      "allowed_dependencies": [
+        "pipeline",
+        "observability"
+      ]
     },
     {
       "name": "identity",
-      "modules": [],
-      "allowed_dependencies": ["data_layer", "observability"]
+      "modules": [
+        "03-development/src/omnibot/auth/"
+      ],
+      "allowed_dependencies": [
+        "data_layer",
+        "observability"
+      ]
     },
     {
       "name": "pipeline",
-      "modules": [],
-      "allowed_dependencies": ["knowledge", "escalation", "observability", "infrastructure"]
+      "modules": [
+        "03-development/src/omnibot/__init__.py",
+        "03-development/src/omnibot/app.py",
+        "03-development/src/omnibot/pii/",
+        "03-development/src/omnibot/router.py",
+        "03-development/src/omnibot/sanitizer/"
+      ],
+      "allowed_dependencies": [
+        "knowledge",
+        "escalation",
+        "observability",
+        "infrastructure"
+      ]
     },
     {
       "name": "knowledge",
-      "modules": [],
-      "allowed_dependencies": ["data_layer", "observability"]
+      "modules": [
+        "03-development/src/omnibot/knowledge/"
+      ],
+      "allowed_dependencies": [
+        "data_layer",
+        "observability"
+      ]
     },
     {
       "name": "escalation",
-      "modules": [],
-      "allowed_dependencies": ["data_layer", "observability"]
+      "modules": [
+        "03-development/src/omnibot/escalation/"
+      ],
+      "allowed_dependencies": [
+        "data_layer",
+        "observability"
+      ]
     },
     {
       "name": "api",
-      "modules": [],
-      "allowed_dependencies": ["platform_adapter", "identity", "pipeline", "knowledge", "escalation", "observability", "infrastructure"]
+      "modules": [
+        "03-development/src/omnibot/api/"
+      ],
+      "allowed_dependencies": [
+        "platform_adapter",
+        "identity",
+        "pipeline",
+        "knowledge",
+        "escalation",
+        "observability",
+        "infrastructure"
+      ]
     },
     {
       "name": "observability",
-      "modules": [],
+      "modules": [
+        "03-development/src/omnibot/health/",
+        "03-development/src/omnibot/logger/"
+      ],
       "allowed_dependencies": []
     },
     {
       "name": "data_layer",
-      "modules": [],
+      "modules": [
+        "03-development/src/omnibot/models.py",
+        "03-development/src/omnibot/schema/"
+      ],
       "allowed_dependencies": []
     },
     {
       "name": "infrastructure",
-      "modules": [],
-      "allowed_dependencies": ["data_layer"]
+      "modules": [
+        "03-development/src/omnibot/rate_limiter/"
+      ],
+      "allowed_dependencies": [
+        "data_layer"
+      ]
     }
   ],
   "dependencies": {
-    "platform_adapter": ["pipeline", "observability"],
-    "identity": ["data_layer", "observability"],
-    "pipeline": ["knowledge", "escalation", "observability", "infrastructure"],
-    "knowledge": ["data_layer", "observability"],
-    "escalation": ["data_layer", "observability"],
-    "api": ["platform_adapter", "identity", "pipeline", "knowledge", "escalation", "observability", "infrastructure"],
+    "platform_adapter": [
+      "pipeline",
+      "observability"
+    ],
+    "identity": [
+      "data_layer",
+      "observability"
+    ],
+    "pipeline": [
+      "knowledge",
+      "escalation",
+      "observability",
+      "infrastructure"
+    ],
+    "knowledge": [
+      "data_layer",
+      "observability"
+    ],
+    "escalation": [
+      "data_layer",
+      "observability"
+    ],
+    "api": [
+      "platform_adapter",
+      "identity",
+      "pipeline",
+      "knowledge",
+      "escalation",
+      "observability",
+      "infrastructure"
+    ],
     "observability": [],
     "data_layer": [],
-    "infrastructure": ["data_layer"]
+    "infrastructure": [
+      "data_layer"
+    ]
   },
   "quality_targets": {
     "max_complexity": 15,
