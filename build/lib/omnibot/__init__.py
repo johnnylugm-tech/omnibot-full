@@ -1,0 +1,4 @@
+"""[FR-01] omnibot — multi-platform chatbot framework.
+
+Citations: SAD.md:11-24 (architecture overview), SRS.md:1-12 (project scope)
+"""

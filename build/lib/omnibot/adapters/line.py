@@ -1,0 +1,46 @@
+"""[FR-01] LINEAdapter — parse LINE WebhookEvent → UnifiedMessage.
+
+Citations: SAD.md:83-95
+"""
+
+from typing import Any, Dict
+
+from omnibot.models import UnifiedMessage, Platform, MessageType
+
+
+_LINE_MESSAGE_TYPE_MAP = {
+    "text": MessageType.TEXT,
+    "image": MessageType.IMAGE,
+    "sticker": MessageType.STICKER,
+    "location": MessageType.LOCATION,
+    "file": MessageType.FILE,
+}
+
+
+def parse_line_event(payload: Dict[str, Any]) -> UnifiedMessage:
+    """Parse a LINE Messaging API WebhookEvent into a UnifiedMessage.
+
+    Raises ValueError if the events array is empty or missing.
+    """
+    events = payload.get("events", [])
+    if not events:
+        raise ValueError("LINE webhook payload contains no events")
+
+    event = events[0]
+    source = event.get("source", {})
+    message = event.get("message", {})
+
+    platform_user_id = str(source.get("userId", ""))
+    line_type = message.get("type", "text")
+    message_type = _LINE_MESSAGE_TYPE_MAP.get(line_type, MessageType.TEXT)
+    content = message.get("text", "")
+    reply_token = event.get("replyToken")
+
+    return UnifiedMessage(
+        platform=Platform.LINE,
+        platform_user_id=platform_user_id,
+        message_type=message_type,
+        content=content,
+        raw_payload=payload,
+        reply_token=reply_token,
+    )
