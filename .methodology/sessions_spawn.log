@@ -30,3 +30,9 @@
 {"timestamp": "2026-05-14T10:07:00", "fr_id": "FR-02", "role": "reviewer", "session_id": "rev-a6849678", "status": "success", "review_status": "APPROVE", "confidence": 8}
 {"timestamp": "2026-05-14T10:10:00", "fr_id": "FR-03", "role": "developer", "session_id": "dev-a24573d5", "status": "success", "confidence": 10}
 {"timestamp": "2026-05-14T10:12:00", "fr_id": "FR-03", "role": "reviewer", "session_id": "rev-ab29727c", "status": "success", "review_status": "APPROVE", "confidence": 9}
+{"timestamp": "2026-05-14T10:15:00", "fr_id": "FR-04", "role": "developer", "session_id": "dev-a6e5d84a", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T10:16:00", "fr_id": "FR-05", "role": "developer", "session_id": "dev-a59816f4", "status": "success", "confidence": 9}
+{"timestamp": "2026-05-14T10:17:00", "fr_id": "FR-06", "role": "developer", "session_id": "dev-a28c2e14", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T10:20:00", "fr_id": "FR-04", "role": "reviewer", "session_id": "rev-a8bf5cf0", "status": "success", "review_status": "APPROVE", "confidence": 10}
+{"timestamp": "2026-05-14T10:22:00", "fr_id": "FR-05", "role": "reviewer", "session_id": "rev-ae6759b2-R2", "status": "success", "review_status": "APPROVE", "confidence": 10}
+{"timestamp": "2026-05-14T10:22:00", "fr_id": "FR-06", "role": "reviewer", "session_id": "rev-a761d72e-R2", "status": "success", "review_status": "APPROVE", "confidence": 10}

@@ -7,6 +7,18 @@ import re
 from dataclasses import dataclass, field
 from typing import List
 
+# ── PII Mask Result ─────────────────────────────────────────────────────────────
+
+@dataclass
+class PIIMaskResult:
+    """Result of PII masking operation.
+
+    Citations: SRS.md FR-05 AC: PIIMaskResult(masked_text, mask_count, pii_types)
+    """
+    masked_text: str
+    mask_count: int = 0
+    pii_types: List[str] = field(default_factory=list)
+
 
 # ── Patterns ──────────────────────────────────────────────────────────────────
 
@@ -29,6 +41,9 @@ _SENSITIVE_KEYWORDS = [
     "報警", "報案", "110",
     "緊急", "求救", "救命",
     "生命危險", "危及生命",
+    "password", "密碼", "銀行帳戶", "bank account",
+    "信用卡", "credit card", "提款卡", "debit card",
+    "銀行卡號", "card number", "身分證", "身份證",
 ]
 
 
@@ -47,16 +62,35 @@ class EscalationFlag:
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
-def mask_pii(text: str) -> str:
+def mask_pii(text: str) -> PIIMaskResult:
     """Mask PII in text: phone numbers, emails, and addresses.
 
-    Each PII type is replaced with a corresponding tag.
+    Returns PIIMaskResult with masked_text, count of masks applied, and PII types found.
     """
-    text = _TW_MOBILE.sub("[PHONE]", text)
-    text = _TW_LANDLINE.sub("[PHONE]", text)
-    text = _EMAIL.sub("[EMAIL]", text)
-    text = _TW_ADDRESS.sub("[ADDR]", text)
-    return text
+    result = text
+    pii_types: List[str] = []
+    mask_count = 0
+
+    if _TW_MOBILE.search(result):
+        pii_types.append("phone")
+    result, n = _TW_MOBILE.subn("[PHONE]", result)
+    mask_count += n
+    result, n = _TW_LANDLINE.subn("[PHONE]", result)
+    mask_count += n
+    if n > 0 and "phone" not in pii_types:
+        pii_types.append("phone")
+
+    if _EMAIL.search(text):
+        pii_types.append("email")
+    result, n = _EMAIL.subn("[EMAIL]", result)
+    mask_count += n
+
+    if _TW_ADDRESS.search(text):
+        pii_types.append("address")
+    result, n = _TW_ADDRESS.subn("[ADDR]", result)
+    mask_count += n
+
+    return PIIMaskResult(masked_text=result, mask_count=mask_count, pii_types=pii_types)
 
 
 def contains_sensitive_keywords(text: str) -> bool:

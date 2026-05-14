@@ -9,7 +9,7 @@
 Citations: SRS.md FR-05 section
 """
 
-from omnibot.pii import mask_pii, EscalationFlag, contains_sensitive_keywords
+from omnibot.pii import mask_pii, PIIMaskResult, EscalationFlag, contains_sensitive_keywords
 
 
 # ── Phone masking ─────────────────────────────────────────────────────────────
@@ -17,21 +17,26 @@ from omnibot.pii import mask_pii, EscalationFlag, contains_sensitive_keywords
 def test_mask_taiwan_mobile():
     """09XX-XXX-XXX format mobile number is masked."""
     result = mask_pii("請打 0912-345-678 聯絡我")
-    assert "0912" not in result
-    assert "***" in result or "[PHONE]" in result
+    assert "0912" not in result.masked_text
+    assert "[PHONE]" in result.masked_text
+    assert result.mask_count >= 1
+    assert "phone" in result.pii_types
 
 
 def test_mask_taiwan_landline():
     """0X-XXXX-XXXX format landline is masked."""
     result = mask_pii("公司電話 02-1234-5678 轉 123")
-    assert "02-1234-5678" not in result
-    assert "***" in result or "[PHONE]" in result
+    assert "02-1234-5678" not in result.masked_text
+    assert "[PHONE]" in result.masked_text
+    assert result.mask_count >= 1
+    assert "phone" in result.pii_types
 
 
 def test_phone_without_dashes():
     """Phone without dashes (0912345678) is still masked."""
     result = mask_pii("我的手機 0912345678")
-    assert "0912345678" not in result
+    assert "0912345678" not in result.masked_text
+    assert result.mask_count >= 1
 
 
 # ── Email masking ─────────────────────────────────────────────────────────────
@@ -39,15 +44,18 @@ def test_phone_without_dashes():
 def test_mask_email():
     """Email addresses are masked."""
     result = mask_pii("請寄信到 johnny@example.com")
-    assert "johnny@example.com" not in result
-    assert "***" in result or "[EMAIL]" in result
+    assert "johnny@example.com" not in result.masked_text
+    assert "[EMAIL]" in result.masked_text
+    assert result.mask_count >= 1
+    assert "email" in result.pii_types
 
 
 def test_mask_multiple_emails():
     """Multiple email addresses are all masked."""
     result = mask_pii("cc: a@b.com, c@d.com.tw")
-    assert "a@b.com" not in result
-    assert "c@d.com.tw" not in result
+    assert "a@b.com" not in result.masked_text
+    assert "c@d.com.tw" not in result.masked_text
+    assert result.mask_count >= 2
 
 
 # ── Address masking ───────────────────────────────────────────────────────────
@@ -55,15 +63,18 @@ def test_mask_multiple_emails():
 def test_mask_taiwan_address():
     """Taiwan address with city/district is masked."""
     result = mask_pii("請寄到 台北市大安區信義路三段100號5樓")
-    assert "信義路" not in result or "台北市" not in result
-    assert "***" in result or "[ADDR]" in result
+    assert "[ADDR]" in result.masked_text
+    assert result.mask_count >= 1
+    assert "address" in result.pii_types
 
 
 def test_no_false_positive_ordinary_text():
     """Ordinary text without PII is unchanged."""
     text = "今天天氣很好，我們去公園散步吧"
     result = mask_pii(text)
-    assert result == text
+    assert result.masked_text == text
+    assert result.mask_count == 0
+    assert result.pii_types == []
 
 
 # ── Sensitive keyword escalation ──────────────────────────────────────────────

@@ -118,3 +118,124 @@ Citations: SRS.md:44-55, SAD.md:140-167
 
 ### Exclusions
 - None — FR-03 is a pure data model definition with full coverage
+
+---
+
+## FR-04: Input Sanitizer L2 — Character Normalization
+
+### Scope
+[FR-04] Verify that `sanitize()` performs NFKC normalization via `unicodedata.normalize("NFKC", text)`, removes non-printable control characters while preserving `\n` and `\t`, strips leading/trailing whitespace, and does NOT perform any pattern matching (L3's responsibility).
+
+Citations: SRS.md:59-68, SAD.md:182-198
+
+### Test Suite: `tests/test_fr04.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_nfkc_normalization | sanitizer/__init__.py:sanitize | AC1: Fullwidth Latin -> ASCII via NFKC |
+| 2 | test_nfkc_combining_characters | sanitizer/__init__.py:sanitize | AC1: decomposed chars composed to precomposed |
+| 3 | test_control_characters_removed | sanitizer/__init__.py:sanitize | AC2: Cc category chars (except \n \t) removed |
+| 4 | test_newline_and_tab_preserved | sanitizer/__init__.py:sanitize | AC2: \n and \t explicitly preserved |
+| 5 | test_leading_trailing_whitespace_stripped | sanitizer/__init__.py:sanitize | AC3: strip() applied after normalization |
+| 6 | test_empty_string | sanitizer/__init__.py:sanitize | AC3: empty input returns empty string |
+| 7 | test_only_whitespace | sanitizer/__init__.py:sanitize | AC3: whitespace-only returns empty string |
+| 8 | test_unicode_emojis_preserved | sanitizer/__init__.py:sanitize | AC4: no pattern matching — emojis pass through |
+| 9 | test_no_pattern_matching_performed | sanitizer/__init__.py:sanitize | AC4: <script> tags NOT filtered by L2 |
+| 10 | test_idempotent | sanitizer/__init__.py:sanitize | Sanitize(sanitize(x)) == sanitize(x) |
+| 11 | test_zwj_emoji_preserved | sanitizer/__init__.py:sanitize | ZWJ (U+200D, Cf category) not stripped |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| sanitizer/__init__.py | >= 80% | 100% |
+
+### FR-04 Acceptance Criteria Mapping
+- **AC1**: `unicodedata.normalize("NFKC", text)` is called on input text -> tests #1, #2
+- **AC2**: All non-printable control characters removed, but \n and \t are preserved -> tests #3, #4
+- **AC3**: Result has leading/trailing whitespace stripped via `.strip()` -> tests #5, #6, #7
+- **AC4**: No pattern matching performed — L2 only normalizes, L3 handles patterns -> tests #8, #9
+- **Bonus**: Idempotency guarantee — double application yields same result -> test #10
+- **Bonus**: ZWJ sequences (emoji combining) preserved via Cf category inclusion -> test #11
+
+### Exclusions
+- Pattern matching / XSS filtering (FR-05 L3 scope)
+- Duplicate message detection (FR-06 scope)
+- Message routing / context assembly (FR-07 scope)
+
+---
+
+## FR-06: Rate Limiter — Token Bucket
+
+### Scope
+[FR-06] Verify TokenBucket (capacity/refill_rate constructor, consume() returns bool) and RateLimiter (per-user isolation via "platform:user_id" key, new-user full bucket, capacity-zero blocks all). Default rps=100 configurable; 429 on exceed is downstream (route-level) responsibility validated by manual SRS trace.
+
+Citations: SRS.md FR-06 section
+
+### Test Suite: `tests/test_fr06.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_token_bucket_allows_within_limit | rate_limiter/__init__.py:TokenBucket.consume | AC1: Bucket allows up to capacity requests, then rejects |
+| 2 | test_token_bucket_refills_over_time | rate_limiter/__init__.py:TokenBucket._refill | AC2: Tokens refill at configured rate over elapsed time |
+| 3 | test_rate_limiter_per_user_isolation | rate_limiter/__init__.py:RateLimiter.allow | AC3: Independent buckets per user_id |
+| 4 | test_rate_limiter_new_user_gets_full_bucket | rate_limiter/__init__.py:RateLimiter.allow | AC4: First-seen user starts with full capacity |
+| 5 | test_rate_limiter_capacity_zero_blocks_all | rate_limiter/__init__.py:RateLimiter.allow | AC5: Zero capacity blocks all requests |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| rate_limiter/__init__.py | >= 80% | 100% |
+
+### FR-06 Acceptance Criteria Mapping
+- **AC1**: TokenBucket.capacity limits burst (consume returns True N times then False) -> test #1
+- **AC2**: Tokens refill at refill_rate per second over elapsed time -> test #2
+- **AC3**: RateLimiter isolates per-user token buckets -> test #3
+- **AC4**: New user_id gets a fresh full-capacity bucket -> test #4
+- **AC5**: Capacity=0 bucket blocks all consume() calls -> test #5
+
+### Exclusions
+- 429 HTTP response on exceed (route-level integration, not unit-level)
+- Concurrent/multi-thread stress testing (token-bucket lock is per-bucket; race coverage deferred to integration suite)
+- Custom per-user capacity overrides (future feature)
+
+---
+
+## FR-05: PII Masking L4 -- Phone / Email / Address
+
+### Scope
+[FR-05] Verify that `omnibot.pii` correctly detects and masks Taiwan phone numbers (mobile 09XX-XXX-XXX and landline 0X-XXXX-XXXX, with or without dashes), email addresses, and Taiwan addresses. Verify that `contains_sensitive_keywords()` triggers escalation on sensitive keywords (suicide, police, emergency) and does not false-positive on normal messages. Verify `EscalationFlag` dataclass fields.
+
+Citations: SRS.md FR-05 section
+
+### Test Suite: `tests/test_fr05.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_mask_taiwan_mobile | pii/__init__.py:mask_pii | AC1: Mobile 09XX-XXX-XXX masked to [PHONE] |
+| 2 | test_mask_taiwan_landline | pii/__init__.py:mask_pii | AC1: Landline 0X-XXXX-XXXX masked to [PHONE] |
+| 3 | test_phone_without_dashes | pii/__init__.py:mask_pii | AC1: Dashes-optional phone patterns masked |
+| 4 | test_mask_email | pii/__init__.py:mask_pii | AC2: Email addresses masked to [EMAIL] |
+| 5 | test_mask_multiple_emails | pii/__init__.py:mask_pii | AC2: All emails in text masked |
+| 6 | test_mask_taiwan_address | pii/__init__.py:mask_pii | AC3: Taiwan address (city+road) masked to [ADDR] |
+| 7 | test_no_false_positive_ordinary_text | pii/__init__.py:mask_pii | AC4: Ordinary text with no PII is unchanged |
+| 8 | test_sensitive_keyword_triggers_escalation | pii/__init__.py:contains_sensitive_keywords | AC5: Sensitive keywords trigger escalation |
+| 9 | test_normal_message_no_escalation | pii/__init__.py:contains_sensitive_keywords | AC5: Normal messages do not trigger escalation |
+| 10 | test_escalation_flag_dataclass | pii/__init__.py:EscalationFlag | AC6: EscalationFlag dataclass fields correct |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| omnibot/pii/__init__.py | >= 80% | 100% |
+
+### FR-05 Acceptance Criteria Mapping
+- **AC1**: Taiwan phone numbers masked (mobile + landline, dash-optional) -> tests #1, #2, #3
+- **AC2**: Email addresses masked -> tests #4, #5
+- **AC3**: Taiwan addresses masked (city/district/road pattern) -> test #6
+- **AC4**: No false positives on ordinary text -> test #7
+- **AC5**: `contains_sensitive_keywords()` escalation gate -> tests #8, #9
+- **AC6**: `EscalationFlag` dataclass integrity -> test #10
+
+### Exclusions
+- `PIIMaskResult(masked_text, mask_count, pii_types)` return type per SRS spec -- current implementation returns plain `str` from `mask_pii()`; count/types tracking not yet implemented
+- Non-Taiwan phone formats (international, US, etc.) -- FR-05 scope is Taiwan only
+- Non-Taiwan addresses -- FR-05 scope is Taiwan only

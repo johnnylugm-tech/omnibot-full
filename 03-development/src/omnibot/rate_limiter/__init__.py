@@ -43,7 +43,7 @@ class TokenBucket:
 class RateLimiter:
     """Per-user rate limiter backed by TokenBucket instances."""
 
-    def __init__(self, default_capacity: int = 10, default_refill_rate: float = 1.0):
+    def __init__(self, default_capacity: int = 100, default_refill_rate: float = 100.0):
         self.default_capacity = default_capacity
         self.default_refill_rate = default_refill_rate
         self._buckets: Dict[str, TokenBucket] = {}
