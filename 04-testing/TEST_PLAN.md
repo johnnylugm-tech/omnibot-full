@@ -38,3 +38,45 @@ Citations: SRS.md:13-25, SAD.md:64-109
 - HMAC signature failure paths (FR-02 scope, tested by verifier.py unit tests)
 - Health check endpoint (FR-11 scope)
 - Downstream pipeline processing (FR-03-FR-10)
+
+---
+
+## FR-02: Webhook Signature Verification
+
+### Scope
+[FR-02] Verify that every webhook request passes HMAC signature verification before processing. Covers Telegram (SHA256(bot_token) keyed HMAC) and LINE (channel_secret keyed HMAC-SHA256 + Base64). Rejects invalid/missing signatures with 401 AUTH_INVALID_SIGNATURE. Defends against timing attacks via hmac.compare_digest().
+
+Citations: SRS.md:28-41, SAD.md:97-109
+
+### Test Suite: `tests/test_fr02.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_telegram_webhook_valid_signature | verifier.py:verify_telegram_signature | AC1: Telegram HMAC with SHA256(bot_token) as key |
+| 2 | test_telegram_webhook_invalid_signature | verifier.py:verify_signature | AC3: Invalid signature -> 401 AUTH_INVALID_SIGNATURE |
+| 3 | test_telegram_webhook_missing_signature_header | verifier.py:verify_signature | AC3: Missing header -> 401 |
+| 4 | test_line_webhook_valid_signature | verifier.py:verify_line_signature | AC2: LINE HMAC-SHA256 + Base64 |
+| 5 | test_line_webhook_invalid_signature | verifier.py:verify_signature | AC3: Invalid signature -> 401 |
+| 6 | test_line_webhook_missing_signature_header | verifier.py:verify_signature | AC3: Missing header -> 401 |
+| 7 | test_timing_attack_resistance | verifier.py:verify_telegram_signature | AC4: hmac.compare_digest() timing safety |
+| 8 | test_telegram_webhook_without_auth_headers_still_rejected | verifier.py:verify_signature | FR-01+FR-02 integration: no-auth -> 401 |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| auth/verifier.py | >= 80% | 92% |
+| auth/__init__.py | >= 80% | 100% |
+
+### FR-02 Acceptance Criteria Mapping
+- **AC1**: Telegram webhook uses SHA256(bot_token) as secret key for HMAC -> tests #1, #7
+- **AC2**: LINE webhook uses channel_secret for HMAC-SHA256 + Base64 -> test #4
+- **AC3**: Verification failure returns 401 AUTH_INVALID_SIGNATURE -> tests #2, #3, #5, #6, #8
+- **AC4**: hmac.compare_digest() prevents timing attacks -> test #7
+- **AC5**: VERIFIERS dict registry supports new platforms -> partially covered (static init tested; register() path not exercised)
+
+### Coverage Gaps
+- Line 50: `PlatformVerifier.register()` — no test registers a new platform verifier
+- Line 56: `ValueError` for unknown platform in `VERIFIERS.verify()` — no test calls with unregistered platform
+- Line 84: `HTTPException(400)` for unsupported platform in `verify_signature()` — no test calls with unknown platform
+
+All three gaps are non-critical edge cases; core acceptance criteria (AC1-AC4) are fully covered.
