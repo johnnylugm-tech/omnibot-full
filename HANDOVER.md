@@ -1,8 +1,8 @@
 # Harness Methodology — Session Handover
 
-**Checkpoint**: `P5-entry-20260514`  
+**Checkpoint**: `P5-baseline-20260514`  
 **Phase**: P5 — Review Baseline  
-**Generated**: 2026-05-14T04:03:39Z
+**Generated**: 2026-05-14T05:45:14Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -17,9 +17,9 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 # 2. Set required env vars
 export HERMES_REVIEWER_TARGET=<value>
 
-# 3. Read plan and continue Phase 5
-cat .methodology/phase5_plan.md
-# Follow the active plan and continue from where you left off
+# 3. Read plan and start Phase 6
+cat .methodology/phase6_plan.md
+# Follow SKILL.md §0.1 Phase 6 entry check, then execute
 ```
 
 ---
@@ -34,33 +34,34 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 git log --oneline -3
 
 # Confirm FSM state
-cat .methodology/state.json   # expected: phase=5 state=ACTIVE last_gate=3 last_fr=FR-13
+cat .methodology/state.json   # expected: phase=5 state=ACTIVE last_gate=1 last_fr=FR-13
 
 # Read active plan
-cat .methodology/phase5_plan.md
+cat .methodology/phase6_plan.md
 ```
 
 | 欄位 | 值 |
 |------|----|
 | Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
 | Branch | `main` |
-| State | `phase=5 state=ACTIVE last_gate=3 last_fr=FR-13` |
-| Plan | `.methodology/phase5_plan.md` |
+| State | `phase=5 state=ACTIVE last_gate=1 last_fr=FR-13` |
+| Plan | `.methodology/phase6_plan.md` |
 
 ---
 
 ## 任務背景
 
-Phase 4 complete (13/13 FRs Gate 1 PASS). Gate 3 (score=91.15). Advancing to Phase 5.
+P5 Review Baseline: BASELINE.md generated.
 
 ## 目前執行狀況
 
-Phase 4: 13/13 FRs Gate 1 PASS. Gate 3 (score=91.15) — quality_complete. Ready to begin Phase 5.
+BASELINE.md committed. P5 Review Baseline complete.
 
 ## 接下來的工作
 
-1. Follow SKILL.md §0.1 Phase 5 entry checklist
-2. Read the Phase 5 plan and execute
+1. Proceed to P6: Full Review / Gate 4
+2. Run full Gate 4 review (target ≥ 85)
+3. On Gate 4 APPROVE → call commit_and_push_gate(gate_num=4, ...)
 
 ## 注意事項
 

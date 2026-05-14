@@ -50,3 +50,29 @@
 {"timestamp": "2026-05-14T10:38:00", "fr_id": "FR-11", "role": "reviewer", "session_id": "rev-a4b15059", "status": "success", "review_status": "APPROVE", "confidence": 10}
 {"timestamp": "2026-05-14T10:38:00", "fr_id": "FR-12", "role": "reviewer", "session_id": "rev-a4b15059", "status": "success", "review_status": "APPROVE", "confidence": 10}
 {"timestamp": "2026-05-14T10:38:00", "fr_id": "FR-13", "role": "reviewer", "session_id": "rev-a4b15059", "status": "success", "review_status": "APPROVE", "confidence": 10}
+{"timestamp": "2026-05-14T12:02:00", "fr_id": "FR-1", "role": "developer", "session_id": "p5-dev-74822300", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:03:00", "fr_id": "FR-1", "role": "reviewer", "session_id": "p5-rev-593d2edd", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:04:00", "fr_id": "FR-2", "role": "developer", "session_id": "p5-dev-8e8ddbba", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:05:00", "fr_id": "FR-2", "role": "reviewer", "session_id": "p5-rev-835ae58c", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:06:00", "fr_id": "FR-3", "role": "developer", "session_id": "p5-dev-c89d1e61", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:07:00", "fr_id": "FR-3", "role": "reviewer", "session_id": "p5-rev-71955627", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:08:00", "fr_id": "FR-4", "role": "developer", "session_id": "p5-dev-8cc37567", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:09:00", "fr_id": "FR-4", "role": "reviewer", "session_id": "p5-rev-d5701a84", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:10:00", "fr_id": "FR-5", "role": "developer", "session_id": "p5-dev-4b495bab", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:11:00", "fr_id": "FR-5", "role": "reviewer", "session_id": "p5-rev-cac37934", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:12:00", "fr_id": "FR-6", "role": "developer", "session_id": "p5-dev-a386aa54", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:13:00", "fr_id": "FR-6", "role": "reviewer", "session_id": "p5-rev-86b7b9c2", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:14:00", "fr_id": "FR-7", "role": "developer", "session_id": "p5-dev-07e6a0a0", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:15:00", "fr_id": "FR-7", "role": "reviewer", "session_id": "p5-rev-96a0aa53", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:16:00", "fr_id": "FR-8", "role": "developer", "session_id": "p5-dev-aff357be", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:17:00", "fr_id": "FR-8", "role": "reviewer", "session_id": "p5-rev-8648a278", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:18:00", "fr_id": "FR-9", "role": "developer", "session_id": "p5-dev-8714b3ae", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:19:00", "fr_id": "FR-9", "role": "reviewer", "session_id": "p5-rev-b14d39e7", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:20:00", "fr_id": "FR-10", "role": "developer", "session_id": "p5-dev-281a8a99", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:21:00", "fr_id": "FR-10", "role": "reviewer", "session_id": "p5-rev-7da1b01b", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:22:00", "fr_id": "FR-11", "role": "developer", "session_id": "p5-dev-a2aa7db0", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:23:00", "fr_id": "FR-11", "role": "reviewer", "session_id": "p5-rev-6462f99a", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:24:00", "fr_id": "FR-12", "role": "developer", "session_id": "p5-dev-f025fff3", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:25:00", "fr_id": "FR-12", "role": "reviewer", "session_id": "p5-rev-8cada890", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:26:00", "fr_id": "FR-13", "role": "developer", "session_id": "p5-dev-a490f0a0", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T12:27:00", "fr_id": "FR-13", "role": "reviewer", "session_id": "p5-rev-d09175d4", "status": "success", "confidence": 10}
