@@ -1,8 +1,8 @@
 # Harness Methodology — Session Handover
 
-**Checkpoint**: `P6-entry-20260514`  
+**Checkpoint**: `P6-gate4-20260514`  
 **Phase**: P6 — Full Review / Gate 4  
-**Generated**: 2026-05-14T05:45:25Z
+**Generated**: 2026-05-14T07:16:56Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -17,9 +17,9 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 # 2. Set required env vars
 export HERMES_REVIEWER_TARGET=<value>
 
-# 3. Read plan and continue Phase 6
-cat .methodology/phase6_plan.md
-# Follow the active plan and continue from where you left off
+# 3. Read plan and start Phase 7
+cat .methodology/phase7_plan.md
+# Follow SKILL.md §0.1 Phase 7 entry check, then execute
 ```
 
 ---
@@ -34,39 +34,46 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 git log --oneline -3
 
 # Confirm FSM state
-cat .methodology/state.json   # expected: phase=6 state=ACTIVE last_gate=3
+cat .methodology/state.json   # expected: phase=6 state=ACTIVE last_gate=4
 
 # Read active plan
-cat .methodology/phase6_plan.md
+cat .methodology/phase7_plan.md
 ```
 
 | 欄位 | 值 |
 |------|----|
 | Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
 | Branch | `main` |
-| State | `phase=6 state=ACTIVE last_gate=3` |
-| Plan | `.methodology/phase6_plan.md` |
+| State | `phase=6 state=ACTIVE last_gate=4` |
+| Plan | `.methodology/phase7_plan.md` |
 
 ---
 
 ## 任務背景
 
-Phase 5 complete (0/13 FRs Gate 1 PASS). Gate 3 (score=91.15). Advancing to Phase 6.
+Gate 4 PASS — SSI quality cycle complete.
 
 ## 目前執行狀況
 
-Phase 5: 0/13 FRs Gate 1 PASS. Gate 3 (score=91.15) — quality_complete. Ready to begin Phase 6.
+Gate 4 PASS: score=89.6. — pipeline complete
 
 ## 接下來的工作
 
-1. Follow SKILL.md §0.1 Phase 6 entry checklist
-2. Read the Phase 6 plan and execute
+1. Proceed to P7: Risk Register
+2. Document all known risks
+3. On P7 done → call commit_and_push_p7()
+4. On P8 done → call commit_and_push_p8()
 
 ## 注意事項
 
 - 100% follow SKILL.md
 - Do NOT commit `.sessi-work/` or `.methodology/` runtime artifacts
 - Git failures are warnings — they never block the pipeline
+
+## 附加資訊
+
+- **gate**: 4
+- **score**: 89.6
 
 ---
 *由 `HandoverGenerator` 自動生成。下次 push 時此檔案將被覆寫。*
