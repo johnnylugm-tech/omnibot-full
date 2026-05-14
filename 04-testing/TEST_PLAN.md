@@ -80,3 +80,41 @@ Citations: SRS.md:28-41, SAD.md:97-109
 - Line 84: `HTTPException(400)` for unsupported platform in `verify_signature()` — no test calls with unknown platform
 
 All three gaps are non-critical edge cases; core acceptance criteria (AC1-AC4) are fully covered.
+
+---
+
+## FR-03: Unified Message Format
+
+### Scope
+[FR-03] Verify that UnifiedMessage (frozen dataclass), Platform enum (TELEGRAM/LINE/MESSENGER/WHATSAPP), MessageType enum (TEXT/IMAGE/STICKER/LOCATION/FILE), and UnifiedResponse dataclass are correctly defined and enforce invariants.
+
+Citations: SRS.md:44-55, SAD.md:140-167
+
+### Test Suite: `tests/test_fr03.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_unified_message_is_frozen | models.py:UnifiedMessage | AC1: frozen=True enforced |
+| 2 | test_unified_message_required_fields | models.py:UnifiedMessage | AC1: required fields present and typed |
+| 3 | test_unified_message_defaults | models.py:UnifiedMessage | AC1: optional fields have correct defaults |
+| 4 | test_unified_message_reply_token | models.py:UnifiedMessage | AC1: reply_token field functional |
+| 5 | test_unified_response_fields | models.py:UnifiedResponse | AC2: content/source/confidence/knowledge_id present |
+| 6 | test_unified_response_escalate_defaults | models.py:UnifiedResponse | AC2: escalate defaults verified |
+| 7 | test_platform_enum_completeness | models.py:Platform | AC3: TELEGRAM, LINE, MESSENGER, WHATSAPP |
+| 8 | test_message_type_enum_completeness | models.py:MessageType | AC4: TEXT, IMAGE, STICKER, LOCATION, FILE |
+| 9 | test_platform_enum_from_string | models.py:Platform | AC3: Platform.from_string() parsing |
+| 10 | test_message_type_enum_from_string | models.py:MessageType | AC4: MessageType.from_string() parsing |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| models.py | >= 80% | 100% |
+
+### FR-03 Acceptance Criteria Mapping
+- **AC1**: UnifiedMessage is a frozen=True dataclass with all required fields -> tests #1, #2, #3, #4
+- **AC2**: UnifiedResponse with content/source/confidence/knowledge_id -> tests #5, #6
+- **AC3**: Platform enum: TELEGRAM, LINE, MESSENGER, WHATSAPP -> tests #7, #9
+- **AC4**: MessageType enum: TEXT, IMAGE, STICKER, LOCATION, FILE -> tests #8, #10
+
+### Exclusions
+- None — FR-03 is a pure data model definition with full coverage

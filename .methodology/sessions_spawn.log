@@ -28,3 +28,5 @@
 {"timestamp": "2026-05-14T10:02:00", "fr_id": "FR-01", "role": "reviewer", "session_id": "rev-a28e34b9", "status": "success", "review_status": "APPROVE", "confidence": 7}
 {"timestamp": "2026-05-14T10:05:00", "fr_id": "FR-02", "role": "developer", "session_id": "dev-a71c7725", "status": "success", "confidence": 9}
 {"timestamp": "2026-05-14T10:07:00", "fr_id": "FR-02", "role": "reviewer", "session_id": "rev-a6849678", "status": "success", "review_status": "APPROVE", "confidence": 8}
+{"timestamp": "2026-05-14T10:10:00", "fr_id": "FR-03", "role": "developer", "session_id": "dev-a24573d5", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T10:12:00", "fr_id": "FR-03", "role": "reviewer", "session_id": "rev-ab29727c", "status": "success", "review_status": "APPROVE", "confidence": 9}

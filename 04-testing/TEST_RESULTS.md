@@ -105,3 +105,54 @@ tests/test_fr02.py::test_telegram_webhook_without_auth_headers_still_rejected PA
 - FR-02 core verification path: HIGH (92% line coverage, all AC verified)
 - FR-02 extensibility: MEDIUM (register path untested but trivial)
 - Overall FR-02: 9/10
+
+---
+
+## FR-03: Unified Message Format
+
+Citations: SRS.md:44-55, SAD.md:140-167
+
+### Run Summary
+- **Date**: 2026-05-14
+- **Python**: 3.11.15
+- **pytest**: 9.0.3
+- **pytest-cov**: 7.1.0
+
+### Test Results
+```
+tests/test_fr03.py::test_unified_message_is_frozen PASSED
+tests/test_fr03.py::test_unified_message_required_fields PASSED
+tests/test_fr03.py::test_unified_message_defaults PASSED
+tests/test_fr03.py::test_unified_message_reply_token PASSED
+tests/test_fr03.py::test_unified_response_fields PASSED
+tests/test_fr03.py::test_unified_response_escalate_defaults PASSED
+tests/test_fr03.py::test_platform_enum_completeness PASSED
+tests/test_fr03.py::test_message_type_enum_completeness PASSED
+tests/test_fr03.py::test_platform_enum_from_string PASSED
+tests/test_fr03.py::test_message_type_enum_from_string PASSED
+
+10 passed, 0 failed, 0 skipped in 0.02s
+```
+
+### Coverage Report — FR-03 Modules
+
+| Module | Stmts | Miss | Cover | Missing |
+|--------|-------|------|-------|---------|
+| models.py | 31 | 0 | 100% | — |
+| **TOTAL** | 31 | 0 | **100%** | — |
+
+### Acceptance Criteria Verification
+- **AC1** (UnifiedMessage frozen=True dataclass with all required fields): PASSED via tests #1, #2, #3, #4
+- **AC2** (UnifiedResponse with content/source/confidence/knowledge_id): PASSED via tests #5, #6
+- **AC3** (Platform enum: TELEGRAM, LINE, MESSENGER, WHATSAPP): PASSED via tests #7, #9
+- **AC4** (MessageType enum: TEXT, IMAGE, STICKER, LOCATION, FILE): PASSED via tests #8, #10
+
+### Risk Assessment
+- **All data model invariants**: FULLY covered, 10/10 tests pass, 31/31 statements covered
+- **frozen=True enforcement**: Verified via dataclasses.FrozenInstanceError catch
+- **Enum from_string parsing**: Both Platform and MessageType parsing verified
+- **No gaps or missed lines**
+
+### Confidence
+- FR-03 data model: HIGH (100% line coverage, all AC verified)
+- Overall FR-03: 10/10
