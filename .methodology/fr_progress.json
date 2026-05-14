@@ -34,9 +34,9 @@
     },
     "FR-06": {
       "status": "gate1_pass",
-      "score": 99.66,
-      "phase": 4,
-      "timestamp": "2026-05-14T03:47:07Z"
+      "score": 0.0,
+      "phase": 5,
+      "timestamp": "2026-05-14T05:41:27Z"
     },
     "FR-07": {
       "status": "gate1_pass",
