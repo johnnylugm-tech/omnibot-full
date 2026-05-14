@@ -13,23 +13,38 @@ import os
 import yaml
 
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def _find_project_root() -> str:
+    """Find project root by locating docker-compose.yml, starting from this file.
+
+    Works under mutmut (which copies files to a temp directory) by walking
+    up until it finds the marker file.
+    """
+    current = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        if os.path.exists(os.path.join(current, "docker-compose.yml")):
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    return os.getcwd()  # fallback
 
 
 def _compose():
-    with open(os.path.join(PROJECT_ROOT, "docker-compose.yml")) as f:
+    root = _find_project_root()
+    with open(os.path.join(root, "docker-compose.yml")) as f:
         return yaml.safe_load(f)
 
 
 def test_compose_file_exists():
     """docker-compose.yml exists in project root."""
-    path = os.path.join(PROJECT_ROOT, "docker-compose.yml")
+    path = os.path.join(_find_project_root(), "docker-compose.yml")
     assert os.path.isfile(path)
 
 
 def test_dockerfile_exists():
     """Dockerfile exists in 03-development."""
-    path = os.path.join(PROJECT_ROOT, "03-development", "Dockerfile")
+    path = os.path.join(_find_project_root(), "03-development", "Dockerfile")
     assert os.path.isfile(path)
 
 

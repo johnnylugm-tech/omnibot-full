@@ -1,21 +1,22 @@
 """[FR-01][FR-02] FastAPI application with platform webhook endpoints.
 
+Architecture: app.py delegates platform routing to omnibot.router and
+message serialization to UnifiedMessage.to_json_dict() to minimise
+cross-community coupling.
+
 Citations: SAD.md:287-288 (API routes), SRS.md:13-41
 """
 
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Callable, Dict
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from omnibot.adapters.telegram import parse_telegram_update
-from omnibot.adapters.line import parse_line_event
-from omnibot.auth.verifier import verify_signature
 from omnibot.health import HealthCheckService
-from omnibot.models import Platform, UnifiedMessage
+from omnibot.models import UnifiedMessage
+from omnibot.router import resolve_route
 
 logger = logging.getLogger("omnibot.app")
 
@@ -46,27 +47,25 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
             "detail": "An unexpected error occurred. The incident has been logged.",
         },
     )
+
+
 health_service = HealthCheckService(
     postgres_check=lambda: False,  # stub — Phase 1 no DB
     redis_check=lambda: False,     # stub — Phase 1 no Redis
 )
 
-PLATFORM_ROUTES: Dict[str, tuple[Platform, Callable]] = {
-    "telegram": (Platform.TELEGRAM, parse_telegram_update),
-    "line": (Platform.LINE, parse_line_event),
-}
-
 
 @app.post("/api/v1/webhook/{platform}")
 async def webhook(platform: str, request: Request):
     """Receive webhook from a platform, verify signature, parse into UnifiedMessage."""
-    route = PLATFORM_ROUTES.get(platform.lower())
+    route = resolve_route(platform)
     if route is None:
         return JSONResponse(
             status_code=400, content={"detail": f"Unsupported platform: {platform}"}
         )
     platform_enum, parser = route
 
+    from omnibot.auth.verifier import verify_signature
     body = await verify_signature(request, platform_enum)
 
     try:
