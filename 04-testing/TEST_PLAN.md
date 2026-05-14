@@ -363,3 +363,185 @@ Citations: SRS.md FR-09 section, SAD.md 2.6.1 StructuredLogger
 - File-based logging (rotating files, etc.) -- V1 is stdout-only
 - Async/thread-safe logging -- V1 is single-threaded
 - Log level filtering at the logger level (e.g., setLevel) -- not in FR-09 spec
+
+---
+
+## FR-10: API Response Format -- ApiResponse / PaginatedResponse
+
+### Scope
+[FR-10] Verify that `ApiResponse[T]` (Pydantic BaseModel, Generic[T]) contains success/data/error/error_code fields with correct defaults. Verify that `PaginatedResponse[T]` inherits from ApiResponse and adds total/page/limit/has_next with computed has_next logic. Verify `ErrorCode` str enum has all 5 required members and supports from-string construction. Verify JSON serialization round-trip via Pydantic model_dump/model_validate.
+
+Citations: SRS.md FR-10 section, SAD.md 2.5.2
+
+### Test Suite: `tests/test_fr10.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_api_response_success | api/__init__.py:ApiResponse | AC1: success=True + data present |
+| 2 | test_api_response_error | api/__init__.py:ApiResponse | AC1: success=False + error + error_code |
+| 3 | test_api_response_defaults | api/__init__.py:ApiResponse | AC1: data/error/error_code default None |
+| 4 | test_api_response_generic_typed | api/__init__.py:ApiResponse | AC1: ApiResponse[T] generic data binding |
+| 5 | test_paginated_response_inherits_api | api/__init__.py:PaginatedResponse | AC2: isinstance(resp, ApiResponse) |
+| 6 | test_paginated_response_fields | api/__init__.py:PaginatedResponse | AC2: total/page/limit/has_next |
+| 7 | test_paginated_response_no_next_page | api/__init__.py:PaginatedResponse | AC2: has_next=False on last page |
+| 8 | test_paginated_response_error | api/__init__.py:PaginatedResponse | AC2: PaginatedResponse carries error info |
+| 9 | test_error_code_enum_values | api/__init__.py:ErrorCode | AC3: 5 members (AUTH_INVALID_SIGNATURE, RATE_LIMIT_EXCEEDED, KNOWLEDGE_NOT_FOUND, VALIDATION_ERROR, INTERNAL_ERROR) |
+| 10 | test_error_code_from_string | api/__init__.py:ErrorCode | AC3: ErrorCode("AUTH_INVALID_SIGNATURE") construction |
+| 11 | test_serialization_round_trip | api/__init__.py:ApiResponse | AC4: model_dump -> model_validate round-trip |
+| 12 | test_paginated_response_middle_page | api/__init__.py:PaginatedResponse | AC2: has_next for middle/last/beyond-last pages |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| omnibot/api/__init__.py | >= 80% | 100% |
+
+### FR-10 Acceptance Criteria Mapping
+- **AC1**: ApiResponse[T] contains success/data/error/error_code with defaults -> tests #1, #2, #3, #4
+- **AC2**: PaginatedResponse inherits ApiResponse, adds total/page/limit/has_next -> tests #5, #6, #7, #8, #12
+- **AC3**: ErrorCode str enum with 5 members (AUTH_INVALID_SIGNATURE, RATE_LIMIT_EXCEEDED, KNOWLEDGE_NOT_FOUND, VALIDATION_ERROR, INTERNAL_ERROR) + from-string construction -> tests #9, #10
+- **AC4**: JSON serialization round-trip via Pydantic model_dump/model_validate -> test #11
+
+### Exclusions
+- None -- FR-10 is a pure data model definition with full coverage
+
+---
+
+## FR-13: Docker Compose Dev Environment
+
+### Scope
+[FR-13] Verify that docker-compose.yml defines 3 services (omnibot-api on port 8000, postgres pgvector/pg16, redis 7-alpine), postgres and redis have healthchecks, API depends_on both with service_healthy condition, and redis has requirepass password protection.
+
+Citations: SRS.md FR-13 section, SAD.md 2.8.1
+
+### Test Suite: `tests/test_fr13.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_compose_file_exists | docker-compose.yml | AC1: Compose file present in project root |
+| 2 | test_dockerfile_exists | 03-development/Dockerfile | AC1: Dockerfile present for API image |
+| 3 | test_three_services | docker-compose.yml services | AC2: Exactly 3 services defined |
+| 4 | test_service_names | docker-compose.yml services | AC2: omnibot-api, postgres, redis |
+| 5 | test_postgres_image | postgres service image | AC3: pgvector/pgvector:pg16 image |
+| 6 | test_redis_image | redis service image | AC4: redis:7-alpine image |
+| 7 | test_api_port_mapping | omnibot-api ports | AC5: Port 8000 exposed |
+| 8 | test_postgres_healthcheck | postgres healthcheck | AC6: postgres has healthcheck |
+| 9 | test_redis_healthcheck | redis healthcheck | AC6: redis has healthcheck |
+| 10 | test_api_depends_on_both | omnibot-api depends_on | AC7: API depends on postgres and redis |
+| 11 | test_api_depends_condition_healthy | omnibot-api depends_on condition | AC7: condition=service_healthy for both |
+| 12 | test_redis_requirepass | redis command/environment | AC8: Redis has requirepass password protection |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| docker-compose.yml (structural) | >= 80% structural coverage | N/A -- static YAML validation |
+
+Note: FR-13 tests validate docker-compose.yml structure via YAML parsing. No Python source module is exercised, so line coverage is not applicable. The `--cov` flag targets a module the tests do not import, producing 0% as expected.
+
+### FR-13 Acceptance Criteria Mapping
+- **AC1**: docker-compose.yml and Dockerfile exist -> tests #1, #2
+- **AC2**: Three named services (omnibot-api, postgres, redis) -> tests #3, #4
+- **AC3**: postgres uses pgvector/pgvector:pg16 image -> test #5
+- **AC4**: redis uses redis:7-alpine image -> test #6
+- **AC5**: API exposes port 8000 -> test #7
+- **AC6**: postgres and redis have healthchecks -> tests #8, #9
+- **AC7**: API depends_on both with service_healthy condition -> tests #10, #11
+- **AC8**: Redis has requirepass password protection -> test #12
+
+### Exclusions
+- Actual `docker compose up` integration testing (requires Docker daemon; beyond unit test scope)
+- Container startup time / resource limits (Docker-level concerns)
+- Volume mount verification (infrastructure, not FR-13 spec)
+- Network configuration (default bridge mode acceptable)
+
+---
+
+## FR-12: Database Schema — All Core Tables
+
+### Scope
+[FR-12] Verify that the schema module defines exactly 8 tables with correct columns, constraints, and type annotations. Validate Phase 2/3 reserved columns are present (sla_deadline, priority, vector(384), TEXT[], JSONB). Confirm FOREIGN KEY REFERENCES and PRIMARY KEY presence on every table via `get_schema_sql()`.
+
+Citations: SRS.md FR-12 section, SAD.md 2.7.1 Schema Summary
+
+### Test Suite: `tests/test_fr12.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_schema_has_eight_tables | schema/__init__.py:TABLE_DEFS | AC1: Exactly 8 tables |
+| 2 | test_required_tables_exist | schema/__init__.py:TABLE_DEFS | AC1: All 8 table names present |
+| 3 | test_users_columns | schema/__init__.py:get_schema_sql | AC2: unified_user_id UUID, platform, platform_user_id, UNIQUE |
+| 4 | test_conversations_columns | schema/__init__.py:get_schema_sql | AC3: satisfaction_score, first_contact_resolution, dst_state JSONB |
+| 5 | test_messages_columns | schema/__init__.py:get_schema_sql | AC4: intent_detected, sentiment_category, sentiment_intensity, knowledge_source |
+| 6 | test_knowledge_base_columns | schema/__init__.py:get_schema_sql | AC5: embeddings vector(384), keywords TEXT[], version, is_active |
+| 7 | test_platform_configs_columns | schema/__init__.py:get_schema_sql | AC6: rate_limit_rps, webhook_secret_key_ref |
+| 8 | test_escalation_queue_columns | schema/__init__.py:get_schema_sql | AC7: priority, sla_deadline (Phase 2 reserved) |
+| 9 | test_user_feedback_columns | schema/__init__.py:get_schema_sql | AC8: feedback CHECK (thumbs_up / thumbs_down) |
+| 10 | test_security_logs_columns | schema/__init__.py:get_schema_sql | AC9: layer, blocked, source_ip |
+| 11 | test_foreign_keys_present | schema/__init__.py:get_schema_sql | AC10: REFERENCES constraint for FK relationships |
+| 12 | test_schema_is_valid_sql | schema/__init__.py:get_schema_sql | AC11: Non-empty valid DDL starting with CREATE TABLE |
+| 13 | test_each_table_has_id | schema/__init__.py:TABLE_DEFS | AC12: Every table has id + PRIMARY KEY |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| omnibot/schema/__init__.py | >= 80% | 100% |
+
+### FR-12 Acceptance Criteria Mapping
+- **AC1** (8 tables): users, conversations, messages, knowledge_base, platform_configs, escalation_queue, user_feedback, security_logs -- tests #1, #2
+- **AC2** (users columns): unified_user_id UUID, platform, platform_user_id, UNIQUE constraint -- test #3
+- **AC3** (conversations columns): satisfaction_score, first_contact_resolution, scope_type, dst_state JSONB -- test #4
+- **AC4** (messages columns): intent_detected, sentiment_category, sentiment_intensity, knowledge_source -- test #5
+- **AC5** (knowledge_base columns): embeddings vector(384), keywords TEXT[], version -- test #6
+- **AC6** (platform_configs columns): rate_limit_rps, webhook_secret_key_ref -- test #7
+- **AC7** (escalation_queue Phase 2 columns): priority, sla_deadline -- test #8
+- **AC8** (user_feedback CHECK): feedback column CHECK (thumbs_up / thumbs_down) -- test #9
+- **AC9** (security_logs columns): layer, blocked, source_ip -- test #10
+- **AC10** (foreign keys): REFERENCES constraint present in DDL -- test #11
+- **AC11** (valid SQL): get_schema_sql() returns non-empty CREATE TABLE string -- test #12
+- **AC12** (primary keys): Every table has id column as PRIMARY KEY -- test #13
+
+### Exclusions
+- Schema migration / versioning (Phase 4+)
+- Actual database connection and DDL execution (schema is declarative -- validated via DDL string assertions)
+- pgvector extension availability detection (Phase 3 integration concern)
+- Column-level NOT NULL / DEFAULT granularity (DDL-level assertions only)
+
+---
+
+## FR-11: Health Check Endpoint
+
+### Scope
+[FR-11] Verify that GET /api/v1/health returns JSON {status, postgres, redis, uptime_seconds} with status derived from postgres + redis connectivity booleans. Status is healthy (both true), degraded (exactly one false), or unhealthy (both false). Uptime_seconds is computed via time.monotonic() and must be present, non-negative, and monotonic.
+
+Citations: SRS.md FR-11 section, SAD.md 2.5.3 HealthCheck
+
+### Test Suite: `tests/test_fr11.py`
+
+| # | Test Case | Target | AC Verified |
+|---|-----------|--------|-------------|
+| 1 | test_health_status_enum | health/__init__.py:HealthStatus | AC1: Status enum healthy/degraded/unhealthy |
+| 2 | test_both_up_is_healthy | health/__init__.py:HealthCheckService.check | AC2: postgres=True, redis=True -> healthy |
+| 3 | test_both_down_is_unhealthy | health/__init__.py:HealthCheckService.check | AC2: postgres=False, redis=False -> unhealthy |
+| 4 | test_postgres_down_is_degraded | health/__init__.py:HealthCheckService.check | AC2: exactly one False -> degraded |
+| 5 | test_redis_down_is_degraded | health/__init__.py:HealthCheckService.check | AC2: exactly one False -> degraded |
+| 6 | test_uptime_seconds_present | health/__init__.py:HealthCheckService.check | AC3: uptime_seconds in response, non-negative |
+| 7 | test_response_keys | health/__init__.py:HealthCheckService.check | AC4: Exactly {status, postgres, redis, uptime_seconds} |
+| 8 | test_uptime_monotonic | health/__init__.py:HealthCheckService.check | AC3: uptime_seconds increases between calls |
+| 9 | test_health_endpoint_http | app.py health route | AC5: GET /api/v1/health returns 200 with JSON |
+
+### Coverage Targets
+| Module | Line Target | Actual |
+|--------|-------------|--------|
+| health/__init__.py | >= 80% | 100% |
+
+### FR-11 Acceptance Criteria Mapping
+- **AC1**: HealthStatus enum with healthy/degraded/unhealthy values -> test #1
+- **AC2**: Status derived from postgres + redis connectivity -> tests #2, #3, #4, #5
+- **AC3**: uptime_seconds present, non-negative, monotonic -> tests #6, #8
+- **AC4**: Response keys exactly {status, postgres, redis, uptime_seconds} -> test #7
+- **AC5**: HTTP 200 with valid JSON body -> test #9
+
+### Exclusions
+- Real database connectivity checks (Phase 1 uses stub callables; app.py wires lambda: False)
+- Prometheus metrics endpoint (future feature)
+- /health/live and /health/ready split (Kubernetes-style endpoints deferred)
+- SLA-based health thresholds (future feature)

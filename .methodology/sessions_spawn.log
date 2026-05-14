@@ -42,3 +42,11 @@
 {"timestamp": "2026-05-14T10:30:00", "fr_id": "FR-09", "role": "developer", "session_id": "dev-a71c1d34", "status": "success", "confidence": 10}
 {"timestamp": "2026-05-14T10:32:00", "fr_id": "FR-08", "role": "reviewer", "session_id": "rev-a523fe7d", "status": "success", "review_status": "APPROVE", "confidence": 10}
 {"timestamp": "2026-05-14T10:32:00", "fr_id": "FR-09", "role": "reviewer", "session_id": "rev-afad3844", "status": "success", "review_status": "APPROVE", "confidence": 10}
+{"timestamp": "2026-05-14T10:35:00", "fr_id": "FR-10", "role": "developer", "session_id": "dev-aed6994f", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T10:35:00", "fr_id": "FR-11", "role": "developer", "session_id": "dev-aabb153f", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T10:35:00", "fr_id": "FR-12", "role": "developer", "session_id": "dev-ab275941", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T10:35:00", "fr_id": "FR-13", "role": "developer", "session_id": "dev-a7953f74", "status": "success", "confidence": 10}
+{"timestamp": "2026-05-14T10:38:00", "fr_id": "FR-10", "role": "reviewer", "session_id": "rev-a4b15059", "status": "success", "review_status": "APPROVE", "confidence": 10}
+{"timestamp": "2026-05-14T10:38:00", "fr_id": "FR-11", "role": "reviewer", "session_id": "rev-a4b15059", "status": "success", "review_status": "APPROVE", "confidence": 10}
+{"timestamp": "2026-05-14T10:38:00", "fr_id": "FR-12", "role": "reviewer", "session_id": "rev-a4b15059", "status": "success", "review_status": "APPROVE", "confidence": 10}
+{"timestamp": "2026-05-14T10:38:00", "fr_id": "FR-13", "role": "reviewer", "session_id": "rev-a4b15059", "status": "success", "review_status": "APPROVE", "confidence": 10}
