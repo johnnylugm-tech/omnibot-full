@@ -49,6 +49,10 @@ Citations:
 | RISK-FR03-02 | `received_at` server clock diverges from platform event time | 3 | 3 | 9 | OPEN |
 | RISK-FR03-03 | `raw_payload` dict interior-mutable despite `frozen=True` | 2 | 3 | 6 | OPEN |
 | RISK-FR03-04 | `Platform.MESSENGER/WHATSAPP` defined without adapter guard | 3 | 3 | 9 | OPEN |
+| RISK-FR04-01 | `Cc`-only filter preserves bidi override / `Cf` format chars | 3 | 4 | 12 | OPEN |
+| RISK-FR04-02 | `ValueError` on malformed Unicode unhandled → 500 + retry storm | 3 | 3 | 9 | OPEN |
+| RISK-FR04-03 | L3 pattern matching absent in Phase 1 — NFKC-normalized injections pass | 4 | 3 | 12 | OPEN |
+| RISK-FR04-04 | All-control-char input silently collapses to `""` with no diagnostic log | 3 | 2 | 6 | OPEN |
 
 > **Score** = likelihood × impact. Scores ≥ 10 are HIGH priority.
 
@@ -287,6 +291,78 @@ Citations:
 
 ---
 
+## [FR-04] Input Sanitizer L2 — Detailed Risk Entries
+
+---
+
+### RISK-FR04-01 — `Cc`-Only Filter Preserves Bidirectional Override and Other `Cf` Format Characters
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR04-01 |
+| **fr_tag** | [FR-04] |
+| **category** | Security / Information Disclosure |
+| **description** | The control-character filter in `sanitize()` (`03-development/src/omnibot/sanitizer/__init__.py:29`) removes only Unicode category `Cc` (C0/C1 control codes). Unicode category `Cf` — format characters — is not filtered. `Cf` includes bidi override characters (U+202A LEFT-TO-RIGHT EMBEDDING through U+202E RIGHT-TO-LEFT OVERRIDE, U+2066–U+2069 bidi isolates) and the BOM/ZWNBSP (U+FEFF). A caller can embed bidi overrides inside a message that visually appears benign in a left-to-right log viewer but is stored and processed with reversed character order, enabling log injection, visual spoofing of audit trails, and bypassing human review of escalated content. The SPEC reference implementation (`SPEC/omnibot-phase-1.md:377`) uses `c.isprintable() or c in "\n\t"` — Python's `isprintable()` returns `False` for all `Cf` characters, making the intended behaviour broader than the implemented `category == "Cc"` check. |
+| **likelihood** | 3 / 5 — Bidi injection via U+202E (RIGHT-TO-LEFT OVERRIDE) is a documented CVE-class technique (e.g., Trojan Source); crafting such inputs requires no special tooling. The gap is invisible to unit tests because `tests/test_fr04.py:84-88` explicitly preserves ZWJ (U+200D, also `Cf`) as a design decision for emoji — but that decision implicitly passes all `Cf` chars including bidi overrides. |
+| **impact** | 4 / 5 — A log line containing bidi overrides renders differently in a terminal or SIEM than it is stored, allowing an attacker to make malicious content appear as a benign audit entry. Escalated tickets processed by human agents (FR-05 escalation path) may show visually different content than what was actually received, undermining the integrity of the support workflow. |
+| **mitigation** | (1) Extend the filter to also strip `Cf` characters that are not semantically required for emoji: strip U+202A–U+202E, U+2066–U+2069 (bidi), and U+FEFF (BOM) unconditionally; keep U+200D (ZWJ) only when flanked by emoji codepoints. (2) Alternatively, align with the SPEC `isprintable()` approach and add an explicit carve-out for ZWJ in emoji sequences. (3) Add a test asserting that `sanitize("Hello‮World")` removes U+202E. (4) Log a structured WARN (FR-09) when `Cf` bidi characters are stripped, so ops can detect probing attempts. |
+| **owner** | Platform Team / SecOps |
+
+**Citations** (HR-15): 03-development/src/omnibot/sanitizer/__init__.py:29 (`category(ch) == "Cc"` — `Cf` not filtered), SPEC/omnibot-phase-1.md:377 (reference uses `isprintable()` — broader exclusion), tests/test_fr04.py:84-88 (`test_zwj_emoji_preserved` — confirms `Cf` chars pass through), SRS.md:64-67 (FR-04 acceptance criteria — "remove non-printable control chars, keep `\n`, `\t`")
+
+---
+
+### RISK-FR04-02 — `ValueError` on Malformed Unicode Is Unhandled at the Call Site, Producing 500 + Retry Storm
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR04-02 |
+| **fr_tag** | [FR-04] |
+| **category** | Operational / Reliability |
+| **description** | `sanitize()` raises `ValueError("Input text contains malformed Unicode: ...")` (`03-development/src/omnibot/sanitizer/__init__.py:21-22`) when `unicodedata.normalize("NFKC", text)` raises `UnicodeError` or `TypeError`. Neither the Telegram adapter (`build/lib/omnibot/adapters/telegram.py`), the LINE adapter (`build/lib/omnibot/adapters/line.py`), nor any documented call site catches this exception. An unhandled `ValueError` propagates through FastAPI's exception handlers as a 500 Internal Server Error. Telegram and LINE interpret a non-2xx response as a delivery failure and retry the webhook: LINE retries every 30 seconds for up to 3 attempts (SAD.md:94); Telegram queues the update for redelivery. If the malformed payload is persistent (e.g., a platform encoding edge case or a crafted test message), every retry produces another 500, generating a sustained retry storm and polluting structured logs with uncorrelated tracebacks rather than FR-09 structured error events. |
+| **likelihood** | 3 / 5 — Python's `json.loads()` decodes valid UTF-8 and will not produce lone surrogates in the standard path; however, LINE and Telegram payloads that include emoji encoded as CESU-8, messages from third-party platform bridges, or deliberate fuzzing of the webhook endpoint can produce `str` values that trigger `UnicodeError` in `unicodedata.normalize`. The gap between decoding and normalization is narrow but non-zero in production. |
+| **impact** | 3 / 5 — Each retry produces a 500 with no structured log entry; the FR-09 observability layer (RISK-FR01-02 context) receives no actionable event. Ops sees a spike in 500s without a per-request trace. On LINE, three retries consume the `replyToken`, making the original message un-repliable even after the issue is fixed. A sustained storm from a looped retry can exhaust ASGI worker threads. |
+| **mitigation** | (1) Catch `ValueError` raised by `sanitize()` at the adapter parse boundary; log a structured `ERROR` event (FR-09) with `request_id`, platform, and the offending `repr(text[:100])`. (2) Return a 200 OK (with the message dropped) rather than 500 to prevent platform retry storms — document this as the "accept and discard" pattern for unprocessable payloads. (3) Add a FastAPI exception handler for `ValueError` at the app level as a safety net, converting it to a 422 with a sanitized error body. (4) Add `test_fr04.py` assertion covering the `sanitize(None)` and `sanitize("\udcff")` (surrogate) edge cases. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/sanitizer/__init__.py:18-22 (`try/except` block — raises `ValueError` to caller), 03-development/src/omnibot/sanitizer/__init__.py:1-4 (module docstring — no caller error-handling contract specified), SRS.md:64-68 (FR-04 acceptance criteria — no error-handling requirement stated), SAD.md:94 (LINE retry-on-timeout behaviour — applies equally to 500 responses)
+
+---
+
+### RISK-FR04-03 — L3 Pattern Matching Absent in Phase 1: NFKC-Normalized Injection Content Reaches Pipeline Unrestricted
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR04-03 |
+| **fr_tag** | [FR-04] |
+| **category** | Security / Functional |
+| **description** | The sanitizer's docstring explicitly states: "Does NOT perform pattern matching — that is L3's responsibility" (`03-development/src/omnibot/sanitizer/__init__.py:13`). L3 (`PromptInjectionDefense`) is scoped to Phase 2 (`SPEC/omnibot-phase-1.md:372`). In Phase 1, the pipeline has no layer that filters or flags injection payloads — XSS strings, prompt-injection sequences, and SQL fragments all pass through `sanitize()` and are forwarded to the knowledge layer. Critically, NFKC normalization actively expands the attack surface: a sender encodes `<script>` using fullwidth characters (`＜ｓｃｒｉｐｔ＞`) — which would be visually detectable — and `sanitize()` canonicalises them to ASCII `<script>`, producing a clean attack payload from an obfuscated input. `tests/test_fr04.py:67-73` (`test_no_pattern_matching_performed`) confirms this behaviour is intentional at L2, but no compensating control exists at Phase 1. |
+| **likelihood** | 4 / 5 — Any user of the bot can send fullwidth or homoglyph-encoded injection content; no authentication barrier exists at the webhook layer beyond signature verification. Phase 1 is the only deployed pipeline layer; L3 has no implementation date within the current sprint scope. The pattern is well-known and actively used in LLM prompt injection attacks. |
+| **impact** | 3 / 5 — Injection payloads reaching the Phase 1 knowledge layer can manipulate rule matching, trigger spurious escalations, or — once a generative model is wired in Phase 2 — exfiltrate conversation context or override system instructions. In Phase 1 the knowledge layer is rule-based, limiting immediate damage; the risk escalates sharply when the generative model is added. |
+| **mitigation** | (1) Add a minimal Phase 1 blocklist: reject or flag messages that, after sanitization, contain known prompt-injection lead phrases (e.g., "ignore previous instructions", `<script>`, `{{`) — this is a thin heuristic L3 proxy until Phase 2. (2) Log all post-sanitize content at DEBUG level (FR-09) with a `sanitized=True` flag to enable retrospective analysis of injection attempts before L3 ships. (3) Track Phase 2 L3 implementation as a blocking dependency for any generative-model integration. (4) Document in `SPEC/omnibot-phase-1.md` that NFKC normalization is a pre-condition for L3 pattern matching, not a substitute for it. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/sanitizer/__init__.py:13 (docstring — "Does NOT perform pattern matching — that is L3's responsibility"), tests/test_fr04.py:67-73 (`test_no_pattern_matching_performed` — confirms XSS passes through post-normalization), SPEC/omnibot-phase-1.md:372 (L3 = `PromptInjectionDefense`, Phase 2 scope), SRS.md:68 (FR-04 acceptance criterion — "不執行 pattern matching（Phase 2 L3 負責）")
+
+---
+
+### RISK-FR04-04 — All-Control-Char Input Silently Collapses to `""` with No Diagnostic Log
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR04-04 |
+| **fr_tag** | [FR-04] |
+| **category** | Technical / Observability |
+| **description** | When a webhook payload contains a `content` field composed entirely of non-printable control characters (e.g., `"\x01\x02\x03"` or a NUL-padded filler), `sanitize()` strips every character and returns `""` after `strip()` (`03-development/src/omnibot/sanitizer/__init__.py:26-35`). The return value is indistinguishable from a legitimately empty message or a message with only whitespace (`tests/test_fr04.py:55-57` confirms this). No warning is emitted and the original pre-sanitization length is not preserved. Downstream consumers — the knowledge layer, escalation logic, and the `UnifiedMessage.content` field — receive `""` without any indication that content was present and discarded. This creates two problems: (1) the confidence-0 knowledge-layer path is triggered silently, matching RISK-FR01-03's empty-content scenario; (2) forensic log review cannot reconstruct that a non-empty (though control-char-only) payload was received, complicating incident analysis. |
+| **likelihood** | 3 / 5 — Deliberate probing (fuzz testing, malformed-packet attacks) reliably produces control-char-only content; accidental occurrence arises from platform encoding bugs or message corruption in transit. LINE's batch webhook retry path (RISK-FR01-02) may re-deliver corrupted events. |
+| **impact** | 2 / 5 — Knowledge layer receives `""` and follows the low-confidence path; no escalation is triggered and the user receives a generic response. The primary harm is observability loss: ops cannot distinguish "user sent nothing" from "user sent sanitized-away content". No data corruption or security bypass results directly. |
+| **mitigation** | (1) In `sanitize()`, before returning, compare `len(result) == 0` against `len(text.strip()) > 0`; if the pre-strip input was non-empty but the result is empty, emit a structured `WARN` log (FR-09) including `original_length`, `stripped_length`, and platform `request_id`. (2) Return a named result type (`SanitizeResult(text=..., was_content_dropped=bool)`) rather than a bare `str` so call sites can branch explicitly. (3) Add a `test_fr04.py` assertion that `sanitize("\x01\x02\x03")` produces `""` AND (once the WARN log is added) that the log emits a `content_dropped` event. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/sanitizer/__init__.py:26-35 (control-char removal loop and `strip()` — no diagnostic on empty result), tests/test_fr04.py:55-57 (`test_only_whitespace` — `""` return with no warning, same path as all-control-char input), SRS.md:64-68 (FR-04 acceptance criteria — no requirement for empty-result signaling), 03-development/src/omnibot/sanitizer/__init__.py:9-10 (function docstring — no mention of empty-output semantics)
+
+---
+
 ## Risk Heat Map
 
 ```
@@ -294,20 +370,23 @@ Impact
   5 |         | R01-05  |         |         |         |
   4 |         |R01-01   |R01-02   | R03-01  |         |
     |         |R02-03   |R02-01   |         |         |
+    |         |         |R04-01   |         |         |
   3 |         |         |R01-04   | R01-03  |         |
-    |         |R03-03   |R02-02   |         |         |
+    |         |R03-03   |R02-02   | R04-03  |         |
     |         |         |R03-02   |         |         |
     |         |         |R03-04   |         |         |
+    |         |         |R04-02   |         |         |
   2 |         |         |         | R02-04  |         |
+    |         |         |R04-04   |         |         |
   1 |         |         |         |         |         |
     +---------+---------+---------+---------+---------+
       L=1       L=2       L=3       L=4       L=5
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04
 
 ---
 
-*RISK_REGISTER.md v0.3 — FR-01 + FR-02 + FR-03 entries · Phase 7 draft · 2026-05-15*
+*RISK_REGISTER.md v0.4 — FR-01 + FR-02 + FR-03 + FR-04 entries · Phase 7 draft · 2026-05-15*
