@@ -37,6 +37,11 @@ Citations:
 - 03-development/src/omnibot/pii/__init__.py:39-47 (_SENSITIVE_KEYWORDS list — substring match tokens)
 - 03-development/src/omnibot/pii/__init__.py:65-93 (mask_pii — sequential left-to-right substitution)
 - 03-development/src/omnibot/pii/__init__.py:96-98 (contains_sensitive_keywords — wrong API name vs should_escalate)
+- SRS.md:91-101 (FR-06 functional requirements and acceptance criteria)
+- SRS.md:285 (FR-06 default rate limit 100 rps)
+- SPEC/omnibot-phase-1.md:440-484 (FR-06 Token Bucket reference implementation)
+- 03-development/src/omnibot/rate_limiter/__init__.py:13-40 (TokenBucket implementation)
+- 03-development/src/omnibot/rate_limiter/__init__.py:43-59 (RateLimiter implementation)
 
 ---
 
@@ -65,6 +70,10 @@ Citations:
 | RISK-FR05-02 | `contains_sensitive_keywords()` substring match → false positives on "110" in addresses; name deviates from `should_escalate()` spec | 4 | 3 | 12 | OPEN |
 | RISK-FR05-03 | Detection on original `text` after substitution on `result` — `pii_types` inflated for overlapping patterns | 3 | 3 | 9 | OPEN |
 | RISK-FR05-04 | `PIIMaskResult` not `frozen=True` — mutable `pii_types` corrupts NFR-06 compliance audit trail | 2 | 3 | 6 | OPEN |
+| RISK-FR06-01 | Unbounded `_buckets` dict → OOM DoS via unique `platform:user_id` flood | 3 | 4 | 12 | OPEN |
+| RISK-FR06-02 | `allow()` return value not wired to HTTP 429 — rate limiting inoperative in pipeline | 4 | 4 | 16 | OPEN |
+| RISK-FR06-03 | Global `_lock` on `RateLimiter` serializes all per-user lookups under concurrency | 3 | 3 | 9 | OPEN |
+| RISK-FR06-04 | In-memory bucket state resets on process restart — rate limit bypass on redeploy | 3 | 3 | 9 | OPEN |
 
 > **Score** = likelihood × impact. Scores ≥ 10 are HIGH priority.
 
@@ -447,21 +456,96 @@ Citations:
 
 ---
 
+## [FR-06] Rate Limiter Token Bucket — Detailed Risk Entries
+
+---
+
+### RISK-FR06-01 — Unbounded `_buckets` Dict Enables OOM Denial-of-Service
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR06-01 |
+| **fr_tag** | [FR-06] |
+| **category** | Security / Availability |
+| **description** | `RateLimiter._buckets` is an unbounded `Dict[str, TokenBucket]` (`03-development/src/omnibot/rate_limiter/__init__.py:49`) with no eviction, TTL, or maximum-size guard. Every distinct `user_id` string passed to `allow()` inserts a new `TokenBucket` that is never removed. An attacker (or a misconfigured upstream component) that sends webhook payloads with unique `platform:user_id` values — trivially achievable by cycling numeric suffixes — causes `_buckets` to grow monotonically. Each `TokenBucket` instance holds a `threading.Lock`, a float, and two float timestamps, adding roughly 200–300 bytes per entry. At 1 million unique keys the process heap expands by ~300 MB; at 10 million the container OOM-killer terminates the process, dropping all in-flight webhook requests for every platform. The SPEC reference implementation (`SPEC/omnibot-phase-1.md:473`) also uses a bare `dict` with no eviction, meaning the gap is inherited from upstream design. |
+| **likelihood** | 3 / 5 — Requires adversarial webhook payloads with unique user_ids or a misconfigured platform bridge that mints new identifiers per-request; no authentication barrier prevents arbitrary user_ids from arriving at the webhook layer beyond FR-02 signature verification. |
+| **impact** | 4 / 5 — OOM crash terminates the entire FastAPI process, dropping all concurrent requests across all platforms until the container scheduler restarts it. No graceful degradation path; all users lose service during the restart window. PostgreSQL connections are also severed, potentially corrupting any in-flight writes. |
+| **mitigation** | (1) Cap `_buckets` with an LRU eviction policy using `functools.lru_cache` or `cachetools.LRUCache(maxsize=50_000)` so stale user buckets are evicted as new ones arrive. (2) Add a periodic background sweep (e.g., every 60 s) that removes buckets whose `_last_refill` is older than a configurable TTL (e.g., 5 × bucket capacity / refill_rate seconds). (3) Expose a `len(self._buckets)` metric via FR-09 structured logging so ops can alert on `bucket_count > threshold`. (4) Add a `tests/test_fr06.py` assertion that `allow()` with 100 000 distinct user_ids does not raise `MemoryError` and that `len(limiter._buckets)` is bounded. |
+| **owner** | Platform Team / SecOps |
+
+**Citations** (HR-15): 03-development/src/omnibot/rate_limiter/__init__.py:49 (`_buckets: Dict[str, TokenBucket] = {}` — unbounded, no eviction), 03-development/src/omnibot/rate_limiter/__init__.py:55-58 (new `TokenBucket` inserted on every unseen user_id — no size limit), SPEC/omnibot-phase-1.md:473 (`_buckets: dict[str, TokenBucket]` in reference — eviction equally absent), tests/test_fr06.py:35-42 (`test_rate_limiter_per_user_isolation` — verifies independent buckets but never tests cardinality bound), SRS.md:99 (`platform:user_id` as bucket key — key space is per-platform, unbounded)
+
+---
+
+### RISK-FR06-02 — `allow()` Return Value Not Wired to HTTP 429 — Rate Limiting Is Inoperative
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR06-02 |
+| **fr_tag** | [FR-06] |
+| **category** | Technical / Functional |
+| **description** | SRS.md:101 requires that requests exceeding the token-bucket limit return `429 RATE_LIMIT_EXCEEDED`. The implementation's `RateLimiter.allow(user_id)` returns a `bool` (`03-development/src/omnibot/rate_limiter/__init__.py:52-59`) but is not called from any FastAPI route handler, middleware, or dependency. No `HTTPException(status_code=429)` is raised anywhere in the codebase when `allow()` returns `False`. The `RateLimiter` class is instantiated only in `tests/test_fr06.py` — it has no integration with the webhook request pipeline. The SPEC reference implementation (`SPEC/omnibot-phase-1.md:469-483`) similarly provides only the `check()` method and leaves HTTP wiring to the caller, but the Phase 1 app does not implement that wiring. The result is that every webhook request is processed regardless of per-user request rate, making FR-06 acceptance criterion (SRS.md:96-101) entirely unmet at runtime. |
+| **likelihood** | 4 / 5 — The gap is structural and active in every deployed request; no user is rate-limited in Phase 1, making this not a latent risk but an immediate functional deficiency. Any load test or abuse scenario will confirm the bypass. |
+| **impact** | 4 / 5 — Without rate limiting, a single user can submit unlimited webhook requests per second, exhausting ASGI worker threads, PostgreSQL connections, and knowledge-layer query budgets, potentially degrading service for all other users. NFR compliance (SRS.md:285) is unmet, and the 100 rps per-user contract advertised to platform operators is not enforced. |
+| **mitigation** | (1) Instantiate a module-level `RateLimiter` singleton in `app.py` and add a FastAPI dependency (`Depends`) that calls `limiter.allow(f"{platform}:{user_id}")` and raises `HTTPException(status_code=429, detail="RATE_LIMIT_EXCEEDED")` when it returns `False`. (2) Wire the dependency into the Telegram and LINE webhook route handlers as a parameter. (3) Add an integration test in `tests/test_fr06.py` that posts > 100 requests via the FastAPI `TestClient` and asserts the 101st returns HTTP 429. (4) Emit a structured `WARN` log (FR-09) on each 429 emission including `platform`, `user_id`, and `request_id` for ops alerting. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/rate_limiter/__init__.py:52-59 (`allow()` — returns `bool`, no FastAPI integration at call site), SRS.md:101 (FR-06 acceptance criterion — exceeded requests must return `429 RATE_LIMIT_EXCEEDED`), SRS.md:285 (`FR-06 | Default rate limit | 100 rps` — NFR table entry), SPEC/omnibot-phase-1.md:469-483 (reference `RateLimiter.check()` — HTTP wiring absent in reference too), tests/test_fr06.py:53-56 (`test_rate_limiter_capacity_zero_blocks_all` — unit test only; no HTTP-layer assertion)
+
+---
+
+### RISK-FR06-03 — Global `_lock` on `RateLimiter` Serializes All Per-User Bucket Lookups
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR06-03 |
+| **fr_tag** | [FR-06] |
+| **category** | Performance / Operational |
+| **description** | `RateLimiter.allow()` acquires a single global `threading.Lock` (`self._lock`) at the top of every call (`03-development/src/omnibot/rate_limiter/__init__.py:54`) to protect the `_buckets` dict lookup and potential insertion. Under the default 100 rps per-user limit with, for example, 500 concurrent active users, the FastAPI ASGI worker pool submits 50 000 requests per second all competing for the same `self._lock` even though their `user_id` keys are fully independent. The lock is released before `bucket.consume()` is called (line 59), meaning `TokenBucket._lock` (per-bucket) provides the actual consume-side thread safety; the global lock adds serialization overhead for dict operations that Python's GIL already makes atomic for `dict.get()`. The SPEC reference implementation (`SPEC/omnibot-phase-1.md:469-483`) has no lock at all on the `RateLimiter`, relying implicitly on GIL-protected dict access — a simpler model with less contention. |
+| **likelihood** | 3 / 5 — Lock contention is negligible at low request volumes but measurable under the 100 rps × multi-user load that FR-06 is designed to handle; the bottleneck becomes significant once concurrent-user count exceeds ASGI thread-pool size (typically 10–20 threads). |
+| **impact** | 3 / 5 — Increased tail latency for rate-limit checks adds to the webhook response time budget (NFR-02, < 3 s p95). Under extreme load, `allow()` becomes the synchronization bottleneck across all user traffic, adding queuing delay that can push p95 latency past the SLA threshold even for users whose buckets are not exhausted. |
+| **mitigation** | (1) Remove the global `_lock` and rely on the GIL for `dict.get()` / `dict.__setitem__` atomicity (CPython guarantee): two concurrent inserts for the same new key are idempotent because both would create equivalent `TokenBucket` instances. (2) If non-CPython compatibility is required, replace with a `threading.Lock` per user_id prefix shard (e.g., 256 shards by `hash(user_id) % 256`) to reduce contention. (3) If adopting an async framework (Phase 2), replace `threading.Lock` with `asyncio.Lock` per bucket to avoid blocking the event loop. (4) Add a micro-benchmark in CI (`tests/test_fr06.py`) that asserts `allow()` latency p99 < 1 ms under 100 concurrent callers. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/rate_limiter/__init__.py:50 (`self._lock = threading.Lock()` — single global lock), 03-development/src/omnibot/rate_limiter/__init__.py:54-58 (global lock scope covers dict lookup and insert), 03-development/src/omnibot/rate_limiter/__init__.py:59 (`return bucket.consume()` — outside global lock, inside per-bucket lock), 03-development/src/omnibot/rate_limiter/__init__.py:25 (`TokenBucket._lock` — per-bucket lock for consume), SPEC/omnibot-phase-1.md:469-483 (reference `RateLimiter` — no locking; relies on GIL)
+
+---
+
+### RISK-FR06-04 — In-Memory Bucket State Lost on Process Restart Enables Rate Limit Bypass
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR06-04 |
+| **fr_tag** | [FR-06] |
+| **category** | Technical / Operational |
+| **description** | All `TokenBucket` instances and their `_tokens` float values live exclusively in the `RateLimiter._buckets` dict in the Python process heap (`03-development/src/omnibot/rate_limiter/__init__.py:20-25, 49`). A process restart — triggered by a rolling deployment, container OOM recovery (see RISK-FR06-01), or watchdog restart — resets every user's bucket to full capacity (`_tokens = float(capacity) = 100.0`). A user who has exhausted their bucket and is receiving 429 responses can immediately restore 100 tokens by triggering a container restart (e.g., by exploiting RISK-FR06-01) or by timing their burst to coincide with a known deploy window. In a multi-replica deployment (two Docker Compose service replicas behind a load balancer), each replica maintains independent state; a user rate-limited on replica A can freely use replica B with a full 100-token bucket, effectively multiplying the per-user limit by the number of replicas. The SPEC reference (`SPEC/omnibot-phase-1.md:469-483`) is identically in-memory with no persistence strategy documented. |
+| **likelihood** | 3 / 5 — Rolling deployments are routine (every merge to main triggers a container redeploy); multi-replica setups are the recommended production configuration for NFR-02 availability. Both conditions are expected in production, not edge cases. |
+| **impact** | 3 / 5 — A determined bad actor can sustain traffic above the nominal 100 rps limit across deploys, degrading knowledge-layer query capacity and ASGI thread availability for legitimate users. The bypass does not grant authentication privileges or data access, but it undermines the abuse-prevention guarantee (SRS.md:94) and inflates infrastructure costs. |
+| **mitigation** | (1) Back `_buckets` with a shared Redis store keyed on `platform:user_id` using Redis's atomic `INCRBY` + `EXPIRE` pattern or the token-bucket Lua script, so bucket state survives restarts and is consistent across replicas. (2) As a lower-effort interim: add a startup log (`WARN`) that reports `_buckets` was reset to empty on init, enabling ops to detect post-restart rate-limit amnesia in the structured log stream. (3) Document the ephemeral rate-limit behavior in MONITORING_PLAN.md so on-call staff are aware that 429 suppression resets on restart. (4) In the multi-replica case, use sticky session routing (platform:user_id hash) at the load balancer as a stopgap until Redis-backed state is implemented. |
+| **owner** | Platform Team / DevOps |
+
+**Citations** (HR-15): 03-development/src/omnibot/rate_limiter/__init__.py:20-25 (`TokenBucket.__init__` — `_tokens` and `_last_refill` initialized in process memory, no persistence), 03-development/src/omnibot/rate_limiter/__init__.py:46-49 (`RateLimiter.__init__` — `_buckets = {}` constructed fresh on every instantiation), SPEC/omnibot-phase-1.md:469-483 (reference `RateLimiter` — in-memory only, no Redis or persistence layer), SRS.md:91-101 (FR-06 acceptance criteria — per-user isolation required; no persistence requirement stated), tests/test_fr06.py:35-42 (`test_rate_limiter_per_user_isolation` — single-process test; cross-replica isolation not covered)
+
+---
+
 ## Risk Heat Map
 
 ```
 Impact
   5 |         | R01-05  |         |         |         |
   4 |         |R01-01   |R01-02   | R03-01  |         |
-    |         |R02-03   |R02-01   |         |         |
+    |         |R02-03   |R02-01   | R06-02  |         |
     |         |         |R04-01   |         |         |
     |         |         |R05-01   |         |         |
+    |         |         |R06-01   |         |         |
   3 |         |R03-03   |R01-04   | R01-03  |         |
     |         |R05-04   |R02-02   | R04-03  |         |
     |         |         |R03-02   | R05-02  |         |
     |         |         |R03-04   |         |         |
     |         |         |R04-02   |         |         |
     |         |         |R05-03   |         |         |
+    |         |         |R06-03   |         |         |
+    |         |         |R06-04   |         |         |
   2 |         |         |         | R02-04  |         |
     |         |         |R04-04   |         |         |
   1 |         |         |         |         |         |
@@ -470,9 +554,9 @@ Impact
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04
 
 ---
 
-*RISK_REGISTER.md v0.5 — FR-01 + FR-02 + FR-03 + FR-04 + FR-05 entries · Phase 7 draft · 2026-05-15*
+*RISK_REGISTER.md v0.6 — FR-01 + FR-02 + FR-03 + FR-04 + FR-05 + FR-06 entries · Phase 7 draft · 2026-05-15*
