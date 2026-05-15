@@ -74,6 +74,10 @@ Citations:
 | RISK-FR06-02 | `allow()` return value not wired to HTTP 429 — rate limiting inoperative in pipeline | 4 | 4 | 16 | OPEN |
 | RISK-FR06-03 | Global `_lock` on `RateLimiter` serializes all per-user lookups under concurrency | 3 | 3 | 9 | OPEN |
 | RISK-FR06-04 | In-memory bucket state resets on process restart — rate limit bypass on redeploy | 3 | 3 | 9 | OPEN |
+| RISK-FR07-01 | Partial-match confidence 0.70 always escalates — `<= 0.7` threshold conflicts with SAD `>= 0.7` reply contract | 4 | 4 | 16 | OPEN |
+| RISK-FR07-02 | `QueryResult` not `frozen=True`; `id`/`knowledge_id` absent — Phase 2 `AttributeError` at runtime | 4 | 3 | 12 | OPEN |
+| RISK-FR07-03 | Case-sensitive `kw in text` vs ILIKE — mixed-case English keywords miss rule matches | 3 | 3 | 9 | OPEN |
+| RISK-FR07-04 | No `is_active` guard or `version DESC` order — deprecated rules permanently active | 3 | 3 | 9 | OPEN |
 
 > **Score** = likelihood × impact. Scores ≥ 10 are HIGH priority.
 
@@ -528,6 +532,78 @@ Citations:
 
 ---
 
+## [FR-07] Knowledge Layer V1 Rule Match — Detailed Risk Entries
+
+---
+
+### RISK-FR07-01 — Partial-Match Confidence 0.70 Always Escalates: `<= 0.7` Threshold Conflicts with SAD `>= 0.7` Reply Contract
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR07-01 |
+| **fr_tag** | [FR-07] |
+| **category** | Technical / Functional |
+| **description** | The SPEC `_rule_match_list()` assigns a confidence of exactly `0.70` to any partial match — a row where the query text is found via `ILIKE` or `ANY(keywords)` but is not a full-string substring of `question` (SPEC/omnibot-phase-1.md:532). The implementation's `query()` method uses `escalate = best_confidence <= 0.7` (03-development/src/omnibot/knowledge/__init__.py:52), which means any result at confidence `0.70` triggers escalation. This directly conflicts with SAD.md:244, which specifies `>= 0.7 → reply; < 0.7 → escalate`. The SPEC's own `query()` also uses `> 0.7` (SPEC/omnibot-phase-1.md:507), creating an inconsistency between SPEC and SAD: partial matches (the one confidence tier between no-match and exact-match) are never returned as automated replies in either the SPEC or the implementation, despite SAD designating them as successful matches. In production this means every partial-knowledge-base hit — ILIKE match without full containment — is silently routed to a human agent rather than returning the matching rule's canned answer. `tests/test_fr07.py:32-37` (`test_partial_match_fuzzy`) only asserts `result.confidence > 0`, not that a 0.7 partial match is replied rather than escalated, leaving the boundary behaviour unverified. |
+| **likelihood** | 4 / 5 — Every partial-confidence match (the intended middle tier of FR-07) deterministically escalates; this fires on any user query that triggers an ILIKE hit without full containment, which is the common case for abbreviated or colloquial phrasing in bilingual customer-service interactions. |
+| **impact** | 4 / 5 — All partial matches are permanently routed to human agents, collapsing the three-tier confidence model (0.95 exact / 0.70 partial / 0.0 none) into a binary system (0.95 exact / escalate). FCR (NFR-01) degrades because knowledge-base partial hits that should auto-reply inflate the escalation queue instead. |
+| **mitigation** | (1) Align the threshold to SAD.md:244: change `escalate = best_confidence <= 0.7` (knowledge/__init__.py:52) and `source="rule_match" if best_confidence > 0.7` (knowledge/__init__.py:59) to use `< 0.7` and `>= 0.7` respectively. (2) Resolve the SPEC/SAD conflict by updating SPEC/omnibot-phase-1.md:507 from `confidence > 0.7` to `confidence >= 0.7` so all three documents are consistent. (3) Add a `tests/test_fr07.py` assertion: a single-keyword rule with one keyword matched returns `escalate=False` when `confidence == 0.7` (achievable with a 7-of-10 keyword rule). (4) Add `test_partial_match_boundary` asserting that `query()` on a partial match does not set `escalate=True`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/knowledge/__init__.py:52 (`escalate = best_confidence <= 0.7`), 03-development/src/omnibot/knowledge/__init__.py:59 (`source="rule_match" if best_confidence > 0.7` — boundary at > not >=), SPEC/omnibot-phase-1.md:507 (`if result.confidence > 0.7` — same strict inequality), SPEC/omnibot-phase-1.md:532 (`confidence=0.95 if … else 0.7` — partial match returns exactly 0.70), 02-architecture/SAD.md:244 (`>= 0.7 → reply; < 0.7 → escalate` — requires inclusive bound), 01-requirements/SRS.md:115 (部分匹配信心度 0.7), tests/test_fr07.py:32-37 (`test_partial_match_fuzzy` — asserts `confidence > 0` only, no escalation assertion)
+
+---
+
+### RISK-FR07-02 — `QueryResult` Not `frozen=True`; Missing `id` and `knowledge_id` Fields Break Phase 2 Contract
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR07-02 |
+| **fr_tag** | [FR-07] |
+| **category** | Technical / Data Integrity |
+| **description** | The SPEC defines `KnowledgeResult` as `@dataclass(frozen=True)` with five fields: `id: int`, `content: str`, `confidence: float`, `source: str`, and `knowledge_id: Optional[int]` (SPEC/omnibot-phase-1.md:494-500). The implementation exposes `QueryResult` — a plain `@dataclass` without `frozen=True` (03-development/src/omnibot/knowledge/__init__.py:13) — and omits both `id` and `knowledge_id`. SAD.md:158 specifies `knowledge_id: int` as the field logged by the pipeline INFO entry after every successful knowledge match (`log INFO: knowledge_match, confidence, knowledge_id, user_id` — SAD.md:474). Phase 2 pipeline code that accesses `result.knowledge_id` will raise `AttributeError` at the first knowledge-layer call, blocking the entire request path until patched. Without `frozen=True`, any middleware or logging decorator can mutate `result.confidence` or `result.response` post-construction, silently corrupting the audit log (NFR-06) and undermining the reliability of the `confidence_score` written to the `messages` table (SPEC/omnibot-phase-1.md:713-714). The mutable `source` field can also be overwritten from `"rule_match"` to `"escalate"` after the fact, corrupting `knowledge_source` analytics (SPEC/omnibot-phase-1.md:834-843). |
+| **likelihood** | 4 / 5 — Phase 2 integration is the next sprint scope; any code importing `KnowledgeResult` per the SPEC/SAD contract will hit `AttributeError` on `knowledge_id` immediately. The mutable fields compound every log-annotation pass with a silent corruption risk. |
+| **impact** | 3 / 5 — `AttributeError` on `knowledge_id` blocks the Phase 2 request path entirely until patched; corrupted `confidence` or `source` fields produce incorrect compliance reports and mislead FCR analytics (NFR-01). In Phase 1 the missing fields cause no immediate runtime failure but mask the gap until Phase 2 integration. |
+| **mitigation** | (1) Add `frozen=True` to the `@dataclass` declaration: `@dataclass(frozen=True)` (knowledge/__init__.py:13). (2) Add `id: int` and `knowledge_id: Optional[int]` fields to `QueryResult` matching SPEC/omnibot-phase-1.md:494-500; populate them from rule index or DB row `id` when available, `-1` for no-match escalation path. (3) Rename `QueryResult` to `KnowledgeResult` (or provide a public alias) to align with the SPEC/SAD contract and avoid Phase 2 import failures. (4) Add `tests/test_fr07.py` assertions: (a) `result.confidence = 0.5` raises `FrozenInstanceError`; (b) `result.knowledge_id` is accessible without `AttributeError`; (c) escalation path sets `knowledge_id = -1`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/knowledge/__init__.py:13 (`@dataclass` — no `frozen=True`), 03-development/src/omnibot/knowledge/__init__.py:13-22 (`QueryResult` definition — `id` and `knowledge_id` absent), SPEC/omnibot-phase-1.md:494-500 (`@dataclass(frozen=True)` — `id`, `content`, `confidence`, `source`, `knowledge_id`), SPEC/omnibot-phase-1.md:540-545 (`_escalate()` returns `id=-1` — sentinel absent in implementation), 02-architecture/SAD.md:158-160 (`KnowledgeResult` fields — `knowledge_id: int` required), 02-architecture/SAD.md:474 (pipeline INFO log includes `knowledge_id`), tests/test_fr07.py:49-55 (`test_query_result_dataclass` — no immutability assertion, no `knowledge_id` field check)
+
+---
+
+### RISK-FR07-03 — Case-Sensitive `kw in text` Match vs Case-Insensitive ILIKE — Mixed-Case English Keywords Miss
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR07-03 |
+| **fr_tag** | [FR-07] |
+| **category** | Technical / Functional |
+| **description** | The rule matching loop uses Python's `kw in text` containment test (03-development/src/omnibot/knowledge/__init__.py:45), which is case-sensitive. The SPEC SQL uses `question ILIKE '%{query_text}%'` and `{query_text} = ANY(keywords)` (SPEC/omnibot-phase-1.md:521-522), both of which are case-insensitive in PostgreSQL. English keywords registered in the default rule set — `"return"` and `"order"` (knowledge/__init__.py:66-67) — will fail to match user input typed as `"Return"`, `"ORDER"`, `"RETURN"`, or mixed-case variants. A user typing "I want to RETURN my order" matches neither the `"return"` nor the `"order"` rule under case-sensitive comparison and receives a no-match escalation instead of the configured canned answer. Chinese-language keywords are unaffected (no case dimension), but bilingual customer-service bots serving international users or using product codes, SKU strings, or command words in English are exposed immediately. The confidence inflation from case-normalized matches that would hit partial confidence (0.70) is lost; the path falls to confidence 0.0 and escalates. |
+| **likelihood** | 3 / 5 — English keywords appear in the default rule set and are a first-class use case in bilingual customer-service bots; mixed-case input is normal for all-caps emphasis and auto-corrected mobile keyboard input. The gap is deterministic for any English keyword with case variation in user input. |
+| **impact** | 3 / 5 — Missed matches inflate the escalation queue with queries that should have been answered automatically, degrading FCR (NFR-01) and adding unnecessary load to human agents. No data is corrupted; the failure mode is silent under-matching rather than incorrect matching. |
+| **mitigation** | (1) Normalize both keyword and input text to lowercase before comparison: change `kw in text` (knowledge/__init__.py:45) to `kw.lower() in text.lower()`, mirroring ILIKE case-folding semantics. (2) When PostgreSQL is wired in Phase 2, rely on the SQL `ILIKE` predicate and `= ANY(keywords)` operator rather than Python-level case folding. (3) Add `tests/test_fr07.py` assertion: a rule with keyword `"return"` matches query text `"RETURN"` and `"Return"`. (4) Apply the same normalization to `_default_kb` rules so the Phase 1 in-memory store is consistent with the Phase 2 SQL behaviour. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/knowledge/__init__.py:45 (`kw in text` — case-sensitive Python containment), 03-development/src/omnibot/knowledge/__init__.py:66-67 (default rules with English keywords `"return"`, `"order"`), SPEC/omnibot-phase-1.md:521-522 (`ILIKE %s` + `= ANY(keywords)` — case-insensitive SQL operators), SPEC/omnibot-phase-1.md:532 (`query_text.lower() in row["question"].lower()` — SPEC explicitly lowercases for exact-match check), 01-requirements/SRS.md:113 (`ILIKE` acceptance criterion — implies case-insensitive matching), tests/test_fr07.py:14-19 (`test_exact_match_high_confidence` — uses Chinese only; no English case-variation test)
+
+---
+
+### RISK-FR07-04 — No `is_active` Guard or `version DESC` Ordering — Deprecated Rules Permanently Active
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR07-04 |
+| **fr_tag** | [FR-07] |
+| **category** | Technical / Operational |
+| **description** | SRS.md:114 requires `WHERE is_active = TRUE` and SRS.md:116 requires `ORDER BY version DESC` as acceptance criteria for FR-07. The `KnowledgeBase` in-memory store (knowledge/__init__.py:32-37) has no `is_active` concept and no version tracking: every rule added via `add_rule()` is permanently active and matched in insertion order. When Phase 2 wires the PostgreSQL `knowledge_base` table — which contains an `is_active BOOL` column and a `version INT` column (SPEC/omnibot-phase-1.md:725-731) — the absence of these guards in the query layer means: (1) deactivated rules (is_active=FALSE, e.g., outdated promotional responses or deprecated product lines) continue to match alongside current rules, potentially returning stale or incorrect answers to users; (2) if multiple versions of the same rule exist (v1 and v2), the lowest-version (oldest) entry may shadow the canonical current answer depending on database storage order, since there is no `ORDER BY version DESC` clause to guarantee the latest version is selected first (SPEC/omnibot-phase-1.md:523). SAD.md:239 and SAD.md:242 list both constraints as required logical invariants for `KnowledgeRepository`. |
+| **likelihood** | 3 / 5 — The risk is latent in Phase 1 (no PostgreSQL) but materializes at the first Phase 2 database wiring. Content teams regularly deactivate and version-update rules as product information changes; without the guards, every rule update produces a regression path. |
+| **impact** | 3 / 5 — Deactivated rules returning stale answers erode user trust and can violate regulatory requirements for current product/pricing information. Stale rule shadowing causes inconsistent responses where different users (hitting different DB replicas or query plans) receive different answers for identical queries. |
+| **mitigation** | (1) Add an `is_active: bool = True` field to the `add_rule()` contract (knowledge/__init__.py:35-37) and filter on `is_active=True` in `query()` so Phase 1 in-memory behaviour mirrors the SQL constraint. (2) Add a `version: int = 1` field to the rule dict and sort candidates by `version DESC` before selecting the best match, mirroring `ORDER BY version DESC` (SPEC/omnibot-phase-1.md:523). (3) When Phase 2 wires PostgreSQL, validate that the SQL template includes both `AND is_active = TRUE` (as a top-level predicate, not inside the ILIKE OR group per SAD.md:241) and `ORDER BY version DESC LIMIT 5`. (4) Add a `tests/test_fr07.py` case: register two versions of the same rule (v1 old answer, v2 new answer) and assert the higher-version answer is returned; register a rule with `is_active=False` and assert it is never matched. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/knowledge/__init__.py:32-37 (`KnowledgeBase.__init__` and `add_rule()` — no `is_active` or `version` fields), 03-development/src/omnibot/knowledge/__init__.py:44-50 (match loop — no `is_active` filter, no version-based ordering), SPEC/omnibot-phase-1.md:519-524 (`WHERE is_active = TRUE … ORDER BY version DESC LIMIT 5` — SQL template with both constraints), SPEC/omnibot-phase-1.md:725-731 (`knowledge_base` table schema — `is_active BOOL`, `version INT`), 02-architecture/SAD.md:239 (`is_active = TRUE` logical constraint), 02-architecture/SAD.md:242 (`ORDER by version DESC, take first result`), 01-requirements/SRS.md:114 (`is_active = TRUE` acceptance criterion), 01-requirements/SRS.md:116 (`version DESC` acceptance criterion)
+
+---
+
 ## Risk Heat Map
 
 ```
@@ -535,17 +611,19 @@ Impact
   5 |         | R01-05  |         |         |         |
   4 |         |R01-01   |R01-02   | R03-01  |         |
     |         |R02-03   |R02-01   | R06-02  |         |
-    |         |         |R04-01   |         |         |
+    |         |         |R04-01   | R07-01  |         |
     |         |         |R05-01   |         |         |
     |         |         |R06-01   |         |         |
   3 |         |R03-03   |R01-04   | R01-03  |         |
     |         |R05-04   |R02-02   | R04-03  |         |
     |         |         |R03-02   | R05-02  |         |
-    |         |         |R03-04   |         |         |
+    |         |         |R03-04   | R07-02  |         |
     |         |         |R04-02   |         |         |
     |         |         |R05-03   |         |         |
     |         |         |R06-03   |         |         |
     |         |         |R06-04   |         |         |
+    |         |         |R07-03   |         |         |
+    |         |         |R07-04   |         |         |
   2 |         |         |         | R02-04  |         |
     |         |         |R04-04   |         |         |
   1 |         |         |         |         |         |
@@ -554,9 +632,9 @@ Impact
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04
 
 ---
 
-*RISK_REGISTER.md v0.6 — FR-01 + FR-02 + FR-03 + FR-04 + FR-05 + FR-06 entries · Phase 7 draft · 2026-05-15*
+*RISK_REGISTER.md v0.7 — FR-01 + FR-02 + FR-03 + FR-04 + FR-05 + FR-06 + FR-07 entries · Phase 7 draft · 2026-05-15*
