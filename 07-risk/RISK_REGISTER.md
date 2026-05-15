@@ -604,6 +604,78 @@ Citations:
 
 ---
 
+## [FR-08] Basic Escalation Manager — Detailed Risk Entries
+
+---
+
+### RISK-FR08-01 — `conversation_id` Type Mismatch: `str` in Implementation vs. `int` in SPEC Contract and DB Schema
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR08-01 |
+| **fr_tag** | [FR-08] |
+| **category** | Technical / Data Integrity |
+| **description** | The SPEC defines `EscalationRequest.conversation_id` as `int` (SPEC/omnibot-phase-1.md:560), and the `escalation_queue` schema declares `conversation_id INTEGER REFERENCES conversations(id) UNIQUE` (SPEC/omnibot-phase-1.md:764). The implementation's `EscalationRecord` declares `conversation_id: str` (03-development/src/omnibot/escalation/__init__.py:22) and `EscalationManager.create()` accepts `conversation_id: str` (03-development/src/omnibot/escalation/__init__.py:41). SAD.md:136 specifies that the `conversations` lookup returns `conversation_id INT`, which is then passed directly to `EscalationService.create()` (SAD.md:482); passing a Python `str` to a PostgreSQL `INTEGER` column will raise `psycopg2.errors.InvalidTextRepresentation` on every Phase 2 `create()` call, blocking the entire human-handoff path. In Phase 1, tests pass string literals such as `"conv_001"` (tests/test_fr08.py:21), which succeed in the in-memory store but will fail at the Phase 2 database boundary without an explicit `int()` coercion. There is no type-annotation enforcement or runtime validation at the call site to catch this discrepancy early. |
+| **likelihood** | 4 / 5 — Phase 2 PostgreSQL wiring is the next sprint scope; every `create()` call will raise on the first real database connection unless the type is corrected. The in-memory Phase 1 store masks the error completely, so the bug will not surface until integration. |
+| **impact** | 3 / 5 — All escalation insertions fail at the Phase 2 boundary; human handoff for low-confidence and no-match queries is completely broken until patched. No data is silently corrupted in Phase 1, but the gap blocks the critical escalation path at Phase 2 go-live. |
+| **mitigation** | (1) Change `EscalationRecord.conversation_id` from `str` to `int` (03-development/src/omnibot/escalation/__init__.py:22). (2) Update `EscalationManager.create()` signature: `conversation_id: int` (03-development/src/omnibot/escalation/__init__.py:41). (3) Update all Phase 1 test calls in `tests/test_fr08.py` to pass integer conversation IDs (e.g., `1`, `2`, `3`) rather than string literals like `"conv_001"`. (4) Add a `tests/test_fr08.py` type assertion: `assert isinstance(record.conversation_id, int)` after `mgr.create(1, "reason")`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/escalation/__init__.py:22 (`conversation_id: str` — implementation declares str, not int), 03-development/src/omnibot/escalation/__init__.py:41 (`def create(self, conversation_id: str, reason: str)` — str parameter), SPEC/omnibot-phase-1.md:560 (`conversation_id: int` — SPEC EscalationRequest declares int), SPEC/omnibot-phase-1.md:764 (`conversation_id INTEGER REFERENCES conversations(id) UNIQUE` — schema column is INTEGER), 02-architecture/SAD.md:136 (`conversations` lookup returns `conversation_id INT`), 02-architecture/SAD.md:482 (`EscalationService.create(conversation_id, reason="no_rule_match")` — caller passes int from pipeline), tests/test_fr08.py:21 (`mgr.create("conv_001", "low_confidence")` — string literal; would fail Phase 2 type check)
+
+---
+
+### RISK-FR08-02 — `assign()` Missing `resolved_at IS NULL` Guard — Resolved Escalations Can Be Silently Re-Assigned
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR08-02 |
+| **fr_tag** | [FR-08] |
+| **category** | Technical / Data Integrity |
+| **description** | The SPEC's `BasicEscalationManager.assign()` SQL includes `WHERE id = %s AND resolved_at IS NULL` (SPEC/omnibot-phase-1.md:585), ensuring that calling `assign()` on an already-resolved escalation is a no-op rather than overwriting audit-critical fields. The implementation's `EscalationManager.assign()` performs no such state check (03-development/src/omnibot/escalation/__init__.py:54-60): it retrieves the record, raises `KeyError` only if absent, and then unconditionally overwrites `assigned_agent` and `picked_at`. Calling `assign()` on a record that has `resolved_at` set advances `picked_at` past `resolved_at`, creating an impossible audit trail (agent assigned after resolution). Symmetrically, `resolve()` contains no idempotency guard (03-development/src/omnibot/escalation/__init__.py:62-67): calling it twice silently advances `resolved_at` on each invocation, making the timestamp unreliable. SAD.md:516 specifies that `first_contact_resolution BOOL` is set to TRUE when `resolve()` is called without a prior `assign()`; corrupted `picked_at` / `resolved_at` timestamps break this FCR determination. `tests/test_fr08.py` does not test calling `assign()` on a resolved record or calling `resolve()` twice. |
+| **likelihood** | 3 / 5 — Agent-facing UIs commonly include retry logic on failure; a double-submit or concurrent webhook delivery triggers re-assignment. The resolve-without-assign path (self-service FCR) also calls `resolve()` directly, creating a scenario where a subsequent `assign()` would corrupt the audit record. |
+| **impact** | 3 / 5 — Corrupted `picked_at` and `resolved_at` timestamps invalidate FCR analytics (SAD.md:516) and compliance audit trails (NFR-06). Two agents may independently act on the same escalation record if `assign()` succeeds after resolution, causing duplicate handling of a closed conversation. |
+| **mitigation** | (1) Add a resolved guard in `assign()`: `if record.resolved_at is not None: raise ValueError(f"Escalation {escalation_id} already resolved")` (03-development/src/omnibot/escalation/__init__.py:56). (2) Make `resolve()` idempotent: `if record.resolved_at is not None: return` (03-development/src/omnibot/escalation/__init__.py:64). (3) Add `tests/test_fr08.py` cases: (a) `assign()` after `resolve()` raises `ValueError`; (b) calling `resolve()` twice leaves `resolved_at` unchanged at its original value. (4) Carry the `WHERE id = %s AND resolved_at IS NULL` guard (SPEC/omnibot-phase-1.md:585) forward verbatim into the Phase 2 SQL implementation. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/escalation/__init__.py:54-60 (`assign()` — no `resolved_at IS NULL` check; unconditionally overwrites `assigned_agent` and `picked_at`), 03-development/src/omnibot/escalation/__init__.py:62-67 (`resolve()` — no idempotency guard; overwrites `resolved_at` on every invocation), SPEC/omnibot-phase-1.md:585 (`WHERE id = %s AND resolved_at IS NULL` — SPEC SQL guards assign against resolved records), 02-architecture/SAD.md:264-265 (`assign()` sets `picked_at = NOW()`, `resolve()` sets `resolved_at = NOW()` — lifecycle order implied, not enforced), 02-architecture/SAD.md:516 (`first_contact_resolution BOOL` set TRUE when `resolve()` called without prior `assign()` — corrupted timestamps break this FCR logic), tests/test_fr08.py:55-62 (`test_resolve_sets_resolved_at` — single resolve only; no double-resolve or post-resolve assign test)
+
+---
+
+### RISK-FR08-03 — No `conversation_id` Uniqueness Enforcement — Duplicate Escalation Records Allowed Per Conversation
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR08-03 |
+| **fr_tag** | [FR-08] |
+| **category** | Technical / Functional |
+| **description** | The `escalation_queue` schema enforces `conversation_id INTEGER REFERENCES conversations(id) UNIQUE` (SPEC/omnibot-phase-1.md:764), meaning exactly one escalation record may exist per conversation. The in-memory `EscalationManager.create()` performs no such check (03-development/src/omnibot/escalation/__init__.py:41-52): it allocates a new auto-incremented `_next_id` and inserts a new `EscalationRecord` without verifying whether the given `conversation_id` already has a pending or resolved entry. A webhook retry, concurrent request for the same user, or accidental double-trigger of the escalation path creates a second record with a distinct `escalation_id` but the same `conversation_id`, silently doubling that conversation's queue entry. Agent dashboards will show duplicate rows; two agents may independently pick up and attempt to resolve the same underlying conversation. In Phase 2, the first `INSERT INTO escalation_queue` succeeds and the second raises `psycopg2.errors.UniqueViolation` (SPEC/omnibot-phase-1.md:572-578 — the INSERT has no `ON CONFLICT` clause), crashing the escalation path for all retry scenarios. `tests/test_fr08.py:37-43` (`test_create_increments_id`) creates two records with different `conversation_id` strings and verifies only that IDs increment; no duplicate-conversation test exists. |
+| **likelihood** | 3 / 5 — LINE and Telegram both retry webhook deliveries on non-2xx HTTP responses; any transient error during the escalation INSERT causes a retry that fires `create()` a second time for the same conversation. Concurrent pipeline executions for the same user compound the risk. |
+| **impact** | 3 / 5 — In Phase 1, duplicate records inflate agent queue counts and cause two-agent conflicts on a single conversation. In Phase 2, the `UNIQUE` constraint violation on retry crashes the escalation insert, leaving the conversation in a state where neither escalation record is actionable and human handoff fails silently. |
+| **mitigation** | (1) Add a uniqueness check in `create()`: maintain a `Dict[str, int]` (or `Dict[int, int]`) index mapping `conversation_id` to `escalation_id`; raise `ValueError` or return the existing `escalation_id` if a record for that conversation already exists (03-development/src/omnibot/escalation/__init__.py:41). (2) In Phase 2 SQL, add `ON CONFLICT (conversation_id) DO NOTHING RETURNING id` to the INSERT, or add a pre-check `SELECT id FROM escalation_queue WHERE conversation_id = %s AND resolved_at IS NULL`. (3) Add a `tests/test_fr08.py` test: calling `create()` twice with the same `conversation_id` either raises `ValueError` or returns the original `escalation_id`. (4) Leverage the existing `idx_escalation_pending` partial index (SPEC/omnibot-phase-1.md:774-775 — `WHERE resolved_at IS NULL`) for the Phase 2 pre-check query. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/escalation/__init__.py:38-52 (`EscalationManager.__init__` and `create()` — no uniqueness check on `conversation_id`; new record always inserted), SPEC/omnibot-phase-1.md:764 (`conversation_id INTEGER REFERENCES conversations(id) UNIQUE` — schema enforces one escalation per conversation), SPEC/omnibot-phase-1.md:572-578 (`INSERT INTO escalation_queue (conversation_id, reason) VALUES (%s, %s) RETURNING id` — no `ON CONFLICT` clause; bare insert raises on duplicate), SPEC/omnibot-phase-1.md:774-775 (`CREATE INDEX idx_escalation_pending ON escalation_queue (queued_at) WHERE resolved_at IS NULL` — partial index exists but application-layer uniqueness absent), tests/test_fr08.py:37-43 (`test_create_increments_id` — creates two records with different conversation IDs; no same-conversation duplicate test)
+
+---
+
+### RISK-FR08-04 — `EscalationRecord` Is a Plain Mutable Dataclass — Violates SAD Immutability Principle, Exposes Audit Fields to Silent Corruption
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR08-04 |
+| **fr_tag** | [FR-08] |
+| **category** | Technical / Operational |
+| **description** | SAD.md:58 designates `frozen=True` dataclasses as an explicit architectural principle: "Immutable message types: `UnifiedMessage` is a `frozen=True` dataclass — thread-safe and hashable by design." SAD.md:429 lists `frozen=True dataclasses` among the Phase 1 design patterns for thread-safe, hashable domain objects. `EscalationRecord` uses a plain `@dataclass` without `frozen=True` (03-development/src/omnibot/escalation/__init__.py:14), making all fields — including audit-critical `reason`, `assigned_agent`, `picked_at`, and `resolved_at` — mutable after construction. Any middleware, logging decorator, or inadvertent reference alias can silently overwrite these fields with no error. The current `assign()` and `resolve()` methods already rely on direct field mutation (`record.assigned_agent = agent_id` at 03-development/src/omnibot/escalation/__init__.py:59; `record.resolved_at = datetime.now(timezone.utc)` at 03-development/src/omnibot/escalation/__init__.py:67), meaning applying `frozen=True` would require refactoring these methods to use `dataclasses.replace()` rather than in-place mutation. The `reason` field — the audit record of why escalation was triggered — is equally mutable and could be overwritten from `"no_rule_match"` to any arbitrary string after creation. `tests/test_fr08.py:87-99` (`test_escalation_record_fields`) checks initial field values but includes no immutability assertion. |
+| **likelihood** | 3 / 5 — The mutable design is load-bearing in the current implementation (assign/resolve mutate in place); the corruption risk materialises whenever new code — a logging pass, a serialization step, or a future middleware layer — touches the live record object without realising it is shared state. |
+| **impact** | 2 / 5 — Silent mutation of `reason` or `resolved_at` corrupts the escalation audit log and FCR metrics (NFR-06); the failure mode is invisible at runtime and surfaces only during compliance review or analytics queries. No immediate service outage results, but audit integrity is permanently compromised for affected records. |
+| **mitigation** | (1) Apply `@dataclass(frozen=True)` to `EscalationRecord` (03-development/src/omnibot/escalation/__init__.py:14) and refactor `assign()` and `resolve()` to create new immutable snapshots via `dataclasses.replace()` stored back into `_records`. (2) As a pragmatic minimum if full refactor is deferred: annotate the mutable state fields (`assigned_agent`, `picked_at`, `resolved_at`) with `# mutable state — do not access outside EscalationManager` and treat `reason`, `created_at`, `escalation_id` as logically immutable. (3) Add `tests/test_fr08.py` assertion: after `create()`, directly assigning `record.reason = "tampered"` raises `FrozenInstanceError`. (4) Follow SAD.md:429 and apply `@dataclass(frozen=True)` to all new Phase 1 domain types, consistent with `UnifiedMessage` (03-development/src/omnibot/models.py:35). |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/escalation/__init__.py:14 (`@dataclass` — no `frozen=True`; violates SAD immutability principle), 03-development/src/omnibot/escalation/__init__.py:59 (`record.assigned_agent = agent_id` — direct in-place field mutation), 03-development/src/omnibot/escalation/__init__.py:67 (`record.resolved_at = datetime.now(timezone.utc)` — direct in-place field mutation), 02-architecture/SAD.md:58 (`frozen=True` dataclass principle — `UnifiedMessage` cited as canonical immutable domain type), 02-architecture/SAD.md:429 (`frozen=True dataclasses | Thread-safe, hashable messages without external library` — Phase 1 design pattern), 03-development/src/omnibot/models.py:35 (`@dataclass(frozen=True)` — `UnifiedMessage` correctly applies the principle), tests/test_fr08.py:87-99 (`test_escalation_record_fields` — checks initial field values; no immutability assertion, no `FrozenInstanceError` test)
+
+---
+
 ## Risk Heat Map
 
 ```
@@ -618,22 +690,25 @@ Impact
     |         |R05-04   |R02-02   | R04-03  |         |
     |         |         |R03-02   | R05-02  |         |
     |         |         |R03-04   | R07-02  |         |
-    |         |         |R04-02   |         |         |
+    |         |         |R04-02   | R08-01  |         |
     |         |         |R05-03   |         |         |
     |         |         |R06-03   |         |         |
     |         |         |R06-04   |         |         |
     |         |         |R07-03   |         |         |
     |         |         |R07-04   |         |         |
+    |         |         |R08-02   |         |         |
+    |         |         |R08-03   |         |         |
   2 |         |         |         | R02-04  |         |
     |         |         |R04-04   |         |         |
+    |         |         |R08-04   |         |         |
   1 |         |         |         |         |         |
     +---------+---------+---------+---------+---------+
       L=1       L=2       L=3       L=4       L=5
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02, RISK-FR08-01
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04, RISK-FR08-02, RISK-FR08-03, RISK-FR08-04
 
 ---
 
