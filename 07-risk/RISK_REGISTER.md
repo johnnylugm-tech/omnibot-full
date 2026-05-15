@@ -2,6 +2,7 @@
 
 > **[FR-01]** Platform Adapter — Telegram + LINE Webhook
 > **[FR-02]** Webhook Signature Verification
+> **[FR-03]** Unified Message Format
 > **Phase**: 7 (Risk Register)
 > **Date**: 2026-05-15
 > **Status**: DRAFT
@@ -21,6 +22,13 @@ Citations:
 - 03-development/src/omnibot/auth/verifier.py:27-31 (verify_line_signature)
 - 03-development/src/omnibot/auth/verifier.py:36-60 (PlatformVerifier registry and VERIFIERS singleton)
 - 03-development/src/omnibot/auth/verifier.py:77-103 (verify_signature FastAPI dependency)
+- SRS.md:44-55 (FR-03 functional requirements and acceptance criteria)
+- SAD.md:140-167 (UnifiedMessage / UnifiedResponse data contracts)
+- SAD.md:447-452 (pipeline: parse → identity resolution → inject unified_user_id)
+- SPEC/omnibot-phase-1.md:327-351 (Platform enum, MessageType enum, UnifiedMessage reference definition)
+- 03-development/src/omnibot/models.py:12-20 (Platform enum implementation)
+- 03-development/src/omnibot/models.py:35-48 (UnifiedMessage frozen dataclass)
+- build/lib/omnibot/router.py:15-18 (PLATFORM_ROUTES — telegram and line only)
 
 ---
 
@@ -37,6 +45,10 @@ Citations:
 | RISK-FR02-02 | Replay attack — body-only HMAC has no timestamp/nonce | 3 | 3 | 9 | OPEN |
 | RISK-FR02-03 | Mutable VERIFIERS registry enables runtime injection | 2 | 4 | 8 | OPEN |
 | RISK-FR02-04 | 401 detail string leaks failure subtype (info disclosure) | 4 | 2 | 8 | OPEN |
+| RISK-FR03-01 | `unified_user_id=""` default — pre-resolution identity bypass | 4 | 4 | 16 | OPEN |
+| RISK-FR03-02 | `received_at` server clock diverges from platform event time | 3 | 3 | 9 | OPEN |
+| RISK-FR03-03 | `raw_payload` dict interior-mutable despite `frozen=True` | 2 | 3 | 6 | OPEN |
+| RISK-FR03-04 | `Platform.MESSENGER/WHATSAPP` defined without adapter guard | 3 | 3 | 9 | OPEN |
 
 > **Score** = likelihood × impact. Scores ≥ 10 are HIGH priority.
 
@@ -203,15 +215,89 @@ Citations:
 
 ---
 
+## [FR-03] Unified Message Format — Detailed Risk Entries
+
+---
+
+### RISK-FR03-01 — `unified_user_id=""` Default Enables Pre-Resolution Messages to Propagate as Valid
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR03-01 |
+| **fr_tag** | [FR-03] |
+| **category** | Technical / Functional |
+| **description** | `UnifiedMessage.unified_user_id` is defined with a default value of `""` (empty string) (`03-development/src/omnibot/models.py:47`). The SAD spec (`SAD.md:147`) and pipeline design (`SAD.md:447-452`) treat `unified_user_id` as a UUID that must be injected by `ConversationContext` after identity resolution. In Phase 1, `app.py` calls `parser(payload)` and returns the result directly, bypassing identity resolution entirely. Every Phase 1 `UnifiedMessage` therefore carries `unified_user_id == ""`. Phase 2 downstream consumers (knowledge layer, conversation tracker) that branch on or store `unified_user_id` will silently process messages with no resolved identity, either failing on UUID validation or associating responses with the empty-string pseudo-identity. Because `frozen=True` prevents in-place injection, Phase 2 must construct a replacement `UnifiedMessage` with the resolved UUID — a pattern not enforced by the type system and easy to omit. |
+| **likelihood** | 4 / 5 — All Phase 1 webhook responses already return `"unified_user_id": ""`; the gap is active in every deployed message, not a hypothetical. Phase 2 code that forgets to replace the pre-resolution instance will introduce the bug silently. |
+| **impact** | 4 / 5 — Downstream consumers relying on `unified_user_id` for identity, conversation threading, or audit trail will either crash on UUID validation, silently produce orphaned conversation records keyed on `""`, or bypass per-user rate limiting and FCR tracking (NFR-01). No error is raised at the `UnifiedMessage` construction site. |
+| **mitigation** | (1) Change `unified_user_id` from a defaulted field to a required positional field (`unified_user_id: str`) matching `SAD.md:147`; update all adapter call sites to explicitly pass `""` until identity resolution is wired, making the gap visible. (2) Add a `__post_init__` invariant (via `object.__setattr__`) that emits a `WARN` log (FR-09) when `unified_user_id == ""` at request-response boundary. (3) In Phase 2, enforce the injection pattern in a `ConversationContext.resolve()` wrapper that always returns a new `UnifiedMessage` with a validated non-empty UUID — validate with `uuid.UUID(unified_user_id)` before constructing. (4) Add `test_fr03.py` assertion that a freshly parsed `UnifiedMessage` with `unified_user_id=""` cannot reach the knowledge layer without explicit override. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/models.py:47 (`unified_user_id: str = ""`), SAD.md:143-153 (frozen dataclass spec — `unified_user_id` has no default), SAD.md:447-452 (pipeline: parse → identity resolution → inject `unified_user_id`), SPEC/omnibot-phase-1.md:345 (`unified_user_id: Optional[str]` in reference definition), SRS.md:50 (FR-03 acceptance criterion — field must be present), 01-requirements/SRS.md:44-55 (FR-03 scope)
+
+---
+
+### RISK-FR03-02 — `received_at` Uses Server Process Clock Instead of Platform Event Timestamp
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR03-02 |
+| **fr_tag** | [FR-03] |
+| **category** | Technical / Data Integrity |
+| **description** | `UnifiedMessage.received_at` is populated by `datetime.now(timezone.utc)` at parse time on the API server (`03-development/src/omnibot/models.py:46`). Both Telegram and LINE webhook payloads carry authoritative platform-side event timestamps — `message.date` (Unix epoch, Telegram) and `event.timestamp` (milliseconds, LINE). The server-side clock measures when the server parsed the payload, not when the user sent the message. Under three realistic conditions the divergence becomes operationally significant: (1) LINE's documented webhook retry behavior (RISK-FR01-02) re-delivers a timed-out event minutes later; the retried `UnifiedMessage` gets a `received_at` matching the retry, not the original send. (2) Queue or ASGI backlog under load introduces multi-second lag between event arrival and parse. (3) Replay-detection logic proposed in RISK-FR02-02 mitigation uses a ±5-minute recency window — server-clock `received_at` cannot be trusted as the event's true age for this purpose. |
+| **likelihood** | 3 / 5 — Clock drift between parse time and event time is negligible in normal operation but systematic on retries and queue backlogs, both of which are expected production conditions (LINE retries every 30 s for up to 3 attempts). |
+| **impact** | 3 / 5 — Corrupts SLA latency measurements (NFR-02 p95 metric), inflates `received_at` on retried LINE events causing them to appear as new messages rather than retries, and undermines the timestamp-based replay-detection TTL proposed in RISK-FR02-02 mitigation. Deduplication logic keyed on `received_at` will treat genuine retries as new events. |
+| **mitigation** | (1) Populate `received_at` from the platform payload timestamp: `datetime.fromtimestamp(update["message"]["date"], tz=timezone.utc)` (Telegram) and `datetime.fromtimestamp(event["timestamp"] / 1000, tz=timezone.utc)` (LINE). (2) Retain `processed_at = datetime.now(timezone.utc)` as a separate field (or log annotation) for SLA measurement; do not conflate the two. (3) Validate that the platform timestamp falls within a ±24 h window of server clock and emit `WARN` on outliers to detect clock skew. (4) Update `tests/test_fr03.py` to assert that `received_at` matches the fixture payload timestamp, not `unittest.mock.ANY`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/models.py:46 (`received_at` default factory — server clock), SPEC/omnibot-phase-1.md:340-351 (UnifiedMessage reference definition — `received_at` field), build/lib/omnibot/adapters/telegram.py:11-28 (Telegram parser — `message.date` not extracted), build/lib/omnibot/adapters/line.py:20-46 (LINE parser — `event.timestamp` not extracted), SRS.md:50 (FR-03 acceptance criterion — `received_at` field required), SAD.md:94 (LINE retries on missing 200 OK)
+
+---
+
+### RISK-FR03-03 — `raw_payload` Dict Interior-Mutable Despite `frozen=True` Dataclass
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR03-03 |
+| **fr_tag** | [FR-03] |
+| **category** | Technical / Correctness |
+| **description** | `UnifiedMessage` is declared `frozen=True` (`03-development/src/omnibot/models.py:35`), which prevents reassignment of the `raw_payload` attribute reference. However, `frozen=True` does not deep-freeze the dict value: any code holding a reference to the `UnifiedMessage` can call `msg.raw_payload["key"] = "value"` or `msg.raw_payload.update(...)` without raising `FrozenInstanceError`. The test suite (`tests/test_fr03.py:27-36`) verifies that attribute reassignment raises `FrozenInstanceError` but does not test interior mutability. Two production-relevant consequences: (1) An adapter that parses a LINE batch payload and reuses the same `raw_payload` dict across multiple `UnifiedMessage` instances (e.g., via a shallow copy) will cause one instance's payload to reflect mutations intended for another. (2) Audit/logging code that annotates `raw_payload` post-construction (e.g., adding a `"_processed": True` key for idempotency marking) will silently mutate the "immutable" message, corrupting replay-detection checks that compare `raw_payload` snapshots. |
+| **likelihood** | 2 / 5 — Not exploitable from the network; requires code in the same process to call `raw_payload[key] = ...`. The most likely vector is a test fixture that shares a dict literal across multiple `UnifiedMessage` constructions, or a logging middleware that annotates the dict for tracing. |
+| **impact** | 3 / 5 — Silent data corruption: mutated `raw_payload` invalidates HMAC re-verification (FR-02) on the stored payload, corrupts audit logs, and breaks any downstream code that treats `raw_payload` as an immutable snapshot of the original webhook body for replay or forensic purposes. |
+| **mitigation** | (1) In `UnifiedMessage.__post_init__`, store `raw_payload` as an immutable snapshot: `object.__setattr__(self, "raw_payload", types.MappingProxyType(raw_payload))`. This raises `TypeError` on any interior mutation attempt. (2) Where deep-frozen nested dicts are needed (Phase 2), use `frozendict` or serialize to `bytes` at construction. (3) Update `tests/test_fr03.py` to assert `msg.raw_payload["k"] = "v"` raises `TypeError`. (4) Guard the LINE batch parser against shared dict references by always constructing a fresh `dict(event)` per `UnifiedMessage`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/models.py:35-48 (`UnifiedMessage` frozen dataclass definition), 03-development/src/omnibot/models.py:45 (`raw_payload: Dict[str, Any] = field(default_factory=dict)` — mutable default), tests/test_fr03.py:27-36 (immutability test — only covers attribute reassignment, not interior mutation), build/lib/omnibot/adapters/line.py:25-46 (LINE parser — single `events[0]` dict passed as `raw_payload`), SPEC/omnibot-phase-1.md:340-351 (frozen=True design intent)
+
+---
+
+### RISK-FR03-04 — `Platform.MESSENGER` and `Platform.WHATSAPP` Defined in Enum Without Adapter or Router Guard
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR03-04 |
+| **fr_tag** | [FR-03] |
+| **category** | Technical / Functional |
+| **description** | The `Platform` enum defines four values: `TELEGRAM`, `LINE`, `MESSENGER`, and `WHATSAPP` (`03-development/src/omnibot/models.py:12-20`), but `PLATFORM_ROUTES` in the router only maps `"telegram"` and `"line"` (`build/lib/omnibot/router.py:15-18`). Phase 2 is the intended enablement date for `MESSENGER` and `WHATSAPP` (SRS.md:51). The gap creates two concrete risks. First, any code that iterates `list(Platform)` — e.g., a monitoring dashboard that checks signature-verifier coverage, or a test parametrization — will silently include `MESSENGER` and `WHATSAPP`, causing `KeyError` in the `VERIFIERS` registry (FR-02) and `AttributeError` in any `platform`-switched adapter call. Second, a utility or migration script that constructs `UnifiedMessage(platform=Platform.MESSENGER, ...)` will produce a structurally valid object that passes `test_platform_enum_completeness` (`tests/test_fr03.py:115-118`) but will be rejected or misrouted by every downstream consumer that only handles `TELEGRAM` or `LINE`. |
+| **likelihood** | 3 / 5 — Realistic in test parametrization (`@pytest.mark.parametrize("p", list(Platform))`) and in monitoring code that checks coverage across all enum members. Phase 2 development work (beginning before this register is retired) will create the first concrete adapter code paths that touch `MESSENGER`/`WHATSAPP`, increasing blast radius. |
+| **impact** | 3 / 5 — `KeyError` in `VERIFIERS` registry causes unhandled 500 rather than 400; a `UnifiedMessage` with `platform=Platform.MESSENGER` that reaches the knowledge layer will produce an unhandled branch in any platform-conditional logic, potentially returning an incorrect response or failing silently. Phase 2 regression risk if the adapter guard is not added before the enum values are activated. |
+| **mitigation** | (1) Add a `SUPPORTED_PLATFORMS: frozenset[Platform] = frozenset({Platform.TELEGRAM, Platform.LINE})` constant in `models.py`; use it in the router and verifier to guard enum dispatch. (2) Annotate `Platform.MESSENGER` and `Platform.WHATSAPP` with a Phase 2 marker (e.g., docstring or `__phase__ = 2` class attribute) so grep and linters can flag premature use. (3) Add a CI assertion that `set(PLATFORM_ROUTES.keys())` maps 1:1 to `SUPPORTED_PLATFORMS` platform slugs, failing fast if a new platform is added to the enum without a corresponding adapter. (4) Update `tests/test_fr03.py` to assert that constructing `UnifiedMessage(platform=Platform.MESSENGER, ...)` succeeds at the model layer but that `resolve_route("messenger")` returns `None`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/models.py:12-20 (`Platform` enum — all four values defined), build/lib/omnibot/router.py:15-18 (`PLATFORM_ROUTES` — telegram and line only), 01-requirements/SRS.md:51 (MESSENGER/WHATSAPP as Phase 2 scope), tests/test_fr03.py:115-118 (`test_platform_enum_completeness` — asserts all four values present), SPEC/omnibot-phase-1.md:327-332 (Platform enum reference definition)
+
+---
+
 ## Risk Heat Map
 
 ```
 Impact
   5 |         | R01-05  |         |         |         |
-  4 |         |R01-01   |R01-02   |         |         |
+  4 |         |R01-01   |R01-02   | R03-01  |         |
     |         |R02-03   |R02-01   |         |         |
   3 |         |         |R01-04   | R01-03  |         |
-    |         |         |R02-02   |         |         |
+    |         |R03-03   |R02-02   |         |         |
+    |         |         |R03-02   |         |         |
+    |         |         |R03-04   |         |         |
   2 |         |         |         | R02-04  |         |
   1 |         |         |         |         |         |
     +---------+---------+---------+---------+---------+
@@ -219,9 +305,9 @@ Impact
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04
 
 ---
 
-*RISK_REGISTER.md v0.2 — FR-01 + FR-02 entries · Phase 7 draft · 2026-05-15*
+*RISK_REGISTER.md v0.3 — FR-01 + FR-02 + FR-03 entries · Phase 7 draft · 2026-05-15*
