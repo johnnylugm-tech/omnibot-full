@@ -82,6 +82,10 @@ Citations:
 | RISK-FR09-02 | No minimum log-level filter — `debug()` emits raw PII payloads to production stdout | 3 | 4 | 12 | OPEN |
 | RISK-FR09-03 | `log()` caller-supplied `service` overrides `self._service` — false service attribution | 3 | 2 | 6 | OPEN |
 | RISK-FR09-04 | `app.py` uses stdlib `logging` — application-layer errors bypass FR-09 NDJSON format | 4 | 3 | 12 | OPEN |
+| RISK-FR10-01 | `success=True` permits non-`None` `error`/`error_code` — no mutual-exclusion invariant | 3 | 3 | 9 | OPEN |
+| RISK-FR10-02 | `ErrorCode` enum rejects unregistered strings — Phase 2/3 codes (`LLM_TIMEOUT`, `AUTH_TOKEN_EXPIRED`) cause `ValidationError` | 4 | 3 | 12 | OPEN |
+| RISK-FR10-03 | `PaginatedResponse[T]` not `[List[T]]` — non-list `data` silently accepted, SPEC type contract violated | 3 | 3 | 9 | OPEN |
+| RISK-FR10-04 | `total=0` default makes `has_next` always `False` — omitted `total` silently hides subsequent pages | 3 | 2 | 6 | OPEN |
 
 > **Score** = likelihood × impact. Scores ≥ 10 are HIGH priority.
 
@@ -752,6 +756,78 @@ Citations:
 
 ---
 
+## [FR-10] API Response Format — Detailed Risk Entries
+
+---
+
+### RISK-FR10-01 — `success` Flag and `error`/`error_code` Fields Lack Mutual-Exclusion Invariant
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR10-01 |
+| **fr_tag** | [FR-10] |
+| **category** | Technical / Correctness |
+| **description** | `ApiResponse` declares `success: bool`, `error: Optional[str]`, and `error_code: Optional[ErrorCode]` as independent fields with no `@model_validator` enforcing the semantic contract that they must be mutually exclusive (03-development/src/omnibot/api/__init__.py:29-37). Pydantic allows `ApiResponse(success=True, error="Signature invalid", error_code=ErrorCode.AUTH_INVALID_SIGNATURE)` without raising a `ValidationError`. The SPEC reference (SPEC/omnibot-phase-1.md:248-252) likewise uses a `@dataclass` with no runtime constraint. Consequently, any call site that mistakenly populates `error`/`error_code` on a success path — or populates `data` on an error path — produces a structurally valid but semantically contradictory response object. API clients that branch on `success` and then dereference `data` will encounter `data=None` on a `success=True` response, or `error=None` on a `success=False` response, depending on which contract the caller violates. `test_fr10.py:15-21` (`test_api_response_success`) and `test_fr10.py:24-34` (`test_api_response_error`) verify individual states but do not assert that constructing a contradictory response raises an error. |
+| **likelihood** | 3 / 5 — Inconsistent `success`/`error` construction arises naturally in error-handling code where a developer sets `success=True` but neglects to clear `error` from a prior variable, or in test fixtures that reuse partial response dicts. No type system guard catches this class of mistake. |
+| **impact** | 3 / 5 — API clients relying on `if response.success: use(response.data)` receive `None` data with a misleading success flag, producing silent empty-response bugs. Monitoring code that aggregates error codes across all `ApiResponse` objects will count phantom errors from otherwise-successful requests, corrupting observability dashboards (NFR-06). Downstream Phase 2 handlers that pattern-match on `error_code` may trigger escalation logic on a notionally successful response. |
+| **mitigation** | (1) Add a Pydantic `@model_validator(mode="after")` to `ApiResponse`: assert `not (self.success and (self.error is not None or self.error_code is not None))` and `not (not self.success and self.data is not None)`; raise `ValueError` on violation. (2) Add `tests/test_fr10.py` assertions: `ApiResponse(success=True, error="x")` raises `ValidationError`; `ApiResponse(success=False, data={"id":1})` raises `ValidationError`. (3) Document the mutual-exclusion rule in the `ApiResponse` docstring so future contributors do not inadvertently bypass it. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/api/__init__.py:29-37 (`ApiResponse` — no `@model_validator`; `success`, `error`, `error_code` fully independent), SPEC/omnibot-phase-1.md:248-252 (SPEC `ApiResponse @dataclass` — no invariant enforcement at the class level), 02-architecture/SAD.md:291-312 (`ApiResponse`/`PaginatedResponse` design — semantic contract implicit, not enforced), tests/test_fr10.py:15-21 (`test_api_response_success` — no contradictory-state assertion), tests/test_fr10.py:24-34 (`test_api_response_error` — no contradictory-state assertion)
+
+---
+
+### RISK-FR10-02 — `ErrorCode` Enum Rejects Unregistered Strings — Phase 2/3 Error Codes Cause `ValidationError`
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR10-02 |
+| **fr_tag** | [FR-10] |
+| **category** | Technical / Extensibility |
+| **description** | The SPEC defines `error_code: Optional[str] = None` (SPEC/omnibot-phase-1.md:252) — a plain string — leaving the value space open. The implementation declares `error_code: Optional[ErrorCode] = None` where `ErrorCode` is a closed `str, Enum` (03-development/src/omnibot/api/__init__.py:17-26, 37). Pydantic coerces any value passed for `error_code` into `ErrorCode`; a string not in the enum raises `ValidationError`. SPEC/omnibot-phase-1.md:272 explicitly documents three future error codes that are out of scope for Phase 1: `LLM_TIMEOUT (504)` in Phase 2, and `AUTH_TOKEN_EXPIRED (401)` / `AUTHZ_INSUFFICIENT_ROLE (403)` in Phase 3. None of these appear in the current `ErrorCode` enum (03-development/src/omnibot/api/__init__.py:22-26). Any Phase 2 handler that constructs `ApiResponse(success=False, error_code="LLM_TIMEOUT", ...)` will raise `pydantic_core.ValidationError: 1 validation error — 'LLM_TIMEOUT' is not a valid ErrorCode` at the call site, blocking the entire LLM-timeout response path until the enum is updated and redeployed. SRS.md:161-163 lists only the five Phase 1 codes, creating no cross-phase migration requirement in the acceptance criteria — the gap is invisible to the current test suite. |
+| **likelihood** | 4 / 5 — Phase 2 LLM integration is the next sprint scope; `LLM_TIMEOUT` is an expected and documented error condition for any generative-model call. The first Phase 2 handler that attempts to return this code will trigger the `ValidationError` immediately without any in-Phase-1 warning. |
+| **impact** | 3 / 5 — `ValidationError` at the response-construction site produces an unhandled 500 instead of the intended 504, masking the root cause (LLM timeout) behind an infrastructure error. Phase 3 RBAC codes similarly block until patched. Updating a closed enum at runtime is impossible without a code deploy, making the recovery window equal to the full CI/CD cycle time. |
+| **mitigation** | (1) Change `error_code: Optional[ErrorCode] = None` to `error_code: Optional[str] = None` in `ApiResponse`, matching the SPEC, and validate values against `ErrorCode` as a soft check (emit WARN via FR-09 on unrecognised codes) rather than a hard rejection. (2) Alternatively, keep the enum but add `LLM_TIMEOUT = "LLM_TIMEOUT"`, `AUTH_TOKEN_EXPIRED = "AUTH_TOKEN_EXPIRED"`, `AUTHZ_INSUFFICIENT_ROLE = "AUTHZ_INSUFFICIENT_ROLE"` as pre-declared Phase 2/3 stubs now, consistent with the SPEC's instruction that they are "pre-defined in Phase 1 spec but not triggered until Phase 2/3" (SPEC/omnibot-phase-1.md:272). (3) Update `test_fr10.py:103-109` to include the three future codes and assert they are valid enum members. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/api/__init__.py:17-26 (`ErrorCode` enum — five Phase 1 codes only; no Phase 2/3 stubs), 03-development/src/omnibot/api/__init__.py:37 (`error_code: Optional[ErrorCode]` — Pydantic hard-rejects unregistered strings), SPEC/omnibot-phase-1.md:252 (`error_code: Optional[str] = None` — SPEC type is plain string, not enum), SPEC/omnibot-phase-1.md:262-272 (ErrorCode table — explicitly lists `LLM_TIMEOUT`, `AUTH_TOKEN_EXPIRED`, `AUTHZ_INSUFFICIENT_ROLE` as Phase 2/3 pre-declared codes), 01-requirements/SRS.md:161-163 (FR-10 acceptance criteria — five codes listed; Phase 2/3 codes absent from SRS acceptance criteria), tests/test_fr10.py:103-109 (`test_error_code_enum_values` — only five Phase 1 members asserted)
+
+---
+
+### RISK-FR10-03 — `PaginatedResponse[T]` Inherits `ApiResponse[T]` Not `ApiResponse[List[T]]` — Non-List `data` Silently Accepted
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR10-03 |
+| **fr_tag** | [FR-10] |
+| **category** | Technical / Correctness |
+| **description** | The SPEC defines `PaginatedResponse` as inheriting from `ApiResponse[List[T]]` (SPEC/omnibot-phase-1.md:255): `class PaginatedResponse(ApiResponse[List[T]], Generic[T])`. This constrains the `data` field to `Optional[List[T]]`, enforcing that paginated responses always carry a list payload. The implementation inherits from `ApiResponse[T]` without the `List` specialization (03-development/src/omnibot/api/__init__.py:40): `class PaginatedResponse(ApiResponse[T])`. Because Pydantic's Generic parameter is resolved at runtime and `data: Optional[T]` accepts any type, a Phase 2 endpoint handler can construct `PaginatedResponse(success=True, data=42, total=100, page=1, limit=20)` without a `ValidationError`. A client that receives a `PaginatedResponse` and attempts to iterate `response.data` or call `len(response.data)` for display purposes will raise `TypeError: argument of type 'int' is not iterable`, crashing the client-side rendering path. `has_next`, `total`, `page`, and `limit` fields are populated and serialised alongside a non-list `data`, producing a JSON response that is structurally valid but semantically incoherent. `test_fr10.py:51-62` and `test_fr10.py:65-77` only test list and dict `data` types; no test asserts that scalar `data` is rejected. |
+| **likelihood** | 3 / 5 — A developer building a Phase 2 paginated endpoint who inadvertently returns a scalar or dict instead of a list will not be caught at the Pydantic layer; the error surfaces only at the client rendering stage or in a downstream integration test. The type constraint mismatch with the SPEC is invisible until Phase 2 pagination endpoints are built. |
+| **impact** | 3 / 5 — Clients iterating a non-list `data` field raise `TypeError`, breaking the paginated list rendering path for affected endpoints. Because `has_next` and `total` are populated, partial navigation (next-page button enabled, item count shown) will appear alongside an unrenderable body, creating a confusing degraded UI. The SPEC type contract guarantees are silently weakened without a corresponding test or type-level enforcement. |
+| **mitigation** | (1) Add a `@model_validator(mode="after")` to `PaginatedResponse` asserting `self.data is None or isinstance(self.data, list)` and raising `ValueError` on non-list `data`. (2) Alternatively, specialise the `data` field explicitly: `data: Optional[List[Any]] = None` in `PaginatedResponse`, overriding the inherited `Optional[T]` with a concrete list type. (3) Add `tests/test_fr10.py` assertion: `PaginatedResponse(success=True, data=42, total=1, page=1, limit=20)` raises `ValidationError`. (4) Align the class signature with the SPEC: `class PaginatedResponse(ApiResponse[List[T]], Generic[T])`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/api/__init__.py:40 (`class PaginatedResponse(ApiResponse[T])` — `List` specialisation absent; inherits `Optional[T]`), SPEC/omnibot-phase-1.md:255 (`class PaginatedResponse(ApiResponse[List[T]], Generic[T])` — SPEC constrains `data` to list), 02-architecture/SAD.md:300-304 (`PaginatedResponse` design block — `has_next: bool` and list-oriented fields imply `data` is always a list), tests/test_fr10.py:51-62 (`test_paginated_response_inherits_api` — tests list data only; no scalar/dict rejection assertion), 01-requirements/SRS.md:162 (`PaginatedResponse` acceptance criterion — `total / page / limit / has_next` fields; list-of-items semantics implied but not stated)
+
+---
+
+### RISK-FR10-04 — `total=0` Default Makes `has_next` Always `False` When Caller Omits `total`
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR10-04 |
+| **fr_tag** | [FR-10] |
+| **category** | Technical / Functional |
+| **description** | `PaginatedResponse` declares `total: int = 0` (03-development/src/omnibot/api/__init__.py:47), making `total` optional at the Pydantic construction site. `has_next` is computed as `self.page * self.limit < self.total` (03-development/src/omnibot/api/__init__.py:53-55). When `total` defaults to `0`, the expression `page * limit < 0` evaluates to `False` for any positive `page` and `limit`, so `has_next` is unconditionally `False`. A Phase 2 endpoint handler that returns items but omits `total` (for example, because the SQL COUNT query is not yet implemented) produces a `PaginatedResponse` that asserts no further pages exist, silently truncating what may be a multi-page result set at the client. The SPEC's `PaginatedResponse` declares `has_next: bool = False` as a stored field (SPEC/omnibot-phase-1.md:259), meaning callers can set it explicitly without providing `total` — a common pattern for cursor-based or estimated-count pagination. The implementation's computed-field approach eliminates this flexibility: there is no way to explicitly set `has_next=True` without setting a non-zero `total`. `test_fr10.py:80-89` (`test_paginated_response_no_next_page`) validates `total=0 → has_next=False` as an intended behaviour, but does not distinguish the "truly empty result" case from the "forgot to set total" case. |
+| **likelihood** | 3 / 5 — Phase 2 pagination endpoints are built incrementally; it is common practice to stub `total` during early development and add the COUNT query later. Without a validation error or log warning, the default-zero `total` silently produces a single-page response for what should be a multi-page dataset, and the defect survives until a QA pagination test is run. |
+| **impact** | 2 / 5 — API clients see a first page of results with `has_next=False` and no indication that more pages exist, causing silent data truncation in list views. No data is corrupted and no security boundary is crossed; the harm is a degraded user experience and potentially misleading analytics (e.g., item-count dashboards reading `total=0` as an empty dataset). |
+| **mitigation** | (1) Remove the `total: int = 0` default and make `total` a required field: `total: int`. Any endpoint that cannot supply a `total` is forced to explicitly pass `total=-1` (sentinel for "unknown") and the `has_next` logic branches accordingly. (2) Alternatively, preserve the default but add a `@model_validator(mode="after")` that emits a FR-09 `WARN` log when `total == 0` and `data` is a non-empty list, flagging the likely omission. (3) Restore the SPEC's stored `has_next` pattern: accept `has_next: Optional[bool] = None` and fall back to the computed value only when `None`, allowing cursor-based callers to set it explicitly. (4) Add `tests/test_fr10.py` assertion: `PaginatedResponse(success=True, data=["x"], page=1, limit=20)` (no `total`) produces `has_next=False` AND a WARN log entry. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/api/__init__.py:47 (`total: int = 0` — default zero; omission silently enables always-False `has_next`), 03-development/src/omnibot/api/__init__.py:51-55 (`@computed_field has_next` — `page * limit < total`; evaluates `False` for any `total ≤ 0`), SPEC/omnibot-phase-1.md:259 (`has_next: bool = False` — SPEC stores field explicitly; callers can override without supplying `total`), 02-architecture/SAD.md:300-304 (`PaginatedResponse` design — `total: int` listed without default, implying required field), tests/test_fr10.py:80-89 (`test_paginated_response_no_next_page` — validates `total=0 → has_next=False`; does not assert WARN on non-empty `data` with zero `total`), 01-requirements/SRS.md:162 (`has_next` acceptance criterion — computed from `total`/`page`/`limit`; no default-zero behaviour specified)
+
+---
+
 ## Risk Heat Map
 
 ```
@@ -777,19 +853,22 @@ Impact
     |         |         |R07-04   |         |         |
     |         |         |R08-02   |         |         |
     |         |         |R08-03   |         |         |
+    |         |         |R10-01   | R10-02  |         |
+    |         |         |R10-03   |         |         |
   2 |         |         |         | R02-04  |         |
     |         |         |R04-04   |         |         |
     |         |         |R08-04   |         |         |
     |         |         |R09-03   |         |         |
+    |         |         |R10-04   |         |         |
   1 |         |         |         |         |         |
     +---------+---------+---------+---------+---------+
       L=1       L=2       L=3       L=4       L=5
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02, RISK-FR08-01
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04, RISK-FR08-02, RISK-FR08-03, RISK-FR08-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02, RISK-FR08-01, RISK-FR10-02
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04, RISK-FR08-02, RISK-FR08-03, RISK-FR08-04, RISK-FR10-01, RISK-FR10-03, RISK-FR10-04
 
 ---
 
-*RISK_REGISTER.md v0.7 — FR-01 + FR-02 + FR-03 + FR-04 + FR-05 + FR-06 + FR-07 entries · Phase 7 draft · 2026-05-15*
+*RISK_REGISTER.md v0.8 — FR-01 + FR-02 + FR-03 + FR-04 + FR-05 + FR-06 + FR-07 + FR-09 + FR-10 entries · Phase 7 draft · 2026-05-15*
