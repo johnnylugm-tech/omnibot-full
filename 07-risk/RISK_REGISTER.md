@@ -86,6 +86,10 @@ Citations:
 | RISK-FR10-02 | `ErrorCode` enum rejects unregistered strings — Phase 2/3 codes (`LLM_TIMEOUT`, `AUTH_TOKEN_EXPIRED`) cause `ValidationError` | 4 | 3 | 12 | OPEN |
 | RISK-FR10-03 | `PaginatedResponse[T]` not `[List[T]]` — non-list `data` silently accepted, SPEC type contract violated | 3 | 3 | 9 | OPEN |
 | RISK-FR10-04 | `total=0` default makes `has_next` always `False` — omitted `total` silently hides subsequent pages | 3 | 2 | 6 | OPEN |
+| RISK-FR11-01 | Hardcoded stub probes — health always reports `unhealthy` | 5 | 3 | 15 | OPEN |
+| RISK-FR11-02 | HTTP 200 always returned — orchestrators cannot detect unhealthy state | 5 | 4 | 20 | OPEN |
+| RISK-FR11-03 | No probe timeout — blocking check stalls health endpoint | 2 | 4 | 8 | OPEN |
+| RISK-FR11-04 | `uptime_seconds` resets on `HealthCheckService` reconstruction | 3 | 2 | 6 | OPEN |
 
 > **Score** = likelihood × impact. Scores ≥ 10 are HIGH priority.
 
@@ -828,6 +832,74 @@ Citations:
 
 ---
 
+### RISK-FR11-01 — Hardcoded Stub Probes Report Permanent `unhealthy`
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR11-01 |
+| **fr_tag** | [FR-11] |
+| **category** | Technical / Operational |
+| **description** | `app.py` constructs `HealthCheckService` with `postgres_check=lambda: False` and `redis_check=lambda: False` (03-development/src/omnibot/app.py:52-55). Both probe callables unconditionally return `False`; `HealthCheckService.check()` therefore evaluates the `not pg_ok and not redis_ok` branch (03-development/src/omnibot/health/__init__.py:51-52) and always emits `status=unhealthy` regardless of the actual connectivity state. In production this means the health endpoint truthfully reports both dependencies as down at all times, producing persistent `unhealthy` alerts in any monitoring system consuming `/api/v1/health`. |
+| **likelihood** | 5 / 5 — The stubs are already committed to `app.py:53-54`; the defect is present in every deployment of Phase 1 code without a code change. |
+| **impact** | 3 / 5 — Monitoring dashboards and alerting rules receive a perpetually-`unhealthy` signal; operators either disable health-check alerts (masking real outages) or accept constant noise. The service itself continues to function; no data is lost. |
+| **mitigation** | (1) Replace Phase 1 stubs with real probes: use `asyncpg` / `sqlalchemy` ping for postgres and `redis.ping()` for Redis, each wrapped in `try/except` returning `False` on error. (2) Inject probe callables from a config-driven factory rather than hard-coding them in `app.py`. (3) Add an integration-level test that asserts `result["postgres"]` is `True` when a real DB is reachable (pytest fixture with testcontainers or a docker-compose profile). (4) Add a CI step that calls `GET /api/v1/health` against the running stack and fails if `status == "unhealthy"`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/app.py:52-55 (`HealthCheckService` constructed with `lambda: False` stubs — both probes permanently return `False`), 03-development/src/omnibot/health/__init__.py:44-52 (`check()` status derivation — `UNHEALTHY` branch reached when both probes return `False`), 01-requirements/SRS.md:174-178 (FR-11 acceptance criteria — `postgres`/`redis` fields must reflect real connectivity state), tests/test_fr11.py:32-38 (`test_both_down_is_unhealthy` — validates expected behaviour for stubs but does not assert they are temporary)
+
+---
+
+### RISK-FR11-02 — HTTP 200 Always Returned; Orchestrators Cannot Detect Unhealthy State
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR11-02 |
+| **fr_tag** | [FR-11] |
+| **category** | Technical / Operational |
+| **description** | `@app.get("/api/v1/health")` returns `JSONResponse(content=result)` without a `status_code` parameter (03-development/src/omnibot/app.py:81-85). FastAPI defaults to HTTP 200 for all `JSONResponse` instances with no explicit code. Docker `HEALTHCHECK CMD curl -f /api/v1/health`, Kubernetes liveness/readiness probes, and standard load-balancer health checks gate on the HTTP status code rather than the response body. A response of `200 {"status": "unhealthy"}` is indistinguishable from `200 {"status": "healthy"}` to all of these consumers, so the orchestration layer never restarts or drains a container when both dependencies are down. |
+| **likelihood** | 5 / 5 — The endpoint is already in code with no `status_code` override; every invocation returns HTTP 200 regardless of the `status` field value. |
+| **impact** | 4 / 5 — In a degraded-or-unhealthy deployment, Kubernetes readiness probes keep routing traffic to a non-functional container, Docker Compose does not retry, and load-balancer health routing is completely ineffective. Service disruption continues silently until an operator notices via application-layer errors. |
+| **mitigation** | (1) Map `HealthStatus` to HTTP codes: `HEALTHY → 200`, `DEGRADED → 200` (or `207`), `UNHEALTHY → 503`. Return `JSONResponse(content=result, status_code=503)` when status is `unhealthy`. (2) Update `tests/test_fr11.py:test_health_endpoint_http` to assert HTTP 503 for an unhealthy response (currently asserts 200 unconditionally). (3) Document the HTTP status-code contract in SPEC/omnibot-phase-1.md and SRS.md FR-11. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/app.py:81-85 (`@app.get("/api/v1/health")` — no `status_code` kwarg on `JSONResponse`; defaults to HTTP 200 for all health states), tests/test_fr11.py:81-92 (`test_health_endpoint_http` — asserts `response.status_code == 200` unconditionally, regardless of the `status` body field; spec gap normalises incorrect behaviour), 01-requirements/SRS.md:174-178 (FR-11 acceptance criteria — no HTTP status code mapping specified; gap that this risk exploits)
+
+---
+
+### RISK-FR11-03 — No Probe Timeout; Blocking Check Stalls Health Endpoint
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR11-03 |
+| **fr_tag** | [FR-11] |
+| **category** | Technical / Reliability |
+| **description** | `HealthCheckService.check()` invokes `self._pg()` and `self._redis()` synchronously without any timeout guard (03-development/src/omnibot/health/__init__.py:44-45). When real probe callables replace the Phase 1 stubs (RISK-FR11-01 mitigation path), a network partition or unresponsive database will cause either call to block indefinitely. The async FastAPI handler `health()` invokes the synchronous `check()` directly on the event loop (03-development/src/omnibot/app.py:84); a blocking probe stalls the ASGI worker thread, preventing the health endpoint from responding at all. Orchestration systems then classify the node as unresponsive and trigger cascading restarts. |
+| **likelihood** | 2 / 5 — Does not manifest with Phase 1 stubs; requires both a real network partition or DB hang and the introduction of real probes. Risk materialises once RISK-FR11-01 mitigation is applied. |
+| **impact** | 4 / 5 — A stalled health endpoint causes orchestrators to treat the pod as dead and trigger restarts under load; in a cluster this can cascade across nodes if the partition affects all instances simultaneously, amplifying the original outage. |
+| **mitigation** | (1) Wrap each probe in `asyncio.wait_for(asyncio.to_thread(probe), timeout=1.0)` and return `False` on `asyncio.TimeoutError` — slow probes degrade gracefully without stalling. (2) Move `check()` to an `async def` that uses `asyncio.to_thread` for blocking I/O. (3) Add a test asserting that a probe sleeping >1 s resolves to `False` within 1.5 s. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/health/__init__.py:44-45 (`self._pg()` / `self._redis()` — synchronous calls with no timeout; block indefinitely if probe hangs), 03-development/src/omnibot/app.py:84 (`result = health_service.check()` — synchronous call inside `async def health()`; blocks event loop worker if probe blocks)
+
+---
+
+### RISK-FR11-04 — `uptime_seconds` Anchored to `HealthCheckService` Construction, Not Process Start
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR11-04 |
+| **fr_tag** | [FR-11] |
+| **category** | Technical / Observability |
+| **description** | `HealthCheckService.__init__` records `self._start_time = time.monotonic()` at construction time (03-development/src/omnibot/health/__init__.py:38). `uptime_seconds` is then computed as `time.monotonic() - self._start_time` (03-development/src/omnibot/health/__init__.py:58). If `HealthCheckService` is reconstructed — every test in `tests/test_fr11.py:23-78` creates a fresh instance — `uptime_seconds` resets to near zero. In production the module-level singleton `health_service` (03-development/src/omnibot/app.py:52-55) is constructed at import time, so uptime is correctly measured from app boot. However, any future dependency-injection refactor, config reload, or test fixture that re-instantiates the service will silently report a near-zero uptime, making SRE restart-detection logic based on `uptime_seconds` unreliable. |
+| **likelihood** | 3 / 5 — The current production singleton is safe, but every test fixture constructs a fresh instance so the metric is meaningless in tests; any DI refactor that moves construction out of module scope silently resets it. |
+| **impact** | 2 / 5 — No functional breakage; `uptime_seconds` is an observability metric only. Misleading values confuse SRE dashboards and automated uptime-based alerting, but cause no data loss or security breach. |
+| **mitigation** | (1) Accept an optional `start_time: Optional[float] = None` constructor parameter; default to `time.monotonic()` only when `None`, letting callers inject a module-level `APP_START_TIME` constant set once at process boot. (2) Expose `APP_START = time.monotonic()` in `health/__init__.py` and use it as the default. (3) Update `tests/test_fr11.py:test_uptime_monotonic` to inject a fixed start time for deterministic assertions. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/health/__init__.py:38 (`self._start_time = time.monotonic()` — anchored to construction, not process boot; resets on every new instance), 03-development/src/omnibot/health/__init__.py:58 (`"uptime_seconds": time.monotonic() - self._start_time` — computed from construction time, not app start), 03-development/src/omnibot/app.py:52-55 (module-level `health_service` singleton — correct for production but not guaranteed across DI refactors), tests/test_fr11.py:23-78 (each test constructs a fresh `HealthCheckService`; uptime assertions measure seconds since object construction, not process lifetime)
+
+---
+
 ## Risk Heat Map
 
 ```
@@ -835,11 +907,11 @@ Impact
   5 |         | R01-05  |         |         |         |
   4 |         |R01-01   |R01-02   | R03-01  |         |
     |         |R02-03   |R02-01   | R06-02  |         |
-    |         |         |R04-01   | R07-01  |         |
+    |         |R11-03   |R04-01   | R07-01  |         |
     |         |         |R05-01   |         |         |
     |         |         |R06-01   |         |         |
     |         |         |R09-01   |         |         |
-    |         |         |R09-02   |         |         |
+    |         |         |R09-02   |         |R11-02   |
   3 |         |R03-03   |R01-04   | R01-03  |         |
     |         |R05-04   |R02-02   | R04-03  |         |
     |         |         |R03-02   | R05-02  |         |
@@ -855,19 +927,21 @@ Impact
     |         |         |R08-03   |         |         |
     |         |         |R10-01   | R10-02  |         |
     |         |         |R10-03   |         |         |
+    |         |         |         |         |R11-01   |
   2 |         |         |         | R02-04  |         |
     |         |         |R04-04   |         |         |
     |         |         |R08-04   |         |         |
     |         |         |R09-03   |         |         |
     |         |         |R10-04   |         |         |
+    |         |         |R11-04   |         |         |
   1 |         |         |         |         |         |
     +---------+---------+---------+---------+---------+
       L=1       L=2       L=3       L=4       L=5
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02, RISK-FR08-01, RISK-FR10-02
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04, RISK-FR08-02, RISK-FR08-03, RISK-FR08-04, RISK-FR10-01, RISK-FR10-03, RISK-FR10-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02, RISK-FR08-01, RISK-FR10-02, RISK-FR11-01, RISK-FR11-02
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04, RISK-FR08-02, RISK-FR08-03, RISK-FR08-04, RISK-FR10-01, RISK-FR10-03, RISK-FR10-04, RISK-FR11-03, RISK-FR11-04
 
 ---
 
