@@ -972,6 +972,76 @@ Citations:
 
 ---
 
+## [FR-13] Infrastructure — Docker Compose — Detailed Risk Entries
+
+### RISK-FR13-01 — `REDIS_PASSWORD` Falls Back to Hardcoded Default; Credential Exposed in Version Control
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR13-01 |
+| **fr_tag** | [FR-13] |
+| **category** | Security / Credential Management |
+| **description** | `docker-compose.yml:29` defines the Redis password as `${REDIS_PASSWORD:-dev_redis_password}`; if `REDIS_PASSWORD` is not set, Docker Compose substitutes the literal `dev_redis_password` into the `redis-server --requirepass` argument and the `REDIS_URL` injected into the API container. Any deployment using this Compose file without explicitly setting `REDIS_PASSWORD` — including CI pipelines and staging — authenticates Redis with a publicly-readable credential committed to version control. An attacker with network access to port 6379 can authenticate with the default password, read all rate-limiter token buckets, and poison cached knowledge responses. |
+| **likelihood** | 4 / 5 — The fallback default is the path of least resistance; no enforcement mechanism guards against omitting `REDIS_PASSWORD` in non-development environments. |
+| **impact** | 3 / 5 — Unauthorized Redis access exposes rate-limiter state (enabling bypass), cached data, and allows cache poisoning of knowledge-base query results. |
+| **mitigation** | (1) Remove the default fallback: change to `${REDIS_PASSWORD}` with no `:-` clause so Compose fails loudly when the variable is unset. (2) Add a `.env.example` file with `REDIS_PASSWORD=<CHANGE_ME>` and a pre-flight validation script. (3) Add `POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}` parameterization and document both in `OPERATIONS.md`. (4) Rotate `dev_redis_password` in all existing dev environments. |
+| **owner** | Security Team |
+
+**Citations** (HR-15): docker-compose.yml:29 (`${REDIS_PASSWORD:-dev_redis_password}` — hardcoded fallback in `redis-server --requirepass` arg; credential version-controlled), docker-compose.yml:45 (`REDIS_URL: redis://:${REDIS_PASSWORD:-dev_redis_password}@redis:6379` — same default injected into API container environment), docker-compose.yml:31 (`redis-cli -a "${REDIS_PASSWORD:-dev_redis_password}"` — healthcheck also uses fallback, confirming default is active when env var absent)
+
+---
+
+### RISK-FR13-02 — `POSTGRES_PASSWORD` Hardcoded in Plain Text; Immutable Credential in Version Control
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR13-02 |
+| **fr_tag** | [FR-13] |
+| **category** | Security / Credential Management |
+| **description** | `docker-compose.yml:13` sets `POSTGRES_PASSWORD: omnibot_dev` as a literal value with no environment-variable substitution. Unlike the Redis password, the postgres password is not parameterized at all. Every deployment using this Compose file uses the same credential, permanently embedded in git history. An attacker who obtains the credential can connect directly to exposed port 5432 and read all PII-containing tables (`users`, `conversations`, `messages`, `security_logs`), bypassing all application-layer PII masking and rate-limiting controls. |
+| **likelihood** | 4 / 5 — The credential is non-parameterized; there is no mechanism to override it without modifying the Compose file. |
+| **impact** | 4 / 5 — Direct database access exposes all stored PII and allows modification of `platform_configs` (including webhook secrets), compromising all FR-02 signature verifications. |
+| **mitigation** | (1) Replace `POSTGRES_PASSWORD: omnibot_dev` with `POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}`. (2) Parameterize the DSN: `POSTGRES_DSN: postgresql://omnibot:${POSTGRES_PASSWORD}@postgres:5432/omnibot`. (3) Restrict port 5432 binding: remove `ports: - "5432:5432"` from non-development profiles. (4) Rotate the `omnibot_dev` credential in all active environments immediately. |
+| **owner** | Security Team |
+
+**Citations** (HR-15): docker-compose.yml:13 (`POSTGRES_PASSWORD: omnibot_dev` — hardcoded literal credential with no env var substitution; permanent in git history), docker-compose.yml:9-10 (`ports: - "5432:5432"` — postgres port unconditionally exposed on all interfaces; enables remote access with hardcoded credential), docker-compose.yml:44 (`POSTGRES_DSN: postgresql://omnibot:omnibot_dev@postgres:5432/omnibot` — hardcoded credential duplicated in API container DSN)
+
+---
+
+### RISK-FR13-03 — `pg_isready` Healthcheck Confirms TCP Connectivity, Not Schema Readiness; API May Start on Empty Database
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR13-03 |
+| **fr_tag** | [FR-13] |
+| **category** | Technical / Reliability |
+| **description** | The postgres healthcheck is `pg_isready -U omnibot` (docker-compose.yml:16), which confirms only TCP connectivity — not that the database schema has been applied. The `omnibot-api` container starts once `service_healthy` is signalled (docker-compose.yml:47-48), which occurs as soon as `pg_isready` succeeds. If the application performs schema migration at startup, the API may encounter `relation "users" does not exist` and restart in a crash loop. No init scripts are defined in the Compose file to ensure schema readiness before the API starts. |
+| **likelihood** | 3 / 5 — The current Phase 1 code includes `get_schema_sql()` but no auto-apply step; any developer adding a first-boot migration will encounter this failure without a clear error. |
+| **impact** | 3 / 5 — API crash-loops until manual intervention; in automated deployment pipelines this blocks service startup entirely. |
+| **mitigation** | (1) Replace healthcheck with `pg_isready -U omnibot && psql -U omnibot -c "SELECT 1 FROM users LIMIT 1" 2>/dev/null` to confirm schema readiness. (2) Add an `initdb.d/01-schema.sql` volume mount so schema is applied before `pg_isready` succeeds. (3) Add `start_period: 30s` to the postgres healthcheck for slow-start environments. (4) Document schema-apply procedure in `OPERATIONS.md`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): docker-compose.yml:16 (`test: ["CMD-SHELL", "pg_isready -U omnibot"]` — TCP-level check only; healthy state does not imply tables exist), docker-compose.yml:46-50 (`depends_on: postgres: condition: service_healthy` — API start gated on `pg_isready` result, not schema migration completion), 03-development/src/omnibot/schema/__init__.py:104-111 (`get_schema_sql()` — schema DDL defined in code but no automatic apply-on-startup mechanism exists in Compose)
+
+---
+
+### RISK-FR13-04 — No Container Resource Limits; Runaway Process Can OOM-Kill Sibling Containers
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR13-04 |
+| **fr_tag** | [FR-13] |
+| **category** | Technical / Reliability |
+| **description** | The Docker Compose file defines no `deploy.resources.limits`, `mem_limit`, or `cpus` constraints on any service. Under a traffic spike, memory leak, or pathological query, the `omnibot-api` container can allocate all available host memory. When the Linux OOM killer activates, it may terminate the `postgres` or `redis` container instead of the API — causing data loss from uncommitted transactions and cache eviction that resets all rate-limiter token buckets. Without resource bounds there is no service-level isolation in shared CI environments. |
+| **likelihood** | 3 / 5 — Unlimited containers are the Docker default; any load test or large batch import on a resource-constrained CI runner can trigger OOM conditions. |
+| **impact** | 2 / 5 — A crashed postgres container causes data loss for in-flight writes; crashed redis evicts all rate-limiter state. No PII exposure, but service availability is disrupted. |
+| **mitigation** | (1) Add resource limits: `deploy: resources: limits: memory: 512m` for redis, `memory: 1g` for postgres, `memory: 256m` for the API. (2) Add `oom_score_adj: -500` to postgres and redis to bias OOM kills away from data-holding containers. (3) Create `docker-compose.override.yml` for development with higher limits. (4) Add a CI step that runs `docker stats --no-stream` after tests and fails if any container exceeds 80% of its limit. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): docker-compose.yml:5-50 (entire file — no `deploy.resources.limits`, `mem_limit`, or `cpus` key present for any service; all containers run without resource bounds), 03-development/Dockerfile (API container definition — heap size unconstrained; no `--memory` JVM-equivalent flag set)
+
+---
+
 ## Risk Heat Map
 
 ```
@@ -1015,9 +1085,9 @@ Impact
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02, RISK-FR08-01, RISK-FR10-02, RISK-FR11-01, RISK-FR11-02, RISK-FR12-02, RISK-FR12-03
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04, RISK-FR08-02, RISK-FR08-03, RISK-FR08-04, RISK-FR10-01, RISK-FR10-03, RISK-FR10-04, RISK-FR11-03, RISK-FR11-04, RISK-FR12-01, RISK-FR12-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02, RISK-FR08-01, RISK-FR10-02, RISK-FR11-01, RISK-FR11-02, RISK-FR12-02, RISK-FR12-03, RISK-FR13-01, RISK-FR13-02
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04, RISK-FR08-02, RISK-FR08-03, RISK-FR08-04, RISK-FR10-01, RISK-FR10-03, RISK-FR10-04, RISK-FR11-03, RISK-FR11-04, RISK-FR12-01, RISK-FR12-04, RISK-FR13-03, RISK-FR13-04
 
 ---
 
-*RISK_REGISTER.md v0.8 — FR-01 + FR-02 + FR-03 + FR-04 + FR-05 + FR-06 + FR-07 + FR-09 + FR-10 entries · Phase 7 draft · 2026-05-15*
+*RISK_REGISTER.md v1.0 — FR-01 through FR-13 complete · Phase 7 · 2026-05-16*
