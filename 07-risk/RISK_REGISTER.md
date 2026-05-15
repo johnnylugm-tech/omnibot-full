@@ -29,6 +29,14 @@ Citations:
 - 03-development/src/omnibot/models.py:12-20 (Platform enum implementation)
 - 03-development/src/omnibot/models.py:35-48 (UnifiedMessage frozen dataclass)
 - build/lib/omnibot/router.py:15-18 (PLATFORM_ROUTES — telegram and line only)
+- SRS.md:74-87 (FR-05 functional requirements and acceptance criteria)
+- SAD.md:190-207 (PIIMaskerL4 design and logical constraints)
+- SPEC/omnibot-phase-1.md:383-435 (PIIMasking reference implementation — rightmost-first replacement, should_escalate)
+- 03-development/src/omnibot/pii/__init__.py:12-20 (PIIMaskResult dataclass — not frozen)
+- 03-development/src/omnibot/pii/__init__.py:25-36 (phone, email, address regex patterns)
+- 03-development/src/omnibot/pii/__init__.py:39-47 (_SENSITIVE_KEYWORDS list — substring match tokens)
+- 03-development/src/omnibot/pii/__init__.py:65-93 (mask_pii — sequential left-to-right substitution)
+- 03-development/src/omnibot/pii/__init__.py:96-98 (contains_sensitive_keywords — wrong API name vs should_escalate)
 
 ---
 
@@ -53,6 +61,10 @@ Citations:
 | RISK-FR04-02 | `ValueError` on malformed Unicode unhandled → 500 + retry storm | 3 | 3 | 9 | OPEN |
 | RISK-FR04-03 | L3 pattern matching absent in Phase 1 — NFKC-normalized injections pass | 4 | 3 | 12 | OPEN |
 | RISK-FR04-04 | All-control-char input silently collapses to `""` with no diagnostic log | 3 | 2 | 6 | OPEN |
+| RISK-FR05-01 | International `+886` phone format bypasses all phone regex patterns | 3 | 4 | 12 | OPEN |
+| RISK-FR05-02 | `contains_sensitive_keywords()` substring match → false positives on "110" in addresses; name deviates from `should_escalate()` spec | 4 | 3 | 12 | OPEN |
+| RISK-FR05-03 | Detection on original `text` after substitution on `result` — `pii_types` inflated for overlapping patterns | 3 | 3 | 9 | OPEN |
+| RISK-FR05-04 | `PIIMaskResult` not `frozen=True` — mutable `pii_types` corrupts NFR-06 compliance audit trail | 2 | 3 | 6 | OPEN |
 
 > **Score** = likelihood × impact. Scores ≥ 10 are HIGH priority.
 
@@ -363,6 +375,78 @@ Citations:
 
 ---
 
+## [FR-05] PII Masking L4 — Detailed Risk Entries
+
+---
+
+### RISK-FR05-01 — International Phone Format Bypasses Phone Regex Patterns
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR05-01 |
+| **fr_tag** | [FR-05] |
+| **category** | Technical / Functional |
+| **description** | `_TW_MOBILE` (pii/__init__.py:25) matches only the domestic prefix `09XX[-\s]XXX[-\s]XXX`. It does not match the international format `+886 9XX-XXX-XXX` (where the leading `0` is dropped in favour of `+886`) or parenthesized area codes `(09XX) XXX-XXX`. A user who copies a contact from a business-card app or an international-format address book will paste `+886912345678` or `+886-912-345-678`, which does not start with `09` and therefore passes `_TW_MOBILE.subn()` with zero substitutions. `_TW_LANDLINE` (pii/__init__.py:26) has the symmetric gap for landlines: `+886-2-XXXX-XXXX` bypasses the `\b0\d{1,2}` prefix anchor. The SPEC reference pattern (SPEC/omnibot-phase-1.md:408-411) provides `\d{10,11}` as an alternate branch to catch fully-concatenated digit runs regardless of prefix, but the implementation omits this branch entirely. |
+| **likelihood** | 3 / 5 — International-format numbers appear regularly in business-context messages (customer-service, B2B support); LINE and Telegram do not normalize phone formats before delivering webhook payloads. |
+| **impact** | 4 / 5 — An unmasked phone number stored in a DB write or emitted to a structured log constitutes a PII breach. PDPA (Taiwan Personal Data Protection Act) and NFR-06 (SAD.md:531-533) require all phone numbers to be masked before any persistence or log output; a single unmasked number is a notifiable data breach event. |
+| **mitigation** | (1) Add an alternate branch to `_TW_MOBILE` covering 10–11 consecutive digit runs (`\d{10,11}`) as the SPEC specifies (SPEC/omnibot-phase-1.md:408-411). (2) Add a dedicated pass with `re.compile(r"\+886[-\s]?[0-9]{9,10}")` before the domestic passes to catch explicitly prefixed international format. (3) Add `tests/test_fr05.py` cases for `+886912345678`, `+886-912-345-678`, and `(09XX) XXX-XXX` asserting `[PHONE]` substitution. (4) Align mask token with SRS.md:80 — use `[phone_masked]` rather than `[PHONE]` so downstream log-scrubbing rules match the documented PII token format. |
+| **owner** | Platform Team / SecOps |
+
+**Citations** (HR-15): 03-development/src/omnibot/pii/__init__.py:25-26 (`_TW_MOBILE` and `_TW_LANDLINE` — `09` prefix anchor only, no `+886` branch), 03-development/src/omnibot/pii/__init__.py:74-81 (`mask_pii` phone substitution passes), SPEC/omnibot-phase-1.md:408-411 (reference `\d{10,11}` alternate branch — covers all-digit runs), SRS.md:80 (acceptance criterion — 10–11 digit format), tests/test_fr05.py:35-40 (`test_phone_without_dashes` — only tests domestic `0912345678`, not `+886` prefix)
+
+---
+
+### RISK-FR05-02 — `contains_sensitive_keywords()` Substring Match Produces False Positives; API Name Deviates from Spec
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR05-02 |
+| **fr_tag** | [FR-05] |
+| **category** | Technical / Functional |
+| **description** | Two compounding issues in the escalation detection path. **First (false positives)**: `_SENSITIVE_KEYWORDS` (pii/__init__.py:39-47) includes the bare string `"110"`. `contains_sensitive_keywords()` (pii/__init__.py:96-98) uses `any(kw in text ...)` — a plain substring match with no word boundary. Any Taiwan address containing `110` (e.g., `信義路三段110號`) and any digit sequence containing `1100` or `2110` triggers escalation. Similarly, `"緊急"` matches `緊急聯絡人` (emergency contact person field, common in onboarding forms). False-positive escalations bypass the automated resolution path entirely, routing routine messages to human agents and degrading FCR (NFR-01). **Second (API contract mismatch)**: SRS.md:84 requires a `should_escalate()` function; SPEC/omnibot-phase-1.md:434 defines `PIIMasking.should_escalate()`. The implementation exposes `contains_sensitive_keywords()` (pii/__init__.py:96). Any Phase 2 code written against the spec's `should_escalate()` contract will raise `AttributeError` at runtime when importing from `omnibot.pii`. |
+| **likelihood** | 4 / 5 — Taiwan addresses routinely contain numeric components such as `信義路三段110號`; the false-positive trigger is deterministic and immediate for any user sending a street address. The API name mismatch surfaces at the first Phase 2 import of `should_escalate`. |
+| **impact** | 3 / 5 — False-positive escalations overload human agents and degrade FCR (NFR-01). An `AttributeError` on `should_escalate` import causes an unhandled exception at the Phase 2 module-load boundary, blocking the affected pipeline path entirely until patched. |
+| **mitigation** | (1) Replace bare-string `"110"` with a regex pattern `re.compile(r"\b110\b")` and apply `p.search(text)` checks, consistent with the SPEC's approach (SPEC/omnibot-phase-1.md:413-416). (2) Add a context-aware exclusion for `"緊急"` when followed by `聯絡人` (e.g., use a negative lookahead). (3) Add `should_escalate` as a public alias: `should_escalate = contains_sensitive_keywords`, or rename the function to match the SRS contract. (4) Add a regression test asserting `contains_sensitive_keywords("信義路三段110號") is False`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/pii/__init__.py:39-47 (`_SENSITIVE_KEYWORDS` — includes bare `"110"` and `"緊急"` with no word boundary), 03-development/src/omnibot/pii/__init__.py:96-98 (`contains_sensitive_keywords` — substring match, deviates from spec name), SPEC/omnibot-phase-1.md:413-416 (reference — `re.compile(p)` per keyword, not substring), SPEC/omnibot-phase-1.md:434 (`should_escalate()` — mandated API name), SRS.md:84 (`should_escalate()` acceptance criterion), tests/test_fr05.py:82-90 (`test_sensitive_keyword_triggers_escalation` — does not test address-number false positives)
+
+---
+
+### RISK-FR05-03 — PII-Type Detection on Original `text` After Substitution on `result` Inflates `pii_types` for Overlapping Patterns
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR05-03 |
+| **fr_tag** | [FR-05] |
+| **category** | Technical / Correctness |
+| **description** | `mask_pii()` applies substitutions sequentially on a mutable `result` variable, but the detection guards (`_EMAIL.search(text)` at pii/__init__.py:83 and `_TW_ADDRESS.search(text)` at pii/__init__.py:88) search the original `text` argument — not the already-masked `result`. When a string contains a token matching multiple patterns — for example a phone number embedded in an email-like token (`09XX@example.com`) or an address string whose digit components match the landline pattern — the phone pass masks the overlapping token in `result`, but the email/address detection guard still finds a match in `text`, appending `"email"` or `"address"` to `pii_types` even when the subsequent `_EMAIL.subn()`/`_TW_ADDRESS.subn()` call finds zero occurrences in `result`. The output is a `PIIMaskResult` claiming PII types that were not actually masked, corrupting the NFR-06 audit record. The SPEC (SPEC/omnibot-phase-1.md:418-432) avoids this entirely by running each pattern's `finditer()` on the already-mutated `masked` string — detection and substitution always share the same target. |
+| **likelihood** | 3 / 5 — Overlapping patterns are unusual in typical customer messages but reliably triggered by fuzzing or by users who include multiple contact formats. The split detection/substitution target is a latent defect active in every `mask_pii()` call; any overlap will trigger it. |
+| **impact** | 3 / 5 — A `PIIMaskResult.pii_types` list claiming a PII type that was not masked misleads audit log aggregation (NFR-06), inflating PII incident counts and producing false compliance reports. Downstream code branching on `"email" in result.pii_types` will invoke the email-PII path unnecessarily, potentially triggering unneeded PDPA notification workflows. |
+| **mitigation** | (1) Change `_EMAIL.search(text)` (pii/__init__.py:83) and `_TW_ADDRESS.search(text)` (pii/__init__.py:88) to search `result` — the already-phone-masked string — rather than the original `text`. (2) Alternatively, adopt the SPEC's single-pass dict iteration (`for pii_type, pattern in PATTERNS.items(): matches = list(pattern.finditer(masked))`) which eliminates the split entirely. (3) Add a `tests/test_fr05.py` case asserting that `mask_pii("0912@example.com")` produces `mask_count == 1` and `pii_types == ["phone"]`, not `["phone", "email"]`. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/pii/__init__.py:65-93 (`mask_pii` — substitution on `result`, detection on `text`), 03-development/src/omnibot/pii/__init__.py:83 (`_EMAIL.search(text)` — original text, not masked result), 03-development/src/omnibot/pii/__init__.py:88 (`_TW_ADDRESS.search(text)` — original text, not masked result), SPEC/omnibot-phase-1.md:418-432 (`mask()` — `pattern.finditer(masked)` on evolving masked string, no detection/substitution split), SRS.md:83 (acceptance criterion — rightmost-first replacement to avoid index offset), SAD.md:203-204 (inter-type precedence — sequential passes on already-masked text)
+
+---
+
+### RISK-FR05-04 — `PIIMaskResult` Not `frozen=True` — Mutable Fields Undermine NFR-06 Compliance Audit Trail
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR05-04 |
+| **fr_tag** | [FR-05] |
+| **category** | Technical / Data Integrity |
+| **description** | `PIIMaskResult` is declared `@dataclass` without `frozen=True` (pii/__init__.py:12). The SPEC defines it as `@dataclass(frozen=True)` (SPEC/omnibot-phase-1.md:388-394). Both `masked_text: str` and `pii_types: List[str]` are mutable after construction. `pii_types` is backed by a `field(default_factory=list)` (pii/__init__.py:20), so any caller can invoke `result.pii_types.append("phone")` or `result.pii_types.clear()` without raising `FrozenInstanceError`. SAD.md:531-533 (NFR-06) specifies that PIIMaskerL4's output is the authoritative record of PII categories found in each message, written to the structured audit log (FR-09) without post-construction mutation. A logging middleware that annotates `result.pii_types` for distributed tracing silently corrupts the persisted audit record. Additionally, `result.masked_text = original_text` reassignment is possible without `frozen=True`, allowing unmasked content to be stored under the appearance of a sanitized value, defeating PII masking entirely while bypassing any type-level protection. |
+| **likelihood** | 2 / 5 — Not exploitable from the network; requires co-located Python code with module import access. Most likely vector: a Phase 2 logging middleware annotating `pii_types` for tracing, or a test fixture that shares a `PIIMaskResult` instance across multiple assertions and mutates it between checks. |
+| **impact** | 3 / 5 — Corrupted `pii_types` in the audit log produces inaccurate PDPA/NFR-06 compliance reports. A mutated `masked_text` storing unmasked PII would violate PDPA data minimisation obligations and constitute a notifiable incident if the record were disclosed. |
+| **mitigation** | (1) Add `frozen=True` to the `@dataclass` declaration: `@dataclass(frozen=True)` (pii/__init__.py:12). (2) Change `pii_types: List[str] = field(default_factory=list)` to `pii_types: tuple = field(default_factory=tuple)` — `frozen=True` prevents attribute reassignment but does not deep-freeze a `List`; a `tuple` provides interior immutability. (3) Add a `tests/test_fr05.py` assertion that `result.pii_types.append("x")` raises `AttributeError` (tuple) or that `result.masked_text = ""` raises `FrozenInstanceError`. (4) Document the immutability contract in the `PIIMaskResult` docstring so Phase 2 authors do not attempt mutation. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/pii/__init__.py:12-20 (`PIIMaskResult` — `@dataclass` without `frozen=True`, `pii_types: List[str]` mutable), SPEC/omnibot-phase-1.md:388-394 (`PIIMaskResult` — `@dataclass(frozen=True)` — spec mandates frozen), SAD.md:531-533 (NFR-06 — PIIMaskerL4 output is compliance-audit record, must not be mutated post-construction), tests/test_fr05.py:93-96 (`test_escalation_flag_dataclass` — no immutability assertion on `PIIMaskResult`)
+
+---
+
 ## Risk Heat Map
 
 ```
@@ -371,11 +455,13 @@ Impact
   4 |         |R01-01   |R01-02   | R03-01  |         |
     |         |R02-03   |R02-01   |         |         |
     |         |         |R04-01   |         |         |
-  3 |         |         |R01-04   | R01-03  |         |
-    |         |R03-03   |R02-02   | R04-03  |         |
-    |         |         |R03-02   |         |         |
+    |         |         |R05-01   |         |         |
+  3 |         |R03-03   |R01-04   | R01-03  |         |
+    |         |R05-04   |R02-02   | R04-03  |         |
+    |         |         |R03-02   | R05-02  |         |
     |         |         |R03-04   |         |         |
     |         |         |R04-02   |         |         |
+    |         |         |R05-03   |         |         |
   2 |         |         |         | R02-04  |         |
     |         |         |R04-04   |         |         |
   1 |         |         |         |         |         |
@@ -384,9 +470,9 @@ Impact
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04
 
 ---
 
-*RISK_REGISTER.md v0.4 — FR-01 + FR-02 + FR-03 + FR-04 entries · Phase 7 draft · 2026-05-15*
+*RISK_REGISTER.md v0.5 — FR-01 + FR-02 + FR-03 + FR-04 + FR-05 entries · Phase 7 draft · 2026-05-15*
