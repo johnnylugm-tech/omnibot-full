@@ -90,6 +90,10 @@ Citations:
 | RISK-FR11-02 | HTTP 200 always returned — orchestrators cannot detect unhealthy state | 5 | 4 | 20 | OPEN |
 | RISK-FR11-03 | No probe timeout — blocking check stalls health endpoint | 2 | 4 | 8 | OPEN |
 | RISK-FR11-04 | `uptime_seconds` resets on `HealthCheckService` reconstruction | 3 | 2 | 6 | OPEN |
+| RISK-FR12-01 | `knowledge_base.embeddings` nullable — Phase 2 vector search silently skips NULL rows | 3 | 3 | 9 | OPEN |
+| RISK-FR12-02 | No pgvector index in DDL — Phase 2 similarity queries run O(N) sequential scans | 4 | 3 | 12 | OPEN |
+| RISK-FR12-03 | `webhook_secret_key_ref TEXT` — raw secret vs vault reference not enforced | 3 | 4 | 12 | OPEN |
+| RISK-FR12-04 | `security_logs` has no index on `created_at`/`blocked` — full-table compliance scans | 4 | 2 | 8 | OPEN |
 
 > **Score** = likelihood × impact. Scores ≥ 10 are HIGH priority.
 
@@ -900,6 +904,74 @@ Citations:
 
 ---
 
+### RISK-FR12-01 — `knowledge_base.embeddings vector(384)` Nullable — Phase 2 Vector Search Silently Skips NULL-Embedded Rows
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR12-01 |
+| **fr_tag** | [FR-12] |
+| **category** | Technical / Data Integrity |
+| **description** | The `knowledge_base` DDL defines `embeddings vector(384)` without a `NOT NULL` constraint (03-development/src/omnibot/schema/__init__.py:53). Phase 1 FAQ lookup is keyword-only and does not read `embeddings`; rows inserted via admin tooling or test fixtures in Phase 1 will have `embeddings IS NULL`. When Phase 2 vector search is activated, `pgvector` cosine similarity queries using the `<->` operator raise an error or silently exclude rows where `embeddings IS NULL`, depending on the index type and query path. The `test_knowledge_base_columns` test asserts only that the string `vector(384)` appears in the DDL — it does not check that the column is `NOT NULL` or that a backfill is tracked (tests/test_fr12.py:63-70). |
+| **likelihood** | 3 / 5 — Phase 1 inserts routinely omit `embeddings`; no migration or backfill script is defined in the current schema module. The gap is guaranteed to materialise at the Phase 1-to-Phase 2 cutover for any existing row. |
+| **impact** | 3 / 5 — Phase 2 RAG search silently under-serves queries whose answers exist in Phase 1 rows; support deflection rate degrades; no data is corrupted but coverage regresses without a visible error signal. |
+| **mitigation** | (1) Add a pre-Phase-2 migration that backfills `embeddings` for all existing rows using the Phase 2 embedding model before enabling vector search. (2) Add a startup assertion that logs WARN if `SELECT COUNT(*) FROM knowledge_base WHERE embeddings IS NULL > 0`. (3) Extend `tests/test_fr12.py:test_knowledge_base_columns` to assert the column DDL contains `NOT NULL` or that the schema includes a backfill guard. (4) Document the Phase 2 prerequisite in SPEC/omnibot-phase-2.md. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/schema/__init__.py:47-59 (`knowledge_base` DDL — `embeddings vector(384)` column defined without `NOT NULL`; nullable by default, silently allows NULL-embedded rows from Phase 1 inserts), 03-development/src/omnibot/schema/__init__.py:104-111 (`get_schema_sql()` — concatenates all table DDLs; no `CREATE INDEX` or backfill step emitted), tests/test_fr12.py:63-70 (`test_knowledge_base_columns` — asserts `vector(384)` string present but not `NOT NULL` constraint; gap allows NULL embeddings to pass schema validation), 01-requirements/SRS.md:183-200 (FR-12 acceptance criteria — specifies `embeddings vector(384)` without requiring `NOT NULL` or a Phase 2 backfill plan), 02-architecture/SAD.md:367-379 (Schema Summary — lists `embeddings vector(384)` under `knowledge_base` without noting nullability constraint or backfill requirement)
+
+---
+
+### RISK-FR12-02 — No pgvector Index in Phase 1 DDL — Phase 2 `<->` Similarity Queries Run O(N) Sequential Scans
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR12-02 |
+| **fr_tag** | [FR-12] |
+| **category** | Technical / Performance |
+| **description** | `get_schema_sql()` emits `CREATE EXTENSION IF NOT EXISTS vector` and the `embeddings vector(384)` column definition but contains no `CREATE INDEX … USING ivfflat` or `hnsw` statement (03-development/src/omnibot/schema/__init__.py:104-111). When Phase 2 activates and the knowledge base exceeds a few thousand entries, every approximate nearest-neighbour (ANN) query using the `<->` cosine-distance operator must perform a full sequential scan across all `knowledge_base` rows. At 10 k entries a sequential scan costs hundreds of milliseconds per request; at 100 k entries it breaches the 3-second webhook-response SLA defined by FR-01. The SAD notes `pgvector ivfflat index` as a Phase 2 item (02-architecture/SAD.md:547) but no migration script or index-creation step is provided. |
+| **likelihood** | 4 / 5 — There is no `CREATE INDEX` statement anywhere in the Phase 1 DDL; the absence is structural and present in every Phase 1 deployment. Phase 2 vector search will activate on the unindexed table the moment the feature flag is set. |
+| **impact** | 3 / 5 — Response latency degrades linearly with knowledge base size; once latency exceeds 3 s the webhook adapter returns a timeout error to Telegram/LINE, triggering platform-side retries and duplicate message processing (compounding with RISK-FR01-02). |
+| **mitigation** | (1) Add `CREATE INDEX IF NOT EXISTS knowledge_base_embeddings_idx ON knowledge_base USING ivfflat (embeddings vector_cosine_ops) WITH (lists = 100);` as a named Phase 2 migration step — not inline in Phase 1 DDL, as index tuning requires rows. (2) Define `lists ≈ sqrt(row_count)` parameterically and document re-index thresholds. (3) Add a Phase 2 integration test asserting `pg_indexes` contains `knowledge_base_embeddings_idx`. (4) Gate Phase 2 vector search activation on a readiness check that confirms the index exists before enabling the code path. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/schema/__init__.py:104-111 (`get_schema_sql()` — emits `CREATE EXTENSION IF NOT EXISTS vector` but no `CREATE INDEX` statement; ANN index absent from all Phase 1 DDL), 03-development/src/omnibot/schema/__init__.py:47-59 (`knowledge_base` DDL — `embeddings vector(384)` column defined with no inline index clause), 02-architecture/SAD.md:547 (pgvector ivfflat index listed as Phase 2 item — confirms intentional deferral but no migration script exists in schema module), tests/test_fr12.py:63-70 (`test_knowledge_base_columns` — validates column presence, not index presence; no assertion guards against a missing ANN index at Phase 2 activation)
+
+---
+
+### RISK-FR12-03 — `platform_configs.webhook_secret_key_ref TEXT` Stores Raw Secret or Vault Reference Without Enforcement — Credential Exposure Risk
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR12-03 |
+| **fr_tag** | [FR-12] |
+| **category** | Security / Credential Management |
+| **description** | `platform_configs` defines `webhook_secret_key_ref TEXT` with no `NOT NULL`, no `CHECK` constraint, and no length restriction (03-development/src/omnibot/schema/__init__.py:65). The column name implies a vault key reference (e.g. `vault://secret/telegram`) rather than the raw secret value, but the schema imposes no pattern enforcement, so any developer may store the raw secret directly — especially during local development or test seeding. If a raw secret is stored, any `SELECT * FROM platform_configs` in a debug session, an unprotected admin endpoint, a database backup leak, or a SQL injection against a table with `REFERENCES` to `platform_configs` exposes credentials that allow forging Telegram and LINE webhook signatures, enabling full impersonation of platform traffic and bypassing FR-02 signature verification entirely. |
+| **likelihood** | 3 / 5 — There is no application-layer enforcement in the schema module; `test_platform_configs_columns` asserts only column name presence (tests/test_fr12.py:73-77); developers under time pressure will store raw secrets during local setup and the pattern propagates to shared environments. |
+| **impact** | 4 / 5 — Forged webhook signatures bypass FR-02 signature verification, allowing an attacker to inject arbitrary messages into the bot pipeline on behalf of any platform user; PII masking and audit logs are rendered unreliable as the attacker controls message content. |
+| **mitigation** | (1) Rename the column to `webhook_secret_vault_path` and add `CHECK (webhook_secret_vault_path LIKE 'vault://%%' OR webhook_secret_vault_path LIKE 'ssm://%%')` to enforce vault-reference format at the schema level. (2) Add an application-layer validator in `SignatureVerifier` that rejects any key reference not matching the vault path pattern at startup. (3) Rotate any raw secrets currently stored in the column and re-seed with vault references. (4) Emit a `security_logs` entry on every write to `platform_configs` to maintain an audit trail for secret reference changes. |
+| **owner** | Security Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/schema/__init__.py:60-68 (`platform_configs` DDL — `webhook_secret_key_ref TEXT` defined with no `NOT NULL`, no `CHECK` constraint, no length or pattern guard; raw secrets and vault paths are indistinguishable at the schema layer), tests/test_fr12.py:73-77 (`test_platform_configs_columns` — asserts column name presence only; no constraint validation), 01-requirements/SRS.md:183-200 (FR-12 acceptance criteria — lists `webhook_secret_key_ref` as a required column but specifies no storage format or security constraint), 02-architecture/SAD.md:367-379 (Schema Summary — lists `webhook_secret_key_ref TEXT` without noting required vault-path format or enforcement mechanism)
+
+---
+
+### RISK-FR12-04 — `security_logs` Has No Index on `created_at` or `blocked` — Full-Table Compliance Audit Scans
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR12-04 |
+| **fr_tag** | [FR-12] |
+| **category** | Technical / Performance |
+| **description** | The `security_logs` DDL defines no indexes beyond the implicit `id SERIAL PRIMARY KEY` (03-development/src/omnibot/schema/__init__.py:91-100). The table is append-only and grows with every processed request. Compliance and incident-response queries (`SELECT … FROM security_logs WHERE blocked = TRUE AND created_at > '...'`) must scan all rows. `test_security_logs_columns` validates column presence only and raises no assertion about index coverage (tests/test_fr12.py:101-106). Under sustained traffic or DDoS mitigation activity, the table can accumulate millions of rows; query timeouts during compliance reporting create gaps in the audit trail required for regulatory accountability, and a slow audit query may transiently hold a relation lock that impacts write throughput. |
+| **likelihood** | 4 / 5 — The absence of any secondary index is structural and present from the first deployment; the table grows continuously from day one under normal operation. |
+| **impact** | 2 / 5 — No runtime user-facing impact; compliance report generation is delayed. Under extreme load a slow audit query may impact write throughput, but normal OLTP operations are unaffected. |
+| **mitigation** | (1) Add `CREATE INDEX security_logs_created_at_idx ON security_logs (created_at DESC);` to the Phase 1 DDL alongside the table definition. (2) Add a partial index `CREATE INDEX security_logs_blocked_idx ON security_logs (created_at DESC) WHERE blocked = TRUE;` for compliance-specific filtering. (3) Implement monthly range partitioning on `created_at` for long-term scale. (4) Extend `tests/test_fr12.py` with an assertion that `pg_indexes` contains `security_logs_created_at_idx` after `get_schema_sql()` is applied. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/schema/__init__.py:91-100 (`security_logs` DDL — `id SERIAL PRIMARY KEY` only; no secondary index on `created_at` or `blocked`; all compliance queries require full-table scans), 03-development/src/omnibot/schema/__init__.py:104-111 (`get_schema_sql()` — returns concatenated DDL; no `CREATE INDEX` line present for any table including `security_logs`), tests/test_fr12.py:101-106 (`test_security_logs_columns` — validates `layer`, `blocked`, `source_ip` column presence; no assertion about index coverage), 01-requirements/SRS.md:183-200 (FR-12 acceptance criteria — specifies `security_logs` schema columns but defines no index or query-performance requirement)
+
+---
+
 ## Risk Heat Map
 
 ```
@@ -912,6 +984,7 @@ Impact
     |         |         |R06-01   |         |         |
     |         |         |R09-01   |         |         |
     |         |         |R09-02   |         |R11-02   |
+    |         |         |R12-03   |         |         |
   3 |         |R03-03   |R01-04   | R01-03  |         |
     |         |R05-04   |R02-02   | R04-03  |         |
     |         |         |R03-02   | R05-02  |         |
@@ -928,20 +1001,22 @@ Impact
     |         |         |R10-01   | R10-02  |         |
     |         |         |R10-03   |         |         |
     |         |         |         |         |R11-01   |
+    |         |         |R12-01   | R12-02  |         |
   2 |         |         |         | R02-04  |         |
     |         |         |R04-04   |         |         |
     |         |         |R08-04   |         |         |
     |         |         |R09-03   |         |         |
     |         |         |R10-04   |         |         |
     |         |         |R11-04   |         |         |
+    |         |         |         | R12-04  |         |
   1 |         |         |         |         |         |
     +---------+---------+---------+---------+---------+
       L=1       L=2       L=3       L=4       L=5
                         Likelihood
 ```
 
-> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02, RISK-FR08-01, RISK-FR10-02, RISK-FR11-01, RISK-FR11-02
-> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04, RISK-FR08-02, RISK-FR08-03, RISK-FR08-04, RISK-FR10-01, RISK-FR10-03, RISK-FR10-04, RISK-FR11-03, RISK-FR11-04
+> **HIGH** (score ≥ 10): RISK-FR01-02, RISK-FR01-03, RISK-FR01-05, RISK-FR02-01, RISK-FR03-01, RISK-FR04-01, RISK-FR04-03, RISK-FR05-01, RISK-FR05-02, RISK-FR06-01, RISK-FR06-02, RISK-FR07-01, RISK-FR07-02, RISK-FR08-01, RISK-FR10-02, RISK-FR11-01, RISK-FR11-02, RISK-FR12-02, RISK-FR12-03
+> **MEDIUM** (score 6–9): RISK-FR01-01, RISK-FR01-04, RISK-FR02-02, RISK-FR02-03, RISK-FR02-04, RISK-FR03-02, RISK-FR03-03, RISK-FR03-04, RISK-FR04-02, RISK-FR04-04, RISK-FR05-03, RISK-FR05-04, RISK-FR06-03, RISK-FR06-04, RISK-FR07-03, RISK-FR07-04, RISK-FR08-02, RISK-FR08-03, RISK-FR08-04, RISK-FR10-01, RISK-FR10-03, RISK-FR10-04, RISK-FR11-03, RISK-FR11-04, RISK-FR12-01, RISK-FR12-04
 
 ---
 
