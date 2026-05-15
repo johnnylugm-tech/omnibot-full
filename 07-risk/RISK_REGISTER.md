@@ -78,6 +78,10 @@ Citations:
 | RISK-FR07-02 | `QueryResult` not `frozen=True`; `id`/`knowledge_id` absent — Phase 2 `AttributeError` at runtime | 4 | 3 | 12 | OPEN |
 | RISK-FR07-03 | Case-sensitive `kw in text` vs ILIKE — mixed-case English keywords miss rule matches | 3 | 3 | 9 | OPEN |
 | RISK-FR07-04 | No `is_active` guard or `version DESC` order — deprecated rules permanently active | 3 | 3 | 9 | OPEN |
+| RISK-FR09-01 | `print()` without `flush=True` — NDJSON entries silently lost on container crash/SIGTERM | 3 | 4 | 12 | OPEN |
+| RISK-FR09-02 | No minimum log-level filter — `debug()` emits raw PII payloads to production stdout | 3 | 4 | 12 | OPEN |
+| RISK-FR09-03 | `log()` caller-supplied `service` overrides `self._service` — false service attribution | 3 | 2 | 6 | OPEN |
+| RISK-FR09-04 | `app.py` uses stdlib `logging` — application-layer errors bypass FR-09 NDJSON format | 4 | 3 | 12 | OPEN |
 
 > **Score** = likelihood × impact. Scores ≥ 10 are HIGH priority.
 
@@ -676,6 +680,78 @@ Citations:
 
 ---
 
+## [FR-09] Structured Logger — JSON Format — Detailed Risk Entries
+
+---
+
+### RISK-FR09-01 — `print()` to stdout Without `flush=True` — NDJSON Log Entries Silently Lost on Container Crash or SIGTERM
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR09-01 |
+| **fr_tag** | [FR-09] |
+| **category** | Technical / Operational |
+| **description** | `StructuredLogger.log()` emits each NDJSON entry via `print(json.dumps(entry, ensure_ascii=False), file=sys.stdout)` (03-development/src/omnibot/logger/__init__.py:35) without `flush=True`. Python's `print()` writes to the OS file buffer; in containerised environments (Docker, Kubernetes), default block-buffered stdout holds entries in memory until the buffer fills or the process exits cleanly. On OOM kill, SIGKILL, or container preemption, buffered entries are discarded with no error. The SPEC reference implementation routes log entries through `self.logger.log(self.LOG_LEVELS.get(level, logging.INFO), json.dumps(entry))` (SPEC/omnibot-phase-1.md:634), where the stdlib logging handler manages flushing; the implementation's bare `print()` provides no equivalent guarantee. During a production incident — the moment when log entries are most critical — a process crash discards any buffered CRITICAL or ERROR entries, leaving operators blind to the events immediately preceding the failure. `tests/test_fr09.py` verifies single-newline NDJSON output (tests/test_fr09.py:40-44) but never tests that the entry is flushed to the underlying OS stream. |
+| **likelihood** | 3 / 5 — Containerised deployment is the standard Phase 2 target; OOM kills and rolling restarts are routine. Python's block-buffering is silent in normal operation and only manifests as data loss on abnormal termination, making the risk invisible until an incident occurs. |
+| **impact** | 4 / 5 — Lost log entries during the crash window destroy forensic evidence for post-incident review. CRITICAL and ERROR entries — integrity threats and DB failures — are the highest-value log events and most likely to precede a crash, making loss asymmetrically harmful to on-call response and NFR-06 audit trails. |
+| **mitigation** | (1) Add `flush=True` to the `print()` call: `print(json.dumps(entry, ensure_ascii=False), file=sys.stdout, flush=True)` (03-development/src/omnibot/logger/__init__.py:35). (2) Set `PYTHONUNBUFFERED=1` in all container run configurations as a defence-in-depth complement — this disables Python stdout buffering globally but is not a substitute for fix (1). (3) Add a `tests/test_fr09.py` test that patches `sys.stdout.flush` and asserts it is called after each log emission. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/logger/__init__.py:35 (`print(json.dumps(entry, ensure_ascii=False), file=sys.stdout)` — no `flush=True`; OS buffer retained until full or clean exit), SPEC/omnibot-phase-1.md:634 (`self.logger.log(…)` — SPEC routes through stdlib handler with managed flushing), tests/test_fr09.py:40-44 (`test_log_output_is_single_line` — verifies one newline emitted; does not verify OS-level flush), 02-architecture/SAD.md:338 (`Responsibility: Emit JSON NDJSON log entries to stdout` — no flush SLA specified in design)
+
+---
+
+### RISK-FR09-02 — No Minimum Log-Level Filter — `debug()` Emits Raw Payloads to Production stdout, Leaking PII
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR09-02 |
+| **fr_tag** | [FR-09] |
+| **category** | Security / Compliance |
+| **description** | `StructuredLogger.__init__` accepts only `service: str` (03-development/src/omnibot/logger/__init__.py:21-22) and exposes all five log levels unconditionally. The `debug()` method docstring states "Developer diagnostics: raw payload, sanitizer output" (03-development/src/omnibot/logger/__init__.py:37-38), meaning it is designed to emit raw webhook payloads before `PIIMaskerL4` processing. SRS.md:147 classifies PII detection at `WARN` level, but a `logger.debug(raw_payload)` call in the adapter layer (the anticipated next development step) would emit un-masked user message text to stdout in production. The SPEC defines `LOG_LEVELS` with numeric values and routes through `logging.getLogger()` (SPEC/omnibot-phase-1.md:614-624), which inherits Python's default WARNING minimum level from `logging.basicConfig`; the implementation's unconditional `print()` has no equivalent gate. No test in `tests/test_fr09.py` verifies that DEBUG output can be suppressed via configuration. |
+| **likelihood** | 3 / 5 — `debug()` calls are routinely added during development and frequently remain in production code; without a level gate there is no infrastructure guard. A single `logger.debug(raw_payload)` call in the adapter parse path exposes every user message to the production log stream. |
+| **impact** | 4 / 5 — Raw webhook payloads contain user-identifiable message text and LINE/Telegram user IDs, violating NFR-06 PII controls and GDPR Article 5(1)(f) data minimisation. Log aggregation systems persist these entries indefinitely, creating a persistent PII audit exposure across every collected log. |
+| **mitigation** | (1) Add a `min_level` parameter to `StructuredLogger.__init__()` defaulting to `"INFO"` for production; skip emission in `log()` when `level` ranks below `min_level` (03-development/src/omnibot/logger/__init__.py:21-35). (2) Read `LOG_LEVEL` from the environment (`os.environ.get("LOG_LEVEL", "INFO")`) so containerised deployments control verbosity without code changes — consistent with the SPEC `LOG_LEVELS` dict approach (SPEC/omnibot-phase-1.md:614-620). (3) Add a `tests/test_fr09.py` test: `StructuredLogger(service="s", min_level="INFO")` must produce no output when `debug()` is called. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/logger/__init__.py:21-22 (`def __init__(self, service: str)` — no `min_level` parameter; all five levels always active), 03-development/src/omnibot/logger/__init__.py:37-38 (`def debug()` docstring: "Developer diagnostics: raw payload, sanitizer output" — designed to emit raw pre-mask data), 01-requirements/SRS.md:147 (`WARN: 非致命異常（低信心度匹配、PII 偵測）` — PII detection events at WARN; raw payload at DEBUG precedes masking), SPEC/omnibot-phase-1.md:614-620 (`LOG_LEVELS = {…}` — SPEC uses stdlib logging with WARN default; implementation lacks equivalent gate), tests/test_fr09.py:99-102 (`test_level_debug` — verifies DEBUG level emitted; does not test suppression in production configuration)
+
+---
+
+### RISK-FR09-03 — `log()` Caller-Supplied `service` Parameter Overrides `self._service` — False Service Attribution in Log Aggregation
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR09-03 |
+| **fr_tag** | [FR-09] |
+| **category** | Technical / Operational |
+| **description** | `StructuredLogger.log()` accepts `service` as an explicit positional parameter: `def log(self, level: str, service: str, message: str, **kwargs: Any)` (03-development/src/omnibot/logger/__init__.py:24). Any caller invoking `log()` directly can pass an arbitrary `service` value, overriding `self._service` set at construction time. The shorthand methods (`info()`, `warn()`, `error()`, `debug()`, `critical()`) correctly forward `self._service` (03-development/src/omnibot/logger/__init__.py:39: `self.log("DEBUG", self._service, message, **kwargs)`), but the public `log()` API enforces no such constraint. The SPEC's `log()` signature is `def log(self, level: str, message: str, **kwargs)` with `self.service` always used (SPEC/omnibot-phase-1.md:626-634); the implementation's additional `service` positional parameter is a deviation from that contract. The test `tests/test_fr09.py:117-124` (`test_log_method_accepts_level_string`) explicitly passes `service="test2"` and asserts `parsed["service"] == "test2"`, confirming that caller-override is both possible and validated as correct. In multi-service log aggregation, false service attribution prevents correct routing of alerts and breaks `service`-scoped dashboards. |
+| **likelihood** | 3 / 5 — `log()` is a public method; future middleware integrations or developers unfamiliar with the shorthand API will invoke `log()` directly and supply an incorrect `service` value. The existing test validates the override as intended behaviour, increasing the risk that it persists. |
+| **impact** | 2 / 5 — False service attribution corrupts operational dashboards and alert routing rules that filter by the `service` field, increasing mean-time-to-detect during incidents. No data is lost and no security boundary is crossed; the damage is confined to operational observability. |
+| **mitigation** | (1) Remove the explicit `service` positional parameter from `log()` and always use `self._service`: change signature to `def log(self, level: str, message: str, **kwargs: Any)` (03-development/src/omnibot/logger/__init__.py:24), consistent with SPEC/omnibot-phase-1.md:626. (2) Update `tests/test_fr09.py:117-124` to remove the `service="test2"` override and assert `parsed["service"] == "test"` (the constructor-supplied name). (3) If per-call service override is genuinely needed, make it an optional kwarg (`service: str | None = None`) that falls back to `self._service` when absent. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/logger/__init__.py:24 (`def log(self, level: str, service: str, message: str, **kwargs)` — `service` positional param allows caller override of `self._service`), 03-development/src/omnibot/logger/__init__.py:39 (`self.log("DEBUG", self._service, message, **kwargs)` — shorthand correctly uses `self._service`; direct `log()` callers bypass enforcement), SPEC/omnibot-phase-1.md:626 (`def log(self, level: str, message: str, **kwargs)` — no explicit `service` param; SPEC always uses `self.service`), tests/test_fr09.py:117-124 (`test_log_method_accepts_level_string` — passes `service="test2"`, asserts override accepted; documents deviation from SPEC contract as intended)
+
+---
+
+### RISK-FR09-04 — `app.py` Uses Stdlib `logging.getLogger()` — All Application-Layer Errors Bypass FR-09 NDJSON Format
+
+| Field | Value |
+|-------|-------|
+| **risk_id** | RISK-FR09-04 |
+| **fr_tag** | [FR-09] |
+| **category** | Technical / Functional |
+| **description** | `app.py` imports `logging` from the stdlib (03-development/src/omnibot/app.py:11) and declares `logger = logging.getLogger("omnibot.app")` (03-development/src/omnibot/app.py:21); `omnibot.logger.StructuredLogger` is never imported. The `global_exception_handler` uses this stdlib logger: `logger.error("Unhandled exception", extra={…})` (03-development/src/omnibot/app.py:32-41). Stdlib `logging.error()` emits a text-formatted string to the configured handler — by default a `StreamHandler` producing `ERROR:omnibot.app:Unhandled exception` on stderr — not a JSON object on stdout. Every unhandled exception in the FastAPI application (webhook parse failures, DB connection errors surfacing as 500s, auth bypasses) is therefore logged as an unstructured text line, breaking log aggregation pipelines configured to parse `timestamp`, `level`, `service`, and `message` fields from NDJSON. The `global_exception_handler` is the most security-relevant log point; emitting it in the wrong format means NDJSON-based alerting rules cannot fire on application-layer integrity events. SAD.md:332-360 designates FR-09 as the observability contract for all modules; `app.py` violates this contract on every unhandled exception. |
+| **likelihood** | 4 / 5 — The issue is present today and manifests on every unhandled exception. No configuration or deployment change is required to trigger it; it fires on the first 500 error in any environment. |
+| **impact** | 3 / 5 — NDJSON-based alerting rules and dashboards cannot extract structured fields from stdlib text output, silently dropping the error from monitoring pipelines. Security-relevant exception events (potential auth bypasses surfacing as 500s) are not parseable by structured monitoring, increasing mean-time-to-detect. No functional outage results, but operational blind spots are created for the highest-severity error class. |
+| **mitigation** | (1) Replace `import logging; logger = logging.getLogger("omnibot.app")` with `from omnibot.logger import StructuredLogger; logger = StructuredLogger(service="omnibot.app")` in `app.py` (03-development/src/omnibot/app.py:11, 21). (2) Replace `logger.error("Unhandled exception", extra={…})` (03-development/src/omnibot/app.py:32-41) with `logger.error("Unhandled exception", path=str(request.url.path), method=request.method, error_type=type(exc).__name__, error_message=str(exc))` using `StructuredLogger`'s kwargs API. (3) Add a FastAPI test asserting that a 500 response produces a valid JSON line on stdout. |
+| **owner** | Platform Team |
+
+**Citations** (HR-15): 03-development/src/omnibot/app.py:11 (`import logging` — stdlib logging imported; `omnibot.logger.StructuredLogger` absent from imports), 03-development/src/omnibot/app.py:21 (`logger = logging.getLogger("omnibot.app")` — stdlib logger produces text output to stderr, not NDJSON to stdout), 03-development/src/omnibot/app.py:32-41 (`logger.error("Unhandled exception", extra={…})` — stdlib `.error()` emits unstructured text; not parseable as NDJSON), 02-architecture/SAD.md:332-360 (FR-09 coverage section — all modules must emit NDJSON via `StructuredLogger`; `app.py` violates this contract), 01-requirements/SRS.md:138-153 (FR-09 acceptance criteria: every log entry must be one NDJSON line with `timestamp`/`level`/`service`/`message` fields)
+
+---
+
 ## Risk Heat Map
 
 ```
@@ -686,11 +762,14 @@ Impact
     |         |         |R04-01   | R07-01  |         |
     |         |         |R05-01   |         |         |
     |         |         |R06-01   |         |         |
+    |         |         |R09-01   |         |         |
+    |         |         |R09-02   |         |         |
   3 |         |R03-03   |R01-04   | R01-03  |         |
     |         |R05-04   |R02-02   | R04-03  |         |
     |         |         |R03-02   | R05-02  |         |
     |         |         |R03-04   | R07-02  |         |
     |         |         |R04-02   | R08-01  |         |
+    |         |         |         | R09-04  |         |
     |         |         |R05-03   |         |         |
     |         |         |R06-03   |         |         |
     |         |         |R06-04   |         |         |
@@ -701,6 +780,7 @@ Impact
   2 |         |         |         | R02-04  |         |
     |         |         |R04-04   |         |         |
     |         |         |R08-04   |         |         |
+    |         |         |R09-03   |         |         |
   1 |         |         |         |         |         |
     +---------+---------+---------+---------+---------+
       L=1       L=2       L=3       L=4       L=5
