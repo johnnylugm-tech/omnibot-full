@@ -1,8 +1,8 @@
 # Harness Methodology — Session Handover
 
-**Checkpoint**: `P8-entry-20260515`  
+**Checkpoint**: `P8-exit-20260516`  
 **Phase**: P8 — Config & Records  
-**Generated**: 2026-05-15T18:17:13Z
+**Generated**: 2026-05-16T07:38:21Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -17,9 +17,9 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 # 2. Set required env vars
 export HERMES_REVIEWER_TARGET=<value>
 
-# 3. Read plan and continue Phase 8
-cat .methodology/phase8_plan.md
-# Follow the active plan and continue from where you left off
+# 3. Read plan and start Phase 9
+cat .methodology/phase9_plan.md
+# Follow SKILL.md §0.1 Phase 9 entry check, then execute
 ```
 
 ---
@@ -34,33 +34,34 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 git log --oneline -3
 
 # Confirm FSM state
-cat .methodology/state.json   # expected: phase=8 state=ACTIVE last_gate=4 last_fr=FR-13
+cat .methodology/state.json   # expected: phase=8 state=ACTIVE last_gate=1 last_fr=FR-13
 
 # Read active plan
-cat .methodology/phase8_plan.md
+cat .methodology/phase9_plan.md
 ```
 
 | 欄位 | 值 |
 |------|----|
 | Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
-| Branch | `claude/goofy-diffie-7b592a` |
-| State | `phase=8 state=ACTIVE last_gate=4 last_fr=FR-13` |
-| Plan | `.methodology/phase8_plan.md` |
+| Branch | `main` |
+| State | `phase=8 state=ACTIVE last_gate=1 last_fr=FR-13` |
+| Plan | `.methodology/phase9_plan.md` |
 
 ---
 
 ## 任務背景
 
-Phase 7 complete (13/13 FRs Gate 1 PASS). Gate 4 (score=96.33). Advancing to Phase 8.
+P8 Config & Records: pipeline fully complete.
 
 ## 目前執行狀況
 
-Phase 7: 13/13 FRs Gate 1 PASS. Gate 4 (score=96.33) — quality_complete. Ready to begin Phase 8.
+P8 Config & Records complete. All 8 phases done.
 
 ## 接下來的工作
 
-1. Follow SKILL.md §0.1 Phase 8 entry checklist
-2. Read the Phase 8 plan and execute
+1. Pipeline complete — all phases P1–P8 finished
+2. Review final HANDOVER.md and git tag for Gate 4
+3. Archive session via /compact
 
 ## 注意事項
 

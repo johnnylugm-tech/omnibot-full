@@ -1,84 +1,84 @@
 {
   "phase": 8,
-  "updated_at": "2026-05-15T18:17:12Z",
+  "updated_at": "2026-05-16T06:51:19Z",
   "frs": {
     "FR-01": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-14T20:33:07Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:35:58Z"
     },
     "FR-02": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T06:59:35Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:17Z"
     },
     "FR-03": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T07:03:59Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:17Z"
     },
     "FR-04": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T07:07:49Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:17Z"
     },
     "FR-05": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T07:16:40Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:17Z"
     },
     "FR-06": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T07:21:24Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:18Z"
     },
     "FR-07": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T07:28:06Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:18Z"
     },
     "FR-08": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T07:35:28Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:18Z"
     },
     "FR-09": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T07:45:38Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:18Z"
     },
     "FR-10": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T07:51:49Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:19Z"
     },
     "FR-11": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T07:57:19Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:19Z"
     },
     "FR-12": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T08:05:26Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:19Z"
     },
     "FR-13": {
       "status": "gate1_pass",
-      "score": 96.0,
-      "phase": 7,
-      "timestamp": "2026-05-15T18:16:47Z"
+      "score": 94.67,
+      "phase": 8,
+      "timestamp": "2026-05-16T06:51:19Z"
     }
   }
 }
