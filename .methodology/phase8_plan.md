@@ -1,8 +1,7 @@
-
-# Phase 8 Full Execution Plan -- goofy-diffie-7b592a
+# Phase 8 Full Execution Plan -- omnibot-full
 
 > **Version**: v2.3.0 (project plan)
-> **Project**: goofy-diffie-7b592a
+> **Project**: omnibot-full
 > **Date**: 2026-05-16
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 8 - Configuration Management
@@ -57,11 +56,167 @@ Each FR gets a Gate 1 config-aware re-evaluation (CHECKPOINT). No phase-exit gat
   4. GitHub repo variable `CURRENT_PHASE` = 8 (updated by `advance-phase`)
   > If stale: run `python3 harness_cli.py init-project --phase 8 --project $REPO --overwrite`
 
-### Configuration Categories
-- Environment configuration
-- Deployment configuration
-- Security configuration
-- Monitoring configuration
+### Configuration Items (20 total)
+
+- **Variable**: configuration record required
+- ****Secrets Management**: All production secrets must be stored in a secrets manager (e.g., HashiCorp Vault, AWS Secrets Manager, or Kubernetes Secrets). Never hardcode production credentials.
+
+---
+
+## FR-01: Platform Adapter Configuration
+
+> **[FR-01]** Platform Adapter — Telegram + LINE Webhook
+> Citations: SRS.md:13-25, 03-development/src/omnibot/auth/verifier.py:65-74
+
+### Environment Variables / Secrets**: configuration record required
+- ****Secrets Management**: Store both values in a secrets manager (HashiCorp Vault, AWS Secrets Manager, or Kubernetes Secrets). Never commit to version control. Rotate immediately if exposed.
+
+### Webhook Endpoints**: configuration record required
+- **Signature verification raises `401 Unauthorized` for missing or invalid signatures (see `03-development/src/omnibot/auth/verifier.py:77-103`).
+
+### Deployment Checklist
+
+- [ ] `TELEGRAM_BOT_TOKEN` injected via secrets manager (not `.env` in production)
+- [ ] `LINE_CHANNEL_SECRET` injected via secrets manager (not `.env` in production)
+- [ ] Webhook URL `https://<host>/api/v1/webhook/telegram` registered in **Telegram BotFather** via `/setWebhook`
+- [ ] Webhook URL `https://<host>/api/v1/webhook/line` registered in **LINE Developer Console** under Messaging API → Webhook settings
+- [ ] Webhook URLs use HTTPS (TLS 1.2+); self-signed certificates rejected by both platforms
+- [ ] Response time p95 < 3.0 s verified under load (SRS.md:286)
+
+### Security Notes
+
+- **Telegram**: signature key is derived as `SHA256(TELEGRAM_BOT_TOKEN)` before HMAC — the raw token is never used directly as the HMAC key (`03-development/src/omnibot/auth/verifier.py:22-23`).
+- **LINE**: signature is `Base64(HMAC-SHA256(LINE_CHANNEL_SECRET, body))`, compared via `hmac.compare_digest` to prevent timing attacks (`03-development/src/omnibot/auth/verifier.py:28-31`).
+- Both secrets are passed per-request via headers in Phase 1; Phase 2 will migrate to server-side environment injection.
+- Unsupported platforms are rejected with `400 Bad Request` before any business logic executes (`03-development/src/omnibot/router.py:21-26`).
+
+---
+
+## FR-02: Webhook Signature Verification Configuration
+
+> **[FR-02]** Webhook Signature Verification — Telegram + LINE
+> Citations: SRS.md:28-41, 03-development/src/omnibot/auth/verifier.py:17-31
+
+### Environment Variables / Secrets
+
+No new environment variables are required for FR-02. Signature verification reuses the same secrets provisioned for FR-01. Verification is entirely stateless.**: configuration record required
+- **### Signature Verification Scheme**: configuration record required
+- **----------**: configuration record required
+- **`SHA256(TELEGRAM_BOT_TOKEN)`**: configuration record required
+- **LINE**: configuration record required
+- **- All comparisons use `hmac.compare_digest()` to prevent timing-attack leakage (`03-development/src/omnibot/auth/verifier.py:17-24`).
+- Verification failure (missing header, wrong signature) returns `401 Unauthorized` with error code `AUTH_INVALID_SIGNATURE`.
+
+### Deployment Checklist
+
+- [ ] Confirm `TELEGRAM_BOT_TOKEN` and `LINE_CHANNEL_SECRET` are injected from secrets manager (shared with FR-01; no duplicate provisioning needed)
+- [ ] Verify request headers `X-Telegram-Bot-Token`, `X-Telegram-Hmac-Signature`, `X-Line-Channel-Secret`, `X-Line-Signature` are forwarded untransformed by any reverse proxy / load balancer
+- [ ] Test signature rejection path: send request with corrupted signature; confirm `401 AUTH_INVALID_SIGNATURE` response
+- [ ] Secret rotation procedure:
+  1. Generate new token / channel secret in BotFather / LINE Developer Console
+  2. Store new value in secrets manager; keep old value active during rollover window
+  3. Deploy new application version with updated secret reference
+  4. Validate signature verification passes with new secret
+  5. Remove old secret from secrets manager; confirm no requests are rejected
+- [ ] Confirm `hmac.compare_digest` is used in all verification paths (not `==`) — see `03-development/src/omnibot/auth/verifier.py:17-24`
+
+### Security Notes
+
+- The raw `TELEGRAM_BOT_TOKEN` string is **never** used directly as an HMAC key; the key is always derived as `SHA256(token)` (`verifier.py:22-23`).
+- `LINE_CHANNEL_SECRET` is used as the HMAC key without further hashing; ensure the secret itself has sufficient entropy (LINE enforces ≥ 32 chars).
+- `hmac.compare_digest()` ensures constant-time comparison — do not replace with `==` or `!=`.
+- No verification state is persisted; replay protection (nonce / timestamp) is out of scope for Phase 1.
+
+---
+
+## FR-03: Unified Message Format Configuration
+
+> **[FR-03]** Unified Message Format — `UnifiedMessage` dataclass (`frozen=True`)
+> Citations: SRS.md:44-55, 03-development/src/omnibot/models.py:12-55
+
+### Environment Variables / Secrets
+
+No environment variables are required for FR-03. `UnifiedMessage` and `UnifiedResponse` are pure
+in-memory dataclasses with no external configuration dependencies.**: configuration record required
+- **### Data Model Reference
+
+**`Platform` enum** (`models.py:12-20`) — string-valued, `str, Enum`:**: configuration record required
+- **Adding a new platform requires a **code change** (new enum member + adapter implementation); there is no runtime-configurable platform registry.
+
+**`MessageType` enum** (`models.py:23-32`) — string-valued, `str, Enum`:**: configuration record required
+- **Field**: configuration record required
+- ****`UnifiedResponse` dataclass** (`models.py:59-68`) — `frozen=True`:**: configuration record required
+- **### Deployment Checklist
+
+- [ ] Verify all platform adapters (Telegram, LINE, Messenger, WhatsApp) construct `UnifiedMessage` with valid `Platform` and `MessageType` enum members before deploy
+- [ ] Confirm no adapter passes raw string values for `platform` or `message_type` fields (must use enum members, not bare strings)
+- [ ] Validate `unified_user_id` enrichment is applied before any cross-platform lookup
+- [ ] Ensure `frozen=True` is preserved on both dataclasses — mutation attempts raise `FrozenInstanceError` and indicate a logic error in the caller
+- [ ] Run adapter unit tests confirming `UnifiedMessage.to_json_dict()` produces ISO8601 `received_at` for downstream consumers
+
+### Monitoring / Observability
+
+Log the following fields on every inbound message for production observability:**: configuration record required
+- **Do **not** log `raw_payload` at INFO or above — it may contain PII from platform webhooks.
+
+### Security Notes
+
+- `UnifiedMessage` is `frozen=True`; immutability prevents accidental mutation of verified message data as it passes through the processing pipeline.
+- `raw_payload` is retained for audit/debugging but must not be forwarded to external services without scrubbing.
+- No imports from `app/infrastructure/` are permitted in this module (pure domain model).
+
+---
+
+## FR-04: Input Sanitizer L2 Configuration
+
+> **[FR-04]** Input Sanitizer L2 — Character Normalization
+> Citations: SRS.md:59-68, 03-development/src/omnibot/sanitizer/__init__.py
+
+### Environment Variables / Secrets
+
+No environment variables are required for FR-04. The sanitizer is a pure function with no
+configurable parameters in Phase 1. NFKC normalization is locale-independent and requires
+no locale configuration.**: configuration record required
+- **### Sanitization Pipeline (Phase 1)**: configuration record required
+- **- **No external state**: the function holds no module-level mutable state and has no I/O side effects.
+- **No infrastructure imports**: `app/infrastructure/` imports are forbidden in this module.
+
+### Deployment Checklist
+
+- [ ] Confirm sanitizer module has no imports from `app/infrastructure/` (pure domain function)
+- [ ] Verify `unicodedata` is from the Python stdlib — no third-party Unicode library required
+- [ ] Run unit tests covering: empty string, all-whitespace, mixed control characters, multi-codepoint Unicode (e.g. ligatures, full-width digits) to confirm NFKC decomposition
+- [ ] Confirm `\n` (newline) and `\t` (tab) are preserved after sanitization
+- [ ] Validate sanitizer is applied before any downstream processing (router, agent dispatch)
+
+### Future Configuration (Phase 2)**: configuration record required
+- **`MAX_INPUT_LENGTH` is intentionally omitted from Phase 1; introduce it as an environment variable
+with a sensible default (e.g. `4096`) when DoS protection requirements are formalised.
+
+### Monitoring / Observability**: configuration record required
+- **Do **not** log raw input content at INFO or above — it may contain PII from platform webhooks.
+
+### Security Notes
+
+- NFKC normalization prevents homoglyph / Unicode-smuggling attacks by collapsing compatibility
+  equivalents before any content inspection.
+- Non-printable character removal reduces the surface for control-character injection into
+  downstream log sinks or terminals.
+- Phase 1 applies no length cap; operators should monitor for unusually long inputs and plan
+  `MAX_INPUT_LENGTH` enforcement for Phase 2.
+
+---
+
+## FR-05: PII Masking L4 Configuration
+
+> **[FR-05]** PII Masking L4 — Phone/Email/Address
+> Citations: SRS.md:74-87, 03-development/src/omnibot/pii/__init__.py:25-93
+
+### Environment Variables / Secrets
+
+No environment variables are required for FR-05. All regex patterns and sensitive keyword lists
+are hardcoded in Phase 1. PII masking is always on — there is no runtime toggle.**: configuration record required
+- **### Implicit Configuration (Phase 1 — Hardcoded)**: configuration record required
 
 ### FR Configuration Evaluation (13 total)
 
@@ -1375,4 +1530,3 @@ Each FR gets a Gate 1 config-aware re-evaluation (CHECKPOINT). No phase-exit gat
 ### 🎉 Pipeline Complete
 
 - [ ] All 8 phases complete. Archive `.methodology/` for the audit trail.
-

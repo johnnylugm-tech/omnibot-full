@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-14
+> **Date**: 2026-05-16
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 7 - Risk Management
 > **Status**: Full version (including Phase 7 detailed tasks)
@@ -47,20 +47,27 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   ```bash
   python3 harness_cli.py run-phase --phase 7 --project $REPO
   ```
-  If FAILED non-critically: use `--force`. If BLOCKED: fix FSM/Constitution first.
+  If FAILED: fix FSM/Constitution issues. There is no gate bypass flag.
 
 - [ ] **[PREFLIGHT-CI]** Confirm CI wiring unchanged (should be set since P1):
   1. `.github/workflows/harness_quality_gate.yml` exists
   2. Git hooks installed (`ls .git/hooks/prepare-commit-msg`)
   3. harness importable (submodule, PYTHONPATH, or vendored `quality_gate/`)
   4. GitHub repo variable `CURRENT_PHASE` = 7 (updated by `advance-phase`)
-  > If stale: run `python3 harness_cli.py init-project --phase 7 --project $REPO --force`
+  > If stale: run `python3 harness_cli.py init-project --phase 7 --project $REPO --overwrite`
 
-### Risk Categories
-- Technical risks
-- Schedule risks
-- Resource risks
-- External risks
+### Risk Register (2 total)
+
+- **risk_id**: mitigation strategy required
+- ****Citations** (HR-15): docker-compose.yml:5-50 (entire file — no `deploy.resources.limits`, `mem_limit`, or `cpus` key present for any service; all containers run without resource bounds), 03-development/Dockerfile (API container definition — heap size unconstrained; no `--memory` JVM-equivalent flag set)
+
+---
+
+## Risk Heat Map
+
+```
+Impact
+  5**: mitigation strategy required
 
 ### FR Risk Evaluation (13 total)
 
@@ -144,6 +151,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
 
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
@@ -233,6 +246,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -320,6 +339,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
 
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
@@ -409,6 +434,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -496,6 +527,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
 
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
@@ -585,6 +622,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -672,6 +715,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
 
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
@@ -761,6 +810,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -848,6 +903,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
 
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
@@ -937,6 +998,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -1024,6 +1091,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
 
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
@@ -1113,6 +1186,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -1201,6 +1280,12 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -1222,6 +1307,11 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
 - [ ] `RISK_STATUS_REPORT.md` - Risk status report
 - [x] `sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
 - [ ] Gate 1 PASS for every FR
+
+#### ASPICE Traceability Requirements (enforced by postflight)
+
+- [ ] **[ASPICE]** Artifact for Phase 7 MUST reference `06-quality/QUALITY_REPORT.md` by filename keyword `QUALITY_REPORT` (ASPICE traceability — `postflight_artifact_links()` enforces this)
+
 
 ### Phase 7 → Phase 8: Configuration Management
 

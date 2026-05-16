@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-14
+> **Date**: 2026-05-16
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 1 - Requirements Specification
 > **Status**: Full version (including Phase 1 detailed tasks)
@@ -27,7 +27,7 @@ Phase 1 is the project starting point. Define complete SRS.
   ```bash
   python3 harness_cli.py run-phase --phase 1 --project $REPO
   ```
-  If FAILED non-critically: use `--force`. If BLOCKED: fix FSM/Constitution first.
+  If FAILED: fix FSM/Constitution issues. There is no gate bypass flag.
 
 - [ ] **[PREFLIGHT-CI]** ⛔ HARD STOP if any item below is missing — complete SKILL.md §0.1 Step 0 first:
   1. `git config quality.phase` returns `1`  ← set by `init-project`
@@ -39,14 +39,13 @@ Phase 1 is the project starting point. Define complete SRS.
 
 ### Task Decomposition (Dependency Analysis)
 
-**Phase 1 has 4 deliverables with sequential dependencies:**
+**Phase 1 has 3 deliverables with sequential dependencies:**
 
 | Order | Deliverable | Depends On | Agent A | Agent B |
 |-------|------------|------------|---------|---------|
 | 1 | `SRS.md` | (none — starting point) | REQUIREMENTS_ENGINEER | BUSINESS_ANALYST |
-| 2 | `CONSTRAINTS.md` | SRS.md | REQUIREMENTS_ENGINEER | BUSINESS_ANALYST |
-| 3 | `SPEC_TRACKING.md` | SRS.md | REQUIREMENTS_ENGINEER | BUSINESS_ANALYST |
-| 4 | `TRACEABILITY_MATRIX.md` | SRS.md, SPEC_TRACKING.md | REQUIREMENTS_ENGINEER | BUSINESS_ANALYST |
+| 2 | `SPEC_TRACKING.md` | SRS.md | REQUIREMENTS_ENGINEER | BUSINESS_ANALYST |
+| 3 | `TRACEABILITY_MATRIX.md` | SRS.md, SPEC_TRACKING.md | REQUIREMENTS_ENGINEER | BUSINESS_ANALYST |
 
 **Execution rule**: Each deliverable must pass Agent B review BEFORE starting the next.
 If a deliverable is REJECTED, fix only that deliverable — earlier APPROVED deliverables
@@ -54,7 +53,7 @@ are not re-opened. This bounds backtracking to a single step.
 
 ### Requirements Authoring (Serial A/B per Deliverable)
 
-### Sub-Task 1/4: SRS.md — Software Requirements Specification — functional + non-functional requirements
+### Sub-Task 1/3: SRS.md — Software Requirements Specification — functional + non-functional requirements
 
 **Depends on**: none — starting point
 **Agent A**: REQUIREMENTS_ENGINEER
@@ -99,10 +98,10 @@ are not re-opened. This bounds backtracking to a single step.
   ```
 
 - [ ] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
-  - `APPROVE` + all gaps are `low` → continue to Sub-Task 2/4
+  - `APPROVE` + all gaps are `low` → continue to Sub-Task 2/3
   - `APPROVE` + any gap is `medium` or `high` → fix gaps → **re-dispatch B as round 2**
     (embed same docs as B-1 above, replacing `SRS.md` with its updated content)
-    → continue to Sub-Task 2/4 only after round-2 APPROVE
+    → continue to Sub-Task 2/3 only after round-2 APPROVE
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
   > ⚠️ **BLOCKING**: Do NOT start the next Sub-Task until this sub-task's current
@@ -111,71 +110,9 @@ are not re-opened. This bounds backtracking to a single step.
 
   > fr_id uses P1 as phase-level placeholder; replace with FR-XX for FR-specific plans.
 
-### Sub-Task 2/4: CONSTRAINTS.md — Technical Constraints — technology stack, SLA targets, cost model, regulatory requirements
+### Sub-Task 2/3: SPEC_TRACKING.md — Spec Tracking Matrix — maps every FR to its current status, owner, and acceptance state
 
-**Depends on**: SRS.md (+ Sub-Task 1/4 review: previous review gaps carry forward)
-**Agent A**: REQUIREMENTS_ENGINEER
-**Agent B**: BUSINESS_ANALYST
-
-**A/B Work** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
-- [ ] **[A-1]** Agent A (REQUIREMENTS_ENGINEER): Analyze constraints from SRS → document tech stack, SLA, cost model, compliance → validate completeness
-  - FORBIDDEN: vague/non-testable acceptance criteria
-- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
-- [ ] **[B-1]** Agent B (BUSINESS_ANALYST) — dispatch as **STATELESS** subagent:
-  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
-  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
-  >
-  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
-  > Round 4 succeeded only after embedding full document content directly.
-
-  **Embed these documents in full** (copy content, not paths):
-  - `Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/4, gaps field may contain non-blocking caveats)`
-  - `01-requirements/SRS.md (APPROVED — full content)`
-  - `draft 01-requirements/CONSTRAINTS.md (full content)`
-
-  **Agent B prompt structure** (use this template verbatim):
-  ```
-  You are BUSINESS_ANALYST. Your task: review the following deliverable (CONSTRAINTS.md).
-  You have NO access to any files — all context is provided below.
-
-  === [DOC 1: Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/4, gaps field may contain non-blocking caveats)] ===
-  {paste full content here}
-
-  === [DOC 2: 01-requirements/SRS.md (APPROVED — full content)] ===
-  {paste full content here}
-
-  === [DOC 3: draft 01-requirements/CONSTRAINTS.md (full content)] ===
-  {paste full content here}
-
-  Review checklist:
-  - Upstream deliverable review caveats addressed? (check previous B-2 gaps field)
-  - All technical constraints documented?
-  - SLA targets defined and measurable?
-  - Cost model complete?
-  - Constraints consistent with SRS requirements?
-
-  Return JSON only:
-  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
-   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
-  ```
-
-- [ ] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
-  - `APPROVE` + all gaps are `low` → continue to Sub-Task 3/4
-  - `APPROVE` + any gap is `medium` or `high` → fix gaps → **re-dispatch B as round 2**
-    (embed same docs as B-1 above, replacing `CONSTRAINTS.md` with its updated content)
-    → continue to Sub-Task 3/4 only after round-2 APPROVE
-  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
-
-  > ⚠️ **BLOCKING**: Do NOT start the next Sub-Task until this sub-task's current
-  > round is fully APPROVED (including any required round 2).
-  > AgentSpawner auto-logs round-2 re-dispatch to `sessions_spawn.log` (HR-10).
-
-  > fr_id uses P1 as phase-level placeholder; replace with FR-XX for FR-specific plans.
-
-### Sub-Task 3/4: SPEC_TRACKING.md — Spec Tracking Matrix — maps every FR to its current status, owner, and acceptance state
-
-**Depends on**: SRS.md (+ Sub-Task 1/4 review: previous review gaps carry forward)
+**Depends on**: SRS.md (+ Sub-Task 1/3 review: previous review gaps carry forward)
 **Agent A**: REQUIREMENTS_ENGINEER
 **Agent B**: BUSINESS_ANALYST
 
@@ -192,7 +129,7 @@ are not re-opened. This bounds backtracking to a single step.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/4, gaps field may contain non-blocking caveats)`
+  - `Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/3, gaps field may contain non-blocking caveats)`
   - `01-requirements/SRS.md (APPROVED — full content)`
   - `draft 01-requirements/SPEC_TRACKING.md (full content)`
 
@@ -201,7 +138,7 @@ are not re-opened. This bounds backtracking to a single step.
   You are BUSINESS_ANALYST. Your task: review the following deliverable (SPEC_TRACKING.md).
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/4, gaps field may contain non-blocking caveats)] ===
+  === [DOC 1: Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/3, gaps field may contain non-blocking caveats)] ===
   {paste full content here}
 
   === [DOC 2: 01-requirements/SRS.md (APPROVED — full content)] ===
@@ -223,10 +160,10 @@ are not re-opened. This bounds backtracking to a single step.
   ```
 
 - [ ] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
-  - `APPROVE` + all gaps are `low` → continue to Sub-Task 4/4
+  - `APPROVE` + all gaps are `low` → continue to Sub-Task 3/3
   - `APPROVE` + any gap is `medium` or `high` → fix gaps → **re-dispatch B as round 2**
     (embed same docs as B-1 above, replacing `SPEC_TRACKING.md` with its updated content)
-    → continue to Sub-Task 4/4 only after round-2 APPROVE
+    → continue to Sub-Task 3/3 only after round-2 APPROVE
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
   > ⚠️ **BLOCKING**: Do NOT start the next Sub-Task until this sub-task's current
@@ -235,9 +172,9 @@ are not re-opened. This bounds backtracking to a single step.
 
   > fr_id uses P1 as phase-level placeholder; replace with FR-XX for FR-specific plans.
 
-### Sub-Task 4/4: TRACEABILITY_MATRIX.md — Requirements Traceability Matrix — bidirectional traceability from FRs through design to tests
+### Sub-Task 3/3: TRACEABILITY_MATRIX.md — Requirements Traceability Matrix — bidirectional traceability from FRs through design to tests
 
-**Depends on**: SRS.md, SPEC_TRACKING.md (+ Sub-Task 1/4, 3/4 review: previous review gaps carry forward)
+**Depends on**: SRS.md, SPEC_TRACKING.md (+ Sub-Task 1/3, 2/3 review: previous review gaps carry forward)
 **Agent A**: REQUIREMENTS_ENGINEER
 **Agent B**: BUSINESS_ANALYST
 
@@ -254,8 +191,8 @@ are not re-opened. This bounds backtracking to a single step.
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/4, gaps field may contain non-blocking caveats)`
-  - `Previous Sub-Task B-2 review JSON — SPEC_TRACKING.md (Sub-Task 3/4, gaps field may contain non-blocking caveats)`
+  - `Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/3, gaps field may contain non-blocking caveats)`
+  - `Previous Sub-Task B-2 review JSON — SPEC_TRACKING.md (Sub-Task 2/3, gaps field may contain non-blocking caveats)`
   - `01-requirements/SRS.md (APPROVED — full content)`
   - `01-requirements/SPEC_TRACKING.md (APPROVED — full content)`
   - `draft 01-requirements/TRACEABILITY_MATRIX.md (full content)`
@@ -265,10 +202,10 @@ are not re-opened. This bounds backtracking to a single step.
   You are BUSINESS_ANALYST. Your task: review the following deliverable (TRACEABILITY_MATRIX.md).
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/4, gaps field may contain non-blocking caveats)] ===
+  === [DOC 1: Previous Sub-Task B-2 review JSON — SRS.md (Sub-Task 1/3, gaps field may contain non-blocking caveats)] ===
   {paste full content here}
 
-  === [DOC 2: Previous Sub-Task B-2 review JSON — SPEC_TRACKING.md (Sub-Task 3/4, gaps field may contain non-blocking caveats)] ===
+  === [DOC 2: Previous Sub-Task B-2 review JSON — SPEC_TRACKING.md (Sub-Task 2/3, gaps field may contain non-blocking caveats)] ===
   {paste full content here}
 
   === [DOC 3: 01-requirements/SRS.md (APPROVED — full content)] ===
@@ -377,7 +314,6 @@ are not re-opened. This bounds backtracking to a single step.
 
 ### Phase 1 Deliverables
 - [ ] `SRS.md` - Software Requirements Specification (FRs + NFRs)
-- [ ] `CONSTRAINTS.md` - Technical constraints, SLA, cost model
 - [ ] `SPEC_TRACKING.md` - Spec tracking matrix
 - [ ] `TRACEABILITY_MATRIX.md` - Requirements traceability matrix
 - [x] `sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
@@ -389,7 +325,6 @@ are not re-opened. This bounds backtracking to a single step.
 
 - [ ] **[HR-READ]** Reviewer reads all deliverables:
   - `01-requirements/SRS.md`
-  - `01-requirements/CONSTRAINTS.md`
   - `01-requirements/SPEC_TRACKING.md`
   - `01-requirements/TRACEABILITY_MATRIX.md`
   - Checklist: All FRs covered? No contradictions? Each item testable/traceable?

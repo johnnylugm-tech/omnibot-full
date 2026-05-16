@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-14
+> **Date**: 2026-05-16
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 4 - Testing
 > **Status**: Full version (including Phase 4 detailed tasks)
@@ -47,14 +47,14 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   ```bash
   python3 harness_cli.py run-phase --phase 4 --project $REPO
   ```
-  If FAILED non-critically: use `--force`. If BLOCKED: fix FSM/Constitution first.
+  If FAILED: fix FSM/Constitution issues. There is no gate bypass flag.
 
 - [ ] **[PREFLIGHT-CI]** Confirm CI wiring unchanged (should be set since P1):
   1. `.github/workflows/harness_quality_gate.yml` exists
   2. Git hooks installed (`ls .git/hooks/prepare-commit-msg`)
   3. harness importable (submodule, PYTHONPATH, or vendored `quality_gate/`)
   4. GitHub repo variable `CURRENT_PHASE` = 4 (updated by `advance-phase`)
-  > If stale: run `python3 harness_cli.py init-project --phase 4 --project $REPO --force`
+  > If stale: run `python3 harness_cli.py init-project --phase 4 --project $REPO --overwrite`
 
 ### FR Test Coverage
 
@@ -66,6 +66,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-01]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-01 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-01" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-01 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -115,7 +120,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-01 \
+    --prompt "Review FR-01 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-1: Gate 1 — FR-01
@@ -140,6 +150,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -155,6 +171,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-02]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-02 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-02" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-02 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -204,7 +225,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-02 \
+    --prompt "Review FR-02 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-2: Gate 1 — FR-02
@@ -229,6 +255,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -244,6 +276,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-03]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-03 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-03" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-03 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -293,7 +330,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-03 \
+    --prompt "Review FR-03 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-3: Gate 1 — FR-03
@@ -318,6 +360,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -333,6 +381,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-04]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-04 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-04" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-04 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -382,7 +435,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-04 \
+    --prompt "Review FR-04 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-4: Gate 1 — FR-04
@@ -407,6 +465,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -422,6 +486,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-05]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-05 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-05" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-05 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -471,7 +540,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-05 \
+    --prompt "Review FR-05 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-5: Gate 1 — FR-05
@@ -496,6 +570,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -511,6 +591,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-06]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-06 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-06" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-06 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -560,7 +645,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-06 \
+    --prompt "Review FR-06 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-6: Gate 1 — FR-06
@@ -585,6 +675,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -600,6 +696,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-07]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-07 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-07" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-07 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -649,7 +750,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-07 \
+    --prompt "Review FR-07 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-7: Gate 1 — FR-07
@@ -674,6 +780,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -689,6 +801,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-08]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-08 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-08" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-08 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -738,7 +855,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-08 \
+    --prompt "Review FR-08 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-8: Gate 1 — FR-08
@@ -763,6 +885,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -778,6 +906,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-09]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-09 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-09" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-09 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -827,7 +960,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-09 \
+    --prompt "Review FR-09 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-9: Gate 1 — FR-09
@@ -852,6 +990,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -867,6 +1011,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-10]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-10 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-10" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-10 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -916,7 +1065,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-10 \
+    --prompt "Review FR-10 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-10: Gate 1 — FR-10
@@ -941,6 +1095,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -956,6 +1116,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-11]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-11 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-11" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-11 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -1005,7 +1170,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-11 \
+    --prompt "Review FR-11 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-11: Gate 1 — FR-11
@@ -1030,6 +1200,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -1045,6 +1221,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-12]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-12 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-12" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-12 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -1094,7 +1275,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-12 \
+    --prompt "Review FR-12 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-12: Gate 1 — FR-12
@@ -1119,6 +1305,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
 
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
   git log --oneline -1
@@ -1134,6 +1326,11 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - Docstrings: `[FR-13]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-13 \
+    --prompt "Execute TEST_PLAN.md test cases for this FR → record results in TEST_RESULTS.md → verify ≥80% branch coverage for FR-13" --phase 4 --project $REPO
+  ```
 - [ ] **[B-1]** Agent B (ARCHITECT) for FR-13 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
@@ -1183,7 +1380,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   - `APPROVE` → continue to next step
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
-  > ℹ️ `sessions_spawn.log` auto-populated by AgentSpawner on dispatch (HR-10).
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-13 \
+    --prompt "Review FR-13 against SRS + SAD" --phase 4 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-13: Gate 1 — FR-13
@@ -1207,6 +1409,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
 
 - [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
   ```bash
@@ -1279,6 +1487,10 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 - [x] `sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
 - [ ] Gate 1 PASS for every FR
 - [ ] Gate 3 PASS (phase exit, composite ≥ 80, 12 dims)
+
+#### ASPICE Traceability Requirements (enforced by postflight)
+
+
 
 ### Phase 4 → Phase 5: Verification & Delivery
 
