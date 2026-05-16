@@ -1,0 +1,136 @@
+"""FR-03: Unified Message Format.
+
+[FR-03] Acceptance criteria:
+  - UnifiedMessage frozen=True dataclass with all required fields
+  - Platform enum: TELEGRAM, LINE, MESSENGER, WHATSAPP
+  - MessageType enum: TEXT, IMAGE, STICKER, LOCATION, FILE
+  - UnifiedResponse with content / source / confidence / knowledge_id
+
+Citations: SRS.md:44-55, SAD.md:140-167
+"""
+
+from dataclasses import FrozenInstanceError
+from datetime import datetime
+
+import pytest
+
+from omnibot.models import (
+    Platform,
+    MessageType,
+    UnifiedMessage,
+    UnifiedResponse,
+)
+
+
+# ── UnifiedMessage contract ───────────────────────────────────────────────────
+
+def test_unified_message_is_frozen():
+    """UnifiedMessage is frozen=True — mutation raises FrozenInstanceError."""
+    msg = UnifiedMessage(
+        platform=Platform.TELEGRAM,
+        platform_user_id="123",
+        message_type=MessageType.TEXT,
+        content="hello",
+    )
+    with pytest.raises(FrozenInstanceError):
+        msg.content = "modified"
+
+
+def test_unified_message_required_fields():
+    """UnifiedMessage has all required fields per SRS."""
+    msg = UnifiedMessage(
+        platform=Platform.LINE,
+        platform_user_id="U123",
+        message_type=MessageType.IMAGE,
+        content="",
+        raw_payload={"events": []},
+    )
+    assert msg.platform == Platform.LINE
+    assert msg.platform_user_id == "U123"
+    assert msg.unified_user_id == ""
+    assert msg.message_type == MessageType.IMAGE
+    assert msg.content == ""
+    assert msg.raw_payload == {"events": []}
+    assert isinstance(msg.received_at, datetime)
+    assert msg.reply_token is None
+
+
+def test_unified_message_defaults():
+    """UnifiedMessage has sensible defaults for optional fields."""
+    msg = UnifiedMessage(
+        platform=Platform.TELEGRAM,
+        platform_user_id="456",
+        message_type=MessageType.TEXT,
+        content="test",
+    )
+    assert msg.unified_user_id == ""
+    assert msg.reply_token is None
+    assert isinstance(msg.raw_payload, dict)
+    assert len(msg.raw_payload) == 0
+
+
+def test_unified_message_reply_token():
+    """UnifiedMessage.reply_token stores LINE reply token."""
+    msg = UnifiedMessage(
+        platform=Platform.LINE,
+        platform_user_id="U789",
+        message_type=MessageType.TEXT,
+        content="hi",
+        reply_token="reply_abc123",
+    )
+    assert msg.reply_token == "reply_abc123"
+
+
+# ── UnifiedResponse contract ──────────────────────────────────────────────────
+
+def test_unified_response_fields():
+    """UnifiedResponse has content, source, confidence, knowledge_id."""
+    resp = UnifiedResponse(
+        content="Answer text",
+        source="rule_match",
+        confidence=0.95,
+        knowledge_id=42,
+    )
+    assert resp.content == "Answer text"
+    assert resp.source == "rule_match"
+    assert resp.confidence == 0.95
+    assert resp.knowledge_id == 42
+
+
+def test_unified_response_escalate_defaults():
+    """UnifiedResponse for escalated queries: confidence=0, knowledge_id=-1."""
+    resp = UnifiedResponse(
+        content="Forwarding to human agent...",
+        source="escalate",
+        confidence=0.0,
+        knowledge_id=-1,
+    )
+    assert resp.source == "escalate"
+    assert resp.confidence == 0.0
+    assert resp.knowledge_id == -1
+
+
+# ── Enum completeness ─────────────────────────────────────────────────────────
+
+def test_platform_enum_completeness():
+    """Platform enum covers all planned platforms."""
+    values = {p.value for p in Platform}
+    assert values >= {"TELEGRAM", "LINE", "MESSENGER", "WHATSAPP"}
+
+
+def test_message_type_enum_completeness():
+    """MessageType enum covers all planned types."""
+    values = {m.value for m in MessageType}
+    assert values >= {"TEXT", "IMAGE", "STICKER", "LOCATION", "FILE"}
+
+
+def test_platform_enum_from_string():
+    """Platform enum can be constructed from string."""
+    assert Platform("TELEGRAM") == Platform.TELEGRAM
+    assert Platform("LINE") == Platform.LINE
+
+
+def test_message_type_enum_from_string():
+    """MessageType enum can be constructed from string."""
+    assert MessageType("TEXT") == MessageType.TEXT
+    assert MessageType("IMAGE") == MessageType.IMAGE

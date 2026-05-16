@@ -1,0 +1,55 @@
+"""[FR-10] API Response Format — ApiResponse / PaginatedResponse.
+
+Unified response wrappers with Generic[T] support via Pydantic BaseModel.
+ErrorCode enum for standard API error classification.
+
+Citations: SRS.md FR-10 section, SAD.md 2.5.2
+"""
+
+from enum import Enum
+from typing import Generic, Optional, TypeVar
+
+from pydantic import BaseModel, computed_field
+
+T = TypeVar("T")
+
+
+class ErrorCode(str, Enum):
+    """Standard API error codes.
+
+    Citations: SRS.md FR-10
+    """
+    AUTH_INVALID_SIGNATURE = "AUTH_INVALID_SIGNATURE"
+    RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED"
+    KNOWLEDGE_NOT_FOUND = "KNOWLEDGE_NOT_FOUND"
+    VALIDATION_ERROR = "VALIDATION_ERROR"
+    INTERNAL_ERROR = "INTERNAL_ERROR"
+
+
+class ApiResponse(BaseModel, Generic[T]):
+    """Unified API success/error response.
+
+    Citations: SAD.md 2.5.2 ApiResponse
+    """
+    success: bool
+    data: Optional[T] = None
+    error: Optional[str] = None
+    error_code: Optional[ErrorCode] = None
+
+
+class PaginatedResponse(ApiResponse[T]):
+    """Paginated API response extending ApiResponse.
+
+    has_next is computed from page * limit < total.
+
+    Citations: SAD.md 2.5.2 PaginatedResponse
+    """
+    total: int = 0
+    page: int = 1
+    limit: int = 20
+
+    @computed_field
+    @property
+    def has_next(self) -> bool:
+        """True when there are more pages after this one."""
+        return self.page * self.limit < self.total
