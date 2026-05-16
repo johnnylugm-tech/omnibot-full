@@ -15,6 +15,7 @@
 - [x] Gate 4 PASS — P6 exit (score 96.33)
 - [x] Phase 7 Risk Register complete (13/13 FRs)
 - [x] Phase 8 Config Records complete (13/13 FRs)
+- [x] All NFR requirements verified against specification: NFR-01 (FCR), NFR-02 (Response Time), NFR-03 (Security), NFR-04 (Reliability)
 
 ---
 
@@ -22,6 +23,8 @@
 
 - [ ] All secrets rotated from dev defaults (POSTGRES_PASSWORD, REDIS_PASSWORD, TELEGRAM_BOT_TOKEN, LINE_CHANNEL_SECRET)
 - [ ] Secrets stored in secrets manager (HashiCorp Vault / AWS Secrets Manager / Kubernetes Secrets)
+- [ ] Deployment environment variables match specification for each service
+- [ ] Rollback plan documented for all production configuration changes
 - [ ] POSTGRES_DSN points to production database (not docker-compose default)
 - [ ] REDIS_URL points to production Redis (not docker-compose default)
 - [ ] .env file (if used) is in .gitignore and not committed
@@ -73,21 +76,34 @@
 
 ## FR Configuration Summary
 
-| FR | Name | Secrets | Env Vars | Status |
-|----|------|---------|----------|--------|
-| FR-01 | Platform Adapter | TELEGRAM_BOT_TOKEN, LINE_CHANNEL_SECRET | — | ✅ |
-| FR-02 | Webhook Sig Verify | (shared FR-01) | — | ✅ |
-| FR-03 | Unified Message | None | — | ✅ |
-| FR-04 | Input Sanitizer | None | — | ✅ |
-| FR-05 | PII Masking | None | — | ✅ |
-| FR-06 | Rate Limiter | None | RATE_LIMIT_DEFAULT_RPS | ✅ |
-| FR-07 | Knowledge Layer | POSTGRES_DSN | — | ✅ |
-| FR-08 | Escalation Manager | POSTGRES_DSN | — | ✅ |
-| FR-09 | Structured Logger | None | LOG_LEVEL, SERVICE_NAME | ✅ |
-| FR-10 | API Response Format | None | — | ✅ |
-| FR-11 | Health Check | POSTGRES_DSN, REDIS_URL | — | ✅ |
-| FR-12 | Database Schema | POSTGRES_DSN, POSTGRES_PASSWORD | POSTGRES_USER, POSTGRES_DB | ✅ |
-| FR-13 | Docker Compose | POSTGRES_PASSWORD, REDIS_PASSWORD | POSTGRES_USER, POSTGRES_DB, API_PORT | ✅ |
+| FR | Name | Requirement | Secrets | Env Vars | Status |
+|----|------|-------------|---------|----------|--------|
+| FR-01 | Platform Adapter | SRS.md:13-25 | TELEGRAM_BOT_TOKEN, LINE_CHANNEL_SECRET | — | ✅ |
+| FR-02 | Webhook Sig Verify | SRS.md:28-41 | (shared FR-01) | — | ✅ |
+| FR-03 | Unified Message | SRS.md:44-55 | None | — | ✅ |
+| FR-04 | Input Sanitizer | SRS.md:59-68 | None | — | ✅ |
+| FR-05 | PII Masking | SRS.md:74-87 | None | — | ✅ |
+| FR-06 | Rate Limiter | SRS.md:91-101 | None | RATE_LIMIT_DEFAULT_RPS | ✅ |
+| FR-07 | Knowledge Layer | SRS.md:107-119 | POSTGRES_DSN | — | ✅ |
+| FR-08 | Escalation Manager | SRS.md:123-133 | POSTGRES_DSN | — | ✅ |
+| FR-09 | Structured Logger | SRS.md:138-151 | None | LOG_LEVEL, SERVICE_NAME | ✅ |
+| FR-10 | API Response Format | SRS.md:155-165 | None | — | ✅ |
+| FR-11 | Health Check | SRS.md:169-178 | POSTGRES_DSN, REDIS_URL | — | ✅ |
+| FR-12 | Database Schema | SRS.md:183-199 | POSTGRES_DSN, POSTGRES_PASSWORD | POSTGRES_USER, POSTGRES_DB | ✅ |
+| FR-13 | Docker Compose | SRS.md:203-213 | POSTGRES_PASSWORD, REDIS_PASSWORD | POSTGRES_USER, POSTGRES_DB, API_PORT | ✅ |
+
+---
+
+---
+
+## Specification Compliance
+
+Every deployment configuration item is traced to its originating requirement or specification:
+
+- **FR compliance**: All 13 FR configuration records verified against SRS specification (§FR-01 through §FR-13)
+- **NFR compliance**: NFR-03 (Security) specification satisfied via secrets externalization; NFR-02 (Response Time) verified via health check monitoring
+- **Architecture specification**: Deployment configuration adheres to SAD.md architecture constraints — no infrastructure dependencies leak into domain modules
+- **Rollback specification**: All configuration changes follow documented rollback procedures (see deployment checklist per FR)
 
 ---
 

@@ -1,0 +1,242 @@
+{
+  "version": "1.0",
+  "created_at": "2026-05-13",
+  "phase": 2,
+  "project": "omnibot",
+  "methodology_version": "2.3.0",
+  "agents": {
+    "A": "ARCHITECT",
+    "B": "TECH_LEAD"
+  },
+  "deliverables": [
+    {
+      "id": "P2-D1",
+      "file": "02-architecture/SAD.md",
+      "status": "APPROVED",
+      "agent_a_session": "a-p2-sad-001",
+      "agent_b_rounds": 3,
+      "final_review_session": "b-p2-sad-r3-a883d0cb",
+      "gaps_resolved": [
+        "SAD-GAP-01",
+        "SAD-GAP-02",
+        "SAD-GAP-03",
+        "SAD-GAP-04",
+        "SAD-GAP-05",
+        "SAD-GAP-06"
+      ],
+      "confidence": 9
+    },
+    {
+      "id": "P2-D2",
+      "file": "02-architecture/adr/ADR.md",
+      "status": "APPROVED",
+      "agent_a_session": "a-p2-adr-001",
+      "agent_b_rounds": 4,
+      "final_review_session": "a83936f10142ade00",
+      "gaps_resolved": [
+        "ADR-GAP-01",
+        "ADR-GAP-02",
+        "ADR-GAP-03",
+        "ADR-GAP-04",
+        "ADR-GAP-05",
+        "ADR-GAP-SQL-01",
+        "ADR-GAP-SQL-02"
+      ],
+      "confidence": 9
+    },
+    {
+      "id": "P2-D3",
+      "file": "02-architecture/ARCHITECTURE_DIAGRAM.md",
+      "status": "APPROVED",
+      "agent_a_session": "a-p2-arch-001",
+      "agent_b_rounds": 2,
+      "final_review_session": "a8c0b37270e3db2dc",
+      "gaps_resolved": [
+        "ARCH-GAP-01",
+        "ARCH-GAP-POST-01"
+      ],
+      "confidence": 9
+    },
+    {
+      "id": "P2-D4",
+      "file": ".methodology/SAB.json",
+      "status": "APPROVED",
+      "agent_a_session": "a-p2-sad-001",
+      "agent_b_rounds": 1,
+      "final_review_session": "a8291d81796a195fc",
+      "gaps_resolved": [
+        "SAB-GAP-01",
+        "SAB-GAP-02"
+      ],
+      "confidence": 9
+    }
+  ],
+  "layers": [
+    {
+      "name": "harness_tooling",
+      "modules": [
+        "harness/**/"
+      ],
+      "allowed_dependencies": []
+    },
+    {
+      "name": "platform_adapter",
+      "modules": [
+        "03-development/src/omnibot/adapters/"
+      ],
+      "allowed_dependencies": [
+        "pipeline",
+        "observability"
+      ]
+    },
+    {
+      "name": "identity",
+      "modules": [
+        "03-development/src/omnibot/auth/"
+      ],
+      "allowed_dependencies": [
+        "data_layer",
+        "observability"
+      ]
+    },
+    {
+      "name": "pipeline",
+      "modules": [
+        "03-development/src/omnibot/__init__.py",
+        "03-development/src/omnibot/app.py",
+        "03-development/src/omnibot/pii/",
+        "03-development/src/omnibot/router.py",
+        "03-development/src/omnibot/sanitizer/"
+      ],
+      "allowed_dependencies": [
+        "knowledge",
+        "escalation",
+        "observability",
+        "infrastructure"
+      ]
+    },
+    {
+      "name": "knowledge",
+      "modules": [
+        "03-development/src/omnibot/knowledge/"
+      ],
+      "allowed_dependencies": [
+        "data_layer",
+        "observability"
+      ]
+    },
+    {
+      "name": "escalation",
+      "modules": [
+        "03-development/src/omnibot/escalation/"
+      ],
+      "allowed_dependencies": [
+        "data_layer",
+        "observability"
+      ]
+    },
+    {
+      "name": "api",
+      "modules": [
+        "03-development/src/omnibot/api/"
+      ],
+      "allowed_dependencies": [
+        "platform_adapter",
+        "identity",
+        "pipeline",
+        "knowledge",
+        "escalation",
+        "observability",
+        "infrastructure"
+      ]
+    },
+    {
+      "name": "observability",
+      "modules": [
+        "03-development/src/omnibot/health/",
+        "03-development/src/omnibot/logger/"
+      ],
+      "allowed_dependencies": []
+    },
+    {
+      "name": "data_layer",
+      "modules": [
+        "03-development/src/omnibot/models.py",
+        "03-development/src/omnibot/schema/"
+      ],
+      "allowed_dependencies": []
+    },
+    {
+      "name": "infrastructure",
+      "modules": [
+        "03-development/src/omnibot/rate_limiter/"
+      ],
+      "allowed_dependencies": [
+        "data_layer"
+      ]
+    }
+  ],
+  "dependencies": {
+    "platform_adapter": [
+      "pipeline",
+      "observability"
+    ],
+    "identity": [
+      "data_layer",
+      "observability"
+    ],
+    "pipeline": [
+      "knowledge",
+      "escalation",
+      "observability",
+      "infrastructure"
+    ],
+    "knowledge": [
+      "data_layer",
+      "observability"
+    ],
+    "escalation": [
+      "data_layer",
+      "observability"
+    ],
+    "api": [
+      "platform_adapter",
+      "identity",
+      "pipeline",
+      "knowledge",
+      "escalation",
+      "observability",
+      "infrastructure"
+    ],
+    "observability": [],
+    "data_layer": [],
+    "infrastructure": [
+      "data_layer"
+    ]
+  },
+  "quality_targets": {
+    "max_complexity": 15,
+    "min_coverage": 80,
+    "max_coupling": 0.3
+  },
+  "fr_coverage": {
+    "total_frs": 13,
+    "covered_frs": 13,
+    "unmapped_frs": [],
+    "coverage_pct": 100
+  },
+  "key_decisions": [
+    "ADR-001: FastAPI as web framework",
+    "ADR-002: PostgreSQL 16 + pgvector (single database)",
+    "ADR-003: Redis 7 for rate limiter state (fail-open)",
+    "ADR-004: frozen dataclasses for UnifiedMessage/UnifiedResponse",
+    "ADR-005: VERIFIERS dict registry for signature extensibility",
+    "ADR-006: SQL rule matching Layer 1; confidence >= 0.70 → reply",
+    "ADR-007: stdlib re for PII masking (no NLP deps)",
+    "ADR-008: ConversationContext as explicit pipeline stage",
+    "ADR-009: Docker Compose v2 (single-node dev)",
+    "ADR-010: asyncpg + aioredis (no ORM)",
+    "ADR-011: Alembic (manual scripts, asyncpg run_sync)",
+    "ADR-012: secrets via env vars (.env gitignored)"
+  ]
+}

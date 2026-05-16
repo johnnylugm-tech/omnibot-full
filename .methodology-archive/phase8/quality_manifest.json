@@ -1,0 +1,139 @@
+{
+  "schema_version": "1.0",
+  "generated_at_phase": 2,
+  "fr_ids": [
+    "FR-01",
+    "FR-02",
+    "FR-03",
+    "FR-04",
+    "FR-05",
+    "FR-06",
+    "FR-07",
+    "FR-08",
+    "FR-09",
+    "FR-10",
+    "FR-11",
+    "FR-12",
+    "FR-13"
+  ],
+  "nfr_dimension_mapping": {},
+  "architecture_constraints": [],
+  "high_risk_modules": [],
+  "gate_score_overrides": {},
+  "gate_results": {
+    "gate1": {
+      "FR-01": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-02": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-03": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-04": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-05": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-06": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-07": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-08": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-09": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-10": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-11": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-12": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-13": {
+        "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      }
+    },
+    "gate2": {
+      "score": 96.5,
+      "quality_complete": true,
+      "rounds_used": 0,
+      "open_critical": 0,
+      "open_high": 0
+    },
+    "gate3": {
+      "score": 91.15,
+      "quality_complete": true,
+      "rounds_used": 0,
+      "open_critical": 0,
+      "open_high": 0
+    },
+    "gate4": {
+      "score": 96.33,
+      "quality_complete": true,
+      "rounds_used": 0,
+      "open_critical": 0,
+      "open_high": 0
+    }
+  }
+}
