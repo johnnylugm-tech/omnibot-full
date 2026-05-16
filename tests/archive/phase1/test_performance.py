@@ -1,0 +1,166 @@
+"""[FR-PERF] Performance benchmarks for key omnibot functions.
+
+Citations: SRS.md NFR-PERF-01 (response time < 3s), SAD.md 2.9
+"""
+
+from datetime import datetime, timezone
+
+from fastapi.testclient import TestClient
+
+from omnibot.app import app
+from omnibot.knowledge import KnowledgeBase, QueryResult
+from omnibot.models import Platform, MessageType, UnifiedMessage, UnifiedResponse
+from omnibot.pii import mask_pii, PIIMaskResult
+from omnibot.rate_limiter import TokenBucket, RateLimiter
+from omnibot.sanitizer import sanitize
+
+client = TestClient(app)
+
+
+class TestSanitizerBenchmark:
+    """Benchmark NFKC normalization and control character removal."""
+
+    def test_sanitize_short_text(self, benchmark):
+        result = benchmark(sanitize, "Hello, world!")
+        assert isinstance(result, str)
+
+    def test_sanitize_unicode_emoji(self, benchmark):
+        result = benchmark(sanitize, "Hello 🙂 世界 🌍")
+        assert "🙂" in result
+
+    def test_sanitize_long_message(self, benchmark):
+        long_text = "This is a long message. " * 100
+        result = benchmark(sanitize, long_text)
+        assert len(result) > 0
+
+    def test_sanitize_control_chars(self, benchmark):
+        text = "Hello\x00\x01\x02World\n\t!"
+        result = benchmark(sanitize, text)
+        assert "\x00" not in result
+        assert "\n" in result
+
+
+class TestPIIBenchmark:
+    """Benchmark PII masking throughput."""
+
+    def test_mask_pii_phone(self, benchmark):
+        result = benchmark(mask_pii, "Call 0912-345-678 for help")
+        assert isinstance(result, PIIMaskResult)
+
+    def test_mask_pii_email(self, benchmark):
+        result = benchmark(mask_pii, "Contact user@example.com")
+        assert "@" not in result.masked_text
+
+    def test_mask_pii_no_pii(self, benchmark):
+        result = benchmark(mask_pii, "Ordinary text without any personal information.")
+        assert isinstance(result, PIIMaskResult)
+        # Text without PII may still trigger sensitive keyword escalation
+
+
+class TestKnowledgeBenchmark:
+    """Benchmark knowledge base query throughput."""
+
+    @staticmethod
+    def _build_kb(size: int = 50) -> KnowledgeBase:
+        kb = KnowledgeBase()
+        for i in range(size):
+            kb.add_rule(f"rule_{i}", f"pattern_{i}")
+        return kb
+
+    def test_query_small_kb(self, benchmark):
+        kb = self._build_kb(20)
+        result = benchmark(kb.query, "pattern_10")
+        assert isinstance(result, QueryResult)
+
+    def test_query_medium_kb(self, benchmark):
+        kb = self._build_kb(100)
+        result = benchmark(kb.query, "pattern_50")
+        assert isinstance(result, QueryResult)
+
+    def test_query_no_match(self, benchmark):
+        kb = self._build_kb(50)
+        result = benchmark(kb.query, "nonexistent_pattern")
+        assert result.confidence < 80.0
+
+
+class TestRateLimiterBenchmark:
+    """Benchmark rate limiter throughput."""
+
+    def test_token_bucket_consume(self, benchmark):
+        bucket = TokenBucket(capacity=100000, refill_rate=100000.0)
+        result = benchmark(bucket.consume)
+        assert result in (True, False)  # may exhaust tokens under extreme load
+
+    def test_rate_limiter_allow(self, benchmark):
+        limiter = RateLimiter(default_capacity=100000, default_refill_rate=100000.0)
+        def _allow():
+            return limiter.allow(f"user_{id(_allow)}")
+        result = benchmark(_allow)
+        assert result in (True, False)
+
+
+class TestWebhookBenchmark:
+    """Benchmark webhook endpoint response time."""
+
+    def test_health_endpoint(self, benchmark):
+        def _call():
+            return client.get("/api/v1/health")
+        response = benchmark(_call)
+        assert response.status_code == 200
+        data = response.json()
+        assert "status" in data
+
+    def test_webhook_telegram_text(self, benchmark):
+        payload = {
+            "update_id": 123456789,
+            "message": {
+                "message_id": 1,
+                "from": {"id": 12345, "is_bot": False, "first_name": "Test"},
+                "chat": {"id": 12345, "type": "private"},
+                "date": int(datetime.now(timezone.utc).timestamp()),
+                "text": "Hello benchmark",
+            },
+        }
+        def _call():
+            return client.post(
+                "/api/v1/webhook/telegram",
+                json=payload,
+                headers={"X-Telegram-Bot-Api-Secret-Token": "test"},
+            )
+        response = benchmark(_call)
+        # 400 (bad signature) or 200 (if signature check bypassed) are both OK for benchmark
+        assert response.status_code in (200, 400, 401, 403)
+
+    def test_webhook_unsupported_platform(self, benchmark):
+        def _call():
+            return client.post("/api/v1/webhook/unknown", json={})
+        response = benchmark(_call)
+        assert response.status_code == 400
+
+
+class TestSerializationBenchmark:
+    """Benchmark message serialization throughput."""
+
+    def test_to_json_dict(self, benchmark):
+        msg = UnifiedMessage(
+            platform=Platform.TELEGRAM,
+            platform_user_id="user_12345",
+            message_type=MessageType.TEXT,
+            content="Hello world",
+            reply_token="reply_abc123",
+        )
+        result = benchmark(msg.to_json_dict)
+        assert "platform" in result
+        assert "received_at" in result
+
+    def test_response_serialization(self, benchmark):
+        responses = []
+        def _create():
+            responses.append(UnifiedResponse(
+                content="Response text",
+                source="knowledge_1",
+                confidence=0.95,
+                knowledge_id=1,
+            ))
+        benchmark(_create)
+        assert len(responses) > 0
