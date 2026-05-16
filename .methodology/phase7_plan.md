@@ -95,18 +95,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-01.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-01.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -198,18 +202,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-02.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-02.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -301,18 +309,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-03.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-03.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -404,18 +416,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-04.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-04.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -507,18 +523,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-05.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-05.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -610,18 +630,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-06.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-06.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -713,18 +737,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-07.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-07.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -816,18 +844,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-08.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-08.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -919,18 +951,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-09.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-09.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -1022,18 +1058,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-10.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-10.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -1125,18 +1165,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-11.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-11.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -1228,18 +1272,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-12.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-12.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -1331,18 +1379,22 @@ Impact
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `07-risk/RISK_REGISTER.md (draft)`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `07-risk/RISK_REGISTER.md (FR-XX draft entry)`
+  - `06-quality/QUALITY_REPORT.md (FR-XX findings)`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-13.
+  You are ARCHITECT. Your task: review the following risk assessment for FR-13.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 07-risk/RISK_REGISTER.md (draft)] ===
+  === [DOC 2: 07-risk/RISK_REGISTER.md (FR-XX draft entry)] ===
+  {paste full content here}
+
+  === [DOC 3: 06-quality/QUALITY_REPORT.md (FR-XX findings)] ===
   {paste full content here}
 
   Review checklist:
@@ -1438,6 +1490,12 @@ Impact
   python3 harness_cli.py plan-phase --phase 8 --project $REPO \
     --output $REPO/.methodology/phase8_plan.md
   ```
+- [ ] **[PHASE-TRUTH]** Verify Phase Truth ≥ 90% (HR-11):
+  ```bash
+  python3 harness_cli.py run-pipeline --phase-from 7
+  ```
+  Exit 0 = PASS, 11 = Phase Truth < 90%. Fix gaps before advancing.
+
 - [ ] Advance FSM to Phase 8 (writes new HANDOVER.md + local commit):
   ```bash
   python3 harness_cli.py advance-phase --completed 7 --project .

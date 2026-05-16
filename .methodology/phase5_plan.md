@@ -1547,6 +1547,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py plan-phase --phase 6 --project $REPO \
     --output $REPO/.methodology/phase6_plan.md
   ```
+- [ ] **[PHASE-TRUTH]** Verify Phase Truth ≥ 90% (HR-11):
+  ```bash
+  python3 harness_cli.py run-pipeline --phase-from 5
+  ```
+  Exit 0 = PASS, 11 = Phase Truth < 90%. Fix gaps before advancing.
+
 - [ ] Advance FSM to Phase 6 (writes new HANDOVER.md + local commit):
   ```bash
   python3 harness_cli.py advance-phase --completed 5 --project .

@@ -244,22 +244,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-01.
+  You are ARCHITECT. Your task: review the following configuration record for FR-01.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -352,22 +352,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-02.
+  You are ARCHITECT. Your task: review the following configuration record for FR-02.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -460,22 +460,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-03.
+  You are ARCHITECT. Your task: review the following configuration record for FR-03.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -568,22 +568,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-04.
+  You are ARCHITECT. Your task: review the following configuration record for FR-04.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -676,22 +676,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-05.
+  You are ARCHITECT. Your task: review the following configuration record for FR-05.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -784,22 +784,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-06.
+  You are ARCHITECT. Your task: review the following configuration record for FR-06.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -892,22 +892,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-07.
+  You are ARCHITECT. Your task: review the following configuration record for FR-07.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -1000,22 +1000,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-08.
+  You are ARCHITECT. Your task: review the following configuration record for FR-08.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -1108,22 +1108,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-09.
+  You are ARCHITECT. Your task: review the following configuration record for FR-09.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -1216,22 +1216,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-10.
+  You are ARCHITECT. Your task: review the following configuration record for FR-10.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -1324,22 +1324,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-11.
+  You are ARCHITECT. Your task: review the following configuration record for FR-11.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -1432,22 +1432,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-12.
+  You are ARCHITECT. Your task: review the following configuration record for FR-12.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
@@ -1540,22 +1540,22 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
   > Round 4 succeeded only after embedding full document content directly.
 
   **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md`
-  - `08-config/CONFIG_RECORDS.md (draft)`
-  - `ops/ relevant configs`
+  - `01-requirements/SRS.md §FR-XX section`
+  - `08-config/CONFIG_RECORDS.md (FR-XX draft entry)`
+  - `03-development/src/.../fr_xx.py`
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are ARCHITECT. Your task: review the following deliverable for FR-13.
+  You are ARCHITECT. Your task: review the following configuration record for FR-13.
   You have NO access to any files — all context is provided below.
 
-  === [DOC 1: 01-requirements/SRS.md] ===
+  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
   {paste full content here}
 
-  === [DOC 2: 08-config/CONFIG_RECORDS.md (draft)] ===
+  === [DOC 2: 08-config/CONFIG_RECORDS.md (FR-XX draft entry)] ===
   {paste full content here}
 
-  === [DOC 3: ops/ relevant configs] ===
+  === [DOC 3: 03-development/src/.../fr_xx.py] ===
   {paste full content here}
 
   Review checklist:
