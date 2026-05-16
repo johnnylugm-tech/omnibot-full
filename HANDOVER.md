@@ -17,9 +17,8 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 # 2. Set required env vars
 export HERMES_REVIEWER_TARGET=<value>
 
-# 3. Read plan and start Phase 9
-cat .methodology/phase9_plan.md
-# Follow SKILL.md §0.1 Phase 9 entry check, then execute
+# 3. Pipeline is complete — all 8 phases done. No further phases.
+# Review HANDOVER.md and archive session via /compact
 ```
 
 ---
@@ -36,8 +35,7 @@ git log --oneline -3
 # Confirm FSM state
 cat .methodology/state.json   # expected: phase=8 state=ACTIVE last_gate=1 last_fr=FR-13
 
-# Read active plan
-cat .methodology/phase9_plan.md
+# Pipeline complete — P1-P8 all done. Archive via /compact.
 ```
 
 | 欄位 | 值 |
@@ -45,7 +43,7 @@ cat .methodology/phase9_plan.md
 | Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
 | Branch | `main` |
 | State | `phase=8 state=ACTIVE last_gate=1 last_fr=FR-13` |
-| Plan | `.methodology/phase9_plan.md` |
+| Plan | Pipeline complete — P8 is the final phase |
 
 ---
 
