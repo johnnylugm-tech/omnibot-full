@@ -1,8 +1,8 @@
 # Harness Methodology — Session Handover
 
-**Checkpoint**: `P8-exit-20260516`  
-**Phase**: P8 — Config & Records  
-**Generated**: 2026-05-16T08:37:53Z
+**Checkpoint**: `P1-exit-20260516`  
+**Phase**: P1 — Spec & Discovery  
+**Generated**: 2026-05-16T16:09:00Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -15,11 +15,11 @@
 git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.git && cd omnibot-full
 
 # 2. Set required env vars
-export HERMES_REVIEWER_TARGET=<value>
+export HERMES_REVIEWER_TARGET=weixin:o9cq808YRb-FoS5Ek9CwSHm1q-2w@im.wechat
 
-# 3. Read plan and start Phase 9
-cat .methodology/phase9_plan.md
-# Follow SKILL.md §0.1 Phase 9 entry check, then execute
+# 3. Read plan and start Phase 2
+cat .methodology/phase2_plan.md
+# Follow SKILL.md §0.1 Phase 2 entry check, then execute
 ```
 
 ---
@@ -34,40 +34,152 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 git log --oneline -3
 
 # Confirm FSM state
-cat .methodology/state.json   # expected: phase=8 state=ACTIVE last_gate=1 last_fr=FR-13
+cat .methodology/state.json   # expected: phase=1 state=ACTIVE last_gate=0 last_fr=
 
 # Read active plan
-cat .methodology/phase9_plan.md
+cat .methodology/phase2_plan.md
 ```
 
 | 欄位 | 值 |
 |------|----|
 | Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
 | Branch | `main` |
-| State | `phase=8 state=ACTIVE last_gate=1 last_fr=FR-13` |
-| Plan | `.methodology/phase9_plan.md` |
+| State | `phase=1 state=ACTIVE last_gate=0 last_fr=` |
+| Plan | `.methodology/phase2_plan.md` |
 
 ---
 
 ## 任務背景
 
-P8 Config & Records: pipeline fully complete.
+P1 human review APPROVED — SRS + deliverables complete.
+
+
+## 交付物清單
+
+- `01-requirements/SRS.md` ✅ (403L)
+- `01-requirements/SPEC_TRACKING.md` ✅ (89L)
+- `01-requirements/TRACEABILITY_MATRIX.md` ✅ (273L)
 
 ## 目前執行狀況
 
-P8 Config & Records complete. All 8 phases done.
+11 FR(s) defined in SRS [FR-14,FR-15,FR-16,FR-17,FR-18,…+6]. 3/4 deliverables present, Agent-B APPROVED.
+
+**A/B Session Results:**
+  - SRS.md / requirements_engineer: **success**
+  - SRS.md / business_analyst: **APPROVE**
+  - CONSTRAINTS.md / requirements_engineer: **success**
+  - CONSTRAINTS.md / business_analyst: **APPROVE**
+  - SPEC_TRACKING.md / requirements_engineer: **success**
+  - SPEC_TRACKING.md / business_analyst: **APPROVE**
+  - TRACEABILITY_MATRIX.md / requirements_engineer: **success**
+  - TRACEABILITY_MATRIX.md / business_analyst: **APPROVE**
+  - SPEC_TRACKING.md / business_analyst r2: **APPROVE**
+  - TRACEABILITY_MATRIX.md / business_analyst r2: **APPROVE**
+  - SAD.md / ARCHITECT: **success**
+  - SAD.md / TECH_LEAD: **APPROVE**
+  - SAD.md / TECH_LEAD r2: **APPROVE**
+  - SAD.md / TECH_LEAD r3: **APPROVE**
+  - ADR.md / ARCHITECT: **success**
+  - ADR.md / TECH_LEAD: **APPROVE**
+  - ADR.md / TECH_LEAD r2: **APPROVE**
+  - ARCHITECTURE_DIAGRAM.md / ARCHITECT: **success**
+  - ARCHITECTURE_DIAGRAM.md / TECH_LEAD: **APPROVE**
+  - ADR.md / TECH_LEAD r3: **REJECT**
+  - ADR.md / TECH_LEAD r4: **APPROVE**
+  - ARCHITECTURE_DIAGRAM.md / TECH_LEAD r2: **APPROVE**
+  - SAB.json / TECH_LEAD: **APPROVE**
+  - FR-01 / developer: **success**
+  - FR-01 / reviewer: **APPROVE**
+  - FR-02 / developer: **success**
+  - FR-02 / reviewer: **APPROVE**
+  - FR-03 / developer: **success**
+  - FR-03 / reviewer: **APPROVE**
+  - FR-04 / developer: **success**
+  - FR-05 / developer: **success**
+  - FR-06 / developer: **success**
+  - FR-04 / reviewer: **APPROVE**
+  - FR-05 / reviewer: **APPROVE**
+  - FR-06 / reviewer: **APPROVE**
+  - FR-07 / developer: **success**
+  - FR-07 / reviewer: **APPROVE**
+  - FR-08 / developer: **success**
+  - FR-09 / developer: **success**
+  - FR-08 / reviewer: **APPROVE**
+  - FR-09 / reviewer: **APPROVE**
+  - FR-10 / developer: **success**
+  - FR-11 / developer: **success**
+  - FR-12 / developer: **success**
+  - FR-13 / developer: **success**
+  - FR-10 / reviewer: **APPROVE**
+  - FR-11 / reviewer: **APPROVE**
+  - FR-12 / reviewer: **APPROVE**
+  - FR-13 / reviewer: **APPROVE**
+  - FR-1 / developer: **success**
+  - FR-1 / reviewer: **success**
+  - FR-2 / developer: **success**
+  - FR-2 / reviewer: **success**
+  - FR-3 / developer: **success**
+  - FR-3 / reviewer: **success**
+  - FR-4 / developer: **success**
+  - FR-4 / reviewer: **success**
+  - FR-5 / developer: **success**
+  - FR-5 / reviewer: **success**
+  - FR-6 / developer: **success**
+  - FR-6 / reviewer: **success**
+  - FR-7 / developer: **success**
+  - FR-7 / reviewer: **success**
+  - FR-8 / developer: **success**
+  - FR-8 / reviewer: **success**
+  - FR-9 / developer: **success**
+  - FR-9 / reviewer: **success**
+  - P1-SRS / developer: **complete**
+  - P1-SRS / reviewer: **complete**
+  - P1-SPEC / developer: **complete**
+  - P1-SPEC / reviewer: **complete**
+  - P1-TRACE / developer: **complete**
+  - P1-TRACE / reviewer: **complete**
+
+**Recently Committed Files:**
+  - `01-requirements/archive/phase1/CONSTRAINTS.md`
+  - `01-requirements/archive/phase1/SPEC_TRACKING.md`
+  - `01-requirements/archive/phase1/SRS.md`
+  - `01-requirements/archive/phase1/TRACEABILITY_MATRIX.md`
+  - `02-architecture/archive/phase1/ARCHITECTURE_DIAGRAM.md`
+  - `02-architecture/archive/phase1/SAD.md`
+  - `02-architecture/archive/phase1/adr/ADR.md`
+  - `03-development/archive/phase1/src/omnibot/__init__.py`
+  - `03-development/archive/phase1/src/omnibot/__pycache__/__init__.cpython-311.pyc`
+  - `03-development/archive/phase1/src/omnibot/__pycache__/app.cpython-311.pyc`
+  - `03-development/archive/phase1/src/omnibot/__pycache__/models.cpython-311.pyc`
+  - `03-development/archive/phase1/src/omnibot/__pycache__/router.cpython-311.pyc`
+  - `03-development/archive/phase1/src/omnibot/adapters/__init__.py`
+  - `03-development/archive/phase1/src/omnibot/adapters/__pycache__/__init__.cpython-311.pyc`
+  - `03-development/archive/phase1/src/omnibot/adapters/__pycache__/line.cpython-311.pyc`
+  - `03-development/archive/phase1/src/omnibot/adapters/__pycache__/telegram.cpython-311.pyc`
+  - `03-development/archive/phase1/src/omnibot/adapters/line.py`
+  - `03-development/archive/phase1/src/omnibot/adapters/telegram.py`
+  - `03-development/archive/phase1/src/omnibot/api/__init__.py`
+  - `03-development/archive/phase1/src/omnibot/api/__pycache__/__init__.cpython-311.pyc`
 
 ## 接下來的工作
 
-1. Pipeline complete — all phases P1–P8 finished
-2. Review final HANDOVER.md and git tag for Gate 4
-3. Archive session via /compact
+1. Open `.methodology/phase2_plan.md` and follow from the top
+2. Follow SKILL.md §0.1 for P2 entry
+3. Review carry-forward gaps before starting P2 (SPEC_TRACKING.md gap register)
+4. Confirm HERMES_REVIEWER_TARGET is exported in shell
 
 ## 注意事項
 
 - 100% follow SKILL.md
 - Do NOT commit `.sessi-work/` or `.methodology/` runtime artifacts
 - Git failures are warnings — they never block the pipeline
+- Human peer review passed
+- All deliverables reviewed and approved
+
+## 附加資訊
+
+- **fr_count**: 11
+- **HERMES_REVIEWER_TARGET**: ✅ set (weixin:o9cq808YRb-FoS5Ek9CwSHm1q-2w@im.wechat)
 
 ---
 *由 `HandoverGenerator` 自動生成。下次 push 時此檔案將被覆寫。*

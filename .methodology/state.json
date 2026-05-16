@@ -1,9 +1,1 @@
-{
-  "state": "ACTIVE",
-  "current_phase": 8,
-  "last_gate": 1,
-  "last_fr": "FR-13",
-  "last_update": "2026-05-16T06:51:19.830944+00:00",
-  "last_milestone_command": "push-milestone --type p8",
-  "last_milestone_at": "2026-05-16T08:14:01.701361+00:00"
-}
+{"state": "ACTIVE", "current_phase": 1, "last_gate": 0, "last_fr": "", "last_update": "2026-05-16T14:54:32"}
