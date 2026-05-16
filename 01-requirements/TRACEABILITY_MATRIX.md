@@ -42,7 +42,7 @@
 | FR-16 | SRS.md §FR-16 | L644–L699 | `src/omnibot/security/pii_masking_v2.py` | `tests/test_fr16.py` | Not Started |
 | FR-17 | SRS.md §FR-17 | L226–L284 | `src/omnibot/analytics/emotion_analyzer.py` | `tests/test_fr17.py` | Not Started |
 | FR-18 | SRS.md §FR-18 | L159–L222 | `src/omnibot/dialogue/dst.py` `src/omnibot/dialogue/intent_router.py` | `tests/test_fr18.py` | Not Started |
-| FR-19 | SRS.md §FR-19 | L288–L490 | `src/omnibot/knowledge/hybrid_v7.py` | `tests/test_fr19.py` | Not Started |
+| FR-19 | SRS.md §FR-19 | L288–L490 | `src/omnibot/knowledge/hybrid_knowledge_v2.py` | `tests/test_fr19.py` | Not Started |
 | FR-20 | SRS.md §FR-20 | L494–L568 | `src/omnibot/escalation/manager_v2.py` | `tests/test_fr20.py` | Not Started |
 | FR-21 | SRS.md §FR-21 | L703–L745 | `src/omnibot/security/grounding_checker.py` | `tests/test_fr21.py` | Not Started |
 | FR-22 | SRS.md §FR-22 | L749–L793 | `src/omnibot/observability/metrics.py` | `tests/test_fr22.py` | Not Started |
@@ -84,7 +84,7 @@
 | `src/omnibot/analytics/emotion_analyzer.py` | FR-17 | SRS.md §FR-17 | — |
 | `src/omnibot/dialogue/dst.py` | FR-18 | SRS.md §FR-18 | — |
 | `src/omnibot/dialogue/intent_router.py` | FR-18 | SRS.md §FR-18 | — |
-| `src/omnibot/knowledge/hybrid_v7.py` | FR-07, FR-19 | SRS.md §FR-07, §FR-19 | — |
+| `src/omnibot/knowledge/hybrid_knowledge_v2.py` | FR-07, FR-19 | SRS.md §FR-07, §FR-19 | — |
 | `src/omnibot/escalation/manager_v2.py` | FR-08, FR-20 | SRS.md §FR-08, §FR-20 | NFR-14 |
 | `src/omnibot/observability/metrics.py` | FR-22 | SRS.md §FR-22 | NFR-07, NFR-08 |
 | `src/omnibot/db/migrations/phase2.py` | FR-12, FR-23 | SRS.md §FR-12, §FR-23 | — |

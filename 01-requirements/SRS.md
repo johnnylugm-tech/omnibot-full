@@ -139,10 +139,10 @@
 ### FR-19: Hybrid Knowledge Layer V2 — Four-Layer Architecture
 
 **Priority**: P0
-**Description**: 升級 Phase 1 的 Knowledge Layer V1（僅 Layer 1+4）為完整四層架構：Layer 1 規則匹配 (40%)、Layer 2 RAG 向量檢索 (40%)、Layer 3 LLM 生成 (10%)、Layer 4 人工轉接 (10%)。Layer 1 + Layer 2 結果透過 RRF k=60 融合排序。
+**Description**: 升級 Phase 1 的 Knowledge Layer V1（僅 Layer 1+4）為完整四層架構（HybridKnowledgeV2）：Layer 1 規則匹配 (40%)、Layer 2 RAG 向量檢索 (40%)、Layer 3 LLM 生成 (10%)、Layer 4 人工轉接 (10%)。Layer 1 + Layer 2 結果透過 RRF k=60 融合排序。實作類別命名為 HybridKnowledgeV2（Phase 2 對應版本）。
 
 **Acceptance Criteria**:
-- `HybridKnowledgeV7.query(query, user_context)` 依序執行四層查詢
+- `HybridKnowledgeV2.query(query, user_context)` 依序執行四層查詢
 - Layer 1 規則匹配：Phase 1 SQL ILIKE + ANY(keywords) 查詢，confidence > 0.9 直接回傳（source="rule"），否則結果傳入 RRF
 - Layer 2 RAG 向量檢索：
   - 使用 `paraphrase-multilingual-MiniLM-L12-v2` 模型產生 384-dim embedding
@@ -220,7 +220,7 @@
 - `omnibot_response_duration_seconds` (histogram)：labels=[platform, knowledge_source]，buckets=[0.1, 0.25, 0.5, 0.75, 1.0, 2.5, 5.0]
 - `omnibot_requests_total` (counter)：labels=[platform, status]
 - `omnibot_fcr_total` (counter)：labels=[resolved]，值為 "true"/"false"
-- `omnibot_knowledge_hit_total` (counter)：labels=[layer]，值為 "rule"/"rag"/"wiki"/"escalate"
+- `omnibot_knowledge_hit_total` (counter)：labels=[layer]，值為 "rule"/"rag"/"llm"/"escalate"（與 FR-19 knowledge_source 枚舉一致）
 - `omnibot_pii_masked_total` (counter)：labels=[pii_type]
 - `omnibot_escalation_queue_size` (gauge)：當前轉接佇列長度
 - `omnibot_emotion_escalation_total` (counter)：情緒觸發轉接次數
@@ -256,7 +256,10 @@
 - pgvector 索引：
   - `CREATE INDEX idx_kb_embeddings ON knowledge_base USING ivfflat (embeddings vector_cosine_ops) WITH (lists = 100)`
   - 建立後 RAG 查詢延遲降低至 < 200ms（10K 條目規模）
-- Phase 1 核心表（users, conversations, messages, knowledge_base, platform_configs, escalation_queue, user_feedback, security_logs）保持不變
+- Phase 1 核心表增量變更：
+  - `conversations` 表：啟用 Phase 1 預留的 `dst_state` JSONB 欄位（儲存 DialogueState）
+  - `messages` 表：啟用 Phase 1 預留的 `knowledge_source` 欄位（記錄實際使用的知識層：rule/rag/llm/escalate）
+  - 其餘核心表結構不變（Phase 1 已預留所有必要欄位）
 
 **Input**: SPEC/omnibot-phase-2.md L797-L836
 
@@ -397,8 +400,6 @@
 | NFR-13 | Grounding coverage | 100% of LLM outputs |
 | NFR-14 | SLA compliance | >= 90% |
 | NFR-15 | Golden dataset size | >= 500 |
-
----
 
 ---
 

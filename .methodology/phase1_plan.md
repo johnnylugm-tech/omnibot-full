@@ -23,13 +23,13 @@ Phase 1 is the project starting point. Define complete SRS.
 
 ### Pre-Phase Preflight
 
-- [ ] **[PREFLIGHT]** Run phase hooks (FSM, Constitution, Kill-Switch, Drift, CI Readiness):
+- [x] **[PREFLIGHT]** Run phase hooks (FSM, Constitution, Kill-Switch, Drift, CI Readiness):
   ```bash
   python3 harness_cli.py run-phase --phase 1 --project $REPO
   ```
   If FAILED: fix FSM/Constitution issues. There is no gate bypass flag.
 
-- [ ] **[PREFLIGHT-CI]** ⛔ HARD STOP if any item below is missing — complete SKILL.md §0.1 Step 0 first:
+- [x] **[PREFLIGHT-CI]** ⛔ HARD STOP if any item below is missing — complete SKILL.md §0.1 Step 0 first:
   1. `git config quality.phase` returns `1`  ← set by `init-project`
   2. `.github/workflows/harness_quality_gate.yml` exists in project root  ← set by `init-project`
   3. Git hooks installed (`ls .git/hooks/prepare-commit-msg`)  ← set by `init-project`
@@ -60,10 +60,10 @@ are not re-opened. This bounds backtracking to a single step.
 **Agent B**: BUSINESS_ANALYST
 
 **A/B Work** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
-- [ ] **[A-1]** Agent A (REQUIREMENTS_ENGINEER): Elicit requirements → write FRs/NFRs in SRS.md (### FR-XX: format) → validate completeness
+- [x] **[A-1]** Agent A (REQUIREMENTS_ENGINEER): Elicit requirements → write FRs/NFRs in SRS.md (### FR-XX: format) → validate completeness
   - FORBIDDEN: vague/non-testable acceptance criteria
-- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
-- [ ] **[B-1]** Agent B (BUSINESS_ANALYST) — dispatch as **STATELESS** subagent:
+- [x] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [x] **[B-1]** Agent B (BUSINESS_ANALYST) — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -97,7 +97,7 @@ are not re-opened. This bounds backtracking to a single step.
    "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
   ```
 
-- [ ] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
+- [x] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
   - `APPROVE` + all gaps are `low` → continue to Sub-Task 2/3
   - `APPROVE` + any gap is `medium` or `high` → fix gaps → **re-dispatch B as round 2**
     (embed same docs as B-1 above, replacing `SRS.md` with its updated content)
@@ -117,10 +117,10 @@ are not re-opened. This bounds backtracking to a single step.
 **Agent B**: BUSINESS_ANALYST
 
 **A/B Work** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
-- [ ] **[A-1]** Agent A (REQUIREMENTS_ENGINEER): Build spec tracking matrix from SRS.md FRs → assign status/owner per FR → validate completeness
+- [x] **[A-1]** Agent A (REQUIREMENTS_ENGINEER): Build spec tracking matrix from SRS.md FRs → assign status/owner per FR → validate completeness
   - FORBIDDEN: vague/non-testable acceptance criteria
-- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
-- [ ] **[B-1]** Agent B (BUSINESS_ANALYST) — dispatch as **STATELESS** subagent:
+- [x] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [x] **[B-1]** Agent B (BUSINESS_ANALYST) — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -159,7 +159,7 @@ are not re-opened. This bounds backtracking to a single step.
    "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
   ```
 
-- [ ] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
+- [x] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
   - `APPROVE` + all gaps are `low` → continue to Sub-Task 3/3
   - `APPROVE` + any gap is `medium` or `high` → fix gaps → **re-dispatch B as round 2**
     (embed same docs as B-1 above, replacing `SPEC_TRACKING.md` with its updated content)
@@ -179,10 +179,10 @@ are not re-opened. This bounds backtracking to a single step.
 **Agent B**: BUSINESS_ANALYST
 
 **A/B Work** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
-- [ ] **[A-1]** Agent A (REQUIREMENTS_ENGINEER): Build bidirectional traceability matrix → link FRs → design elements → test cases → validate coverage
+- [x] **[A-1]** Agent A (REQUIREMENTS_ENGINEER): Build bidirectional traceability matrix → link FRs → design elements → test cases → validate coverage
   - FORBIDDEN: vague/non-testable acceptance criteria
-- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
-- [ ] **[B-1]** Agent B (BUSINESS_ANALYST) — dispatch as **STATELESS** subagent:
+- [x] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [x] **[B-1]** Agent B (BUSINESS_ANALYST) — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -230,7 +230,7 @@ are not re-opened. This bounds backtracking to a single step.
    "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
   ```
 
-- [ ] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
+- [x] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
   - `APPROVE` + all gaps are `low` → all deliverables complete; proceed to Human Peer Review
   - `APPROVE` + any gap is `medium` or `high` → fix gaps → **re-dispatch B as round 2**
     (embed same docs as B-1 above, replacing `TRACEABILITY_MATRIX.md` with its updated content)
@@ -313,9 +313,9 @@ are not re-opened. This bounds backtracking to a single step.
 **Description**: 台灣格式電話、Email、地址必須在儲存或輸出前遮蔽。敏感關鍵字（密碼、銀行帳戶等）觸發轉接。
 
 ### Phase 1 Deliverables
-- [ ] `SRS.md` - Software Requirements Specification (FRs + NFRs)
-- [ ] `SPEC_TRACKING.md` - Spec tracking matrix
-- [ ] `TRACEABILITY_MATRIX.md` - Requirements traceability matrix
+- [x] `SRS.md` - Software Requirements Specification (FRs + NFRs)
+- [x] `SPEC_TRACKING.md` - Spec tracking matrix
+- [x] `TRACEABILITY_MATRIX.md` - Requirements traceability matrix
 - [x] `sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
 
 
@@ -323,17 +323,17 @@ are not re-opened. This bounds backtracking to a single step.
 > Phase 1/2 exit gate = human document review (NOT `harness run-gate --gate 1`).
 > APPROVE criteria: all FRs addressed, no critical gaps, terminology consistent.
 
-- [ ] **[HR-READ]** Reviewer reads all deliverables:
+- [x] **[HR-READ]** Reviewer reads all deliverables:
   - `01-requirements/SRS.md`
   - `01-requirements/SPEC_TRACKING.md`
   - `01-requirements/TRACEABILITY_MATRIX.md`
   - Checklist: All FRs covered? No contradictions? Each item testable/traceable?
-- [ ] **[HR-DECIDE]** Reviewer records decision:
+- [x] **[HR-DECIDE]** Reviewer records decision:
   ```json
   {"phase": 1, "reviewer": "XXXX", "status": "APPROVE", "reason": "..."}
   ```
   - If REJECT → author fixes → re-review. Max 5 rounds (HR-12).
-- [ ] **[HR-PUSH]** ✅ Push to GitHub + HANDOVER.md (CHECKPOINT-1 saved):
+- [x] **[HR-PUSH]** ✅ Push to GitHub + HANDOVER.md (CHECKPOINT-1 saved):
   ```bash
   python3 harness_cli.py push-checkpoint --phase 1 --project . \
     --fr-ids FR-01,FR-02,FR-03
@@ -344,16 +344,16 @@ are not re-opened. This bounds backtracking to a single step.
 
 ### Phase 1 → Phase 2: Architecture Design
 
-- [ ] Confirm ALL checkpoints in this plan are ✓  (no skips — HR-03)
-- [ ] Generate Phase 2 plan:
+- [x] Confirm ALL checkpoints in this plan are ✓  (no skips — HR-03)
+- [x] Generate Phase 2 plan:
   ```bash
   python3 harness_cli.py plan-phase --phase 2 --project $REPO \
     --output $REPO/.methodology/phase2_plan.md
   ```
-- [ ] Advance FSM to Phase 2 (writes new HANDOVER.md + local commit):
+- [x] Advance FSM to Phase 2 (writes new HANDOVER.md + local commit):
   ```bash
   python3 harness_cli.py advance-phase --completed 1 --project .
   ```
-- [ ] Confirm `HANDOVER.md` reflects Phase 2 entry (`P2-entry` checkpoint, correct plan path)
-- [ ] Open `phase2_plan.md` and follow from the top.
-- [ ] If session crashes during Phase 2: read `HANDOVER.md` or run `generate-next-plan`
+- [x] Confirm `HANDOVER.md` reflects Phase 2 entry (`P2-entry` checkpoint, correct plan path)
+- [x] Open `phase2_plan.md` and follow from the top.
+- [x] If session crashes during Phase 2: read `HANDOVER.md` or run `generate-next-plan`
