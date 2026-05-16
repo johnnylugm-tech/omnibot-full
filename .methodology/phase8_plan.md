@@ -1644,6 +1644,12 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
 - [ ] **[ASPICE]** Artifact for Phase 8 MUST reference `07-risk/RISK_REGISTER.md` by filename keyword `RISK_REGISTER` (ASPICE traceability — `postflight_artifact_links()` enforces this)
 
 
+- [ ] **[PHASE-TRUTH]** Verify Phase Truth ≥ 90% (HR-11):
+  ```bash
+  python3 harness_cli.py run-pipeline --phase-from 8
+  ```
+  Exit 0 = PASS, 11 = Phase Truth < 90%. Fix gaps before finalizing.
+
 ### 🎉 Pipeline Complete
 
 - [ ] All 8 phases complete. Archive `.methodology/` for the audit trail.
