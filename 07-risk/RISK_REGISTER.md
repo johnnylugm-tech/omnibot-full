@@ -6,6 +6,7 @@
 > **Phase**: 7 (Risk Register)
 > **Date**: 2026-05-15
 > **Status**: DRAFT
+> **References**: 06-quality/QUALITY_REPORT.md, 06-quality/FINAL_SIGN_OFF.md
 
 Citations:
 - SPEC/omnibot-phase-1.md:106-136 (Webhook endpoint API design)

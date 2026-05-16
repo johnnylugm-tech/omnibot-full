@@ -3,6 +3,7 @@
 > **Phase**: 7 — Risk Management
 > **Scope**: All HIGH risks (score ≥ 10) across FR-01 to FR-13
 > **Date**: 2026-05-16
+> **References**: 06-quality/QUALITY_REPORT.md
 
 ---
 

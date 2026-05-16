@@ -4,6 +4,7 @@
 > **Report Date**: 2026-05-16
 > **Reporting Period**: Phase 1 MVP (FR-01 through FR-13)
 > **Total Risks**: 52 | **Open**: 52 | **Mitigated**: 0 | **Accepted**: 2
+> **References**: 06-quality/QUALITY_REPORT.md
 
 ---
 
