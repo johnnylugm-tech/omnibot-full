@@ -134,7 +134,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-01 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-01')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_01*" "03-development/src/**/*fr-01*" "tests/**/test_fr_01*" "tests/**/test_fr-01*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -246,7 +246,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-02 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-02')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_02*" "03-development/src/**/*fr-02*" "tests/**/test_fr_02*" "tests/**/test_fr-02*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -358,7 +358,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-03 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-03')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_03*" "03-development/src/**/*fr-03*" "tests/**/test_fr_03*" "tests/**/test_fr-03*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -470,7 +470,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-04 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-04')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_04*" "03-development/src/**/*fr-04*" "tests/**/test_fr_04*" "tests/**/test_fr-04*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -582,7 +582,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-05 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-05')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_05*" "03-development/src/**/*fr-05*" "tests/**/test_fr_05*" "tests/**/test_fr-05*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -694,7 +694,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-06 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-06')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_06*" "03-development/src/**/*fr-06*" "tests/**/test_fr_06*" "tests/**/test_fr-06*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -806,7 +806,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-07 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-07')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_07*" "03-development/src/**/*fr-07*" "tests/**/test_fr_07*" "tests/**/test_fr-07*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -918,7 +918,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-08 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-08')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_08*" "03-development/src/**/*fr-08*" "tests/**/test_fr_08*" "tests/**/test_fr-08*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -1030,7 +1030,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-09 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-09')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_09*" "03-development/src/**/*fr-09*" "tests/**/test_fr_09*" "tests/**/test_fr-09*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -1142,7 +1142,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-10 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-10')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_10*" "03-development/src/**/*fr-10*" "tests/**/test_fr_10*" "tests/**/test_fr-10*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -1254,7 +1254,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-11 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-11')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_11*" "03-development/src/**/*fr-11*" "tests/**/test_fr_11*" "tests/**/test_fr-11*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -1366,7 +1366,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-12 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-12')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_12*" "03-development/src/**/*fr-12*" "tests/**/test_fr_12*" "tests/**/test_fr-12*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below
@@ -1478,7 +1478,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > **Delta-check mode** (P5): skip if FR-13 code unchanged since last Gate 1.
 - [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
   ```bash
-  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-13')))" 2>/dev/null || echo '.')
+  git diff --quiet HEAD -- "03-development/src/**/*fr_13*" "03-development/src/**/*fr-13*" "tests/**/test_fr_13*" "tests/**/test_fr-13*" 2>/dev/null || echo '.'
   ```
   - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
   - Exit 1 (changes detected) → proceed to full re-evaluation below

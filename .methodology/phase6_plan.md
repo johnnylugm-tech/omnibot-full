@@ -21,6 +21,7 @@ No FR loop — Gate 4 evaluates the full project (12 dims, CRG recon, Hermes APP
 ### Entry Gate Verification
 
 - [ ] **[ENTRY-CHECK]** Gate 3 PASS (P4 exit — P5 has no exit gate, P5 completed stands between):
+  Verify P5 output artifacts exist: `05-verification/VERIFICATION_REPORT.md` + `05-verification/BASELINE.md`
   Proof: .methodology/quality_manifest.json records Gate 3 PASS from P4.
   If NOT confirmed: return to Phase 4 and complete exit gate first.
 
@@ -119,6 +120,13 @@ No FR loop — Gate 4 evaluates the full project (12 dims, CRG recon, Hermes APP
   python3 harness_cli.py plan-phase --phase 7 --project $REPO \
     --output $REPO/.methodology/phase7_plan.md
   ```
+- [ ] **[GIT-TAG]** Push Gate 4 git tag (SKILL.md §0.4):
+  ```bash
+  SCORE=$(python3 -c "import json; d=json.load(open('.sessi-work/gate4_result.json')); print(d.get('composite_score','XX'))" 2>/dev/null || echo 'XX')
+  git tag -a "harness-v4-$(date +%Y%m%d)-score${SCORE}" -m "Gate 4 PASS (score ${SCORE})"
+  git push origin --tags
+  ```
+
 - [ ] Advance FSM to Phase 7 (writes new HANDOVER.md + local commit):
   ```bash
   python3 harness_cli.py advance-phase --completed 6 --project .
