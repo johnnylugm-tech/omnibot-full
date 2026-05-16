@@ -37,7 +37,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 
 ### Entry Gate Verification
 
-- [ ] **[ENTRY-CHECK]** Confirm Phase 4 exit (Gate 3 PASS) before proceeding (HR-03 — no phase skips):
+- [ ] **[ENTRY-CHECK]** Gate 3 PASS:
   Proof: .methodology/quality_manifest.json records Gate 3 PASS from P4.
   If NOT confirmed: return to Phase 4 and complete exit gate first.
 

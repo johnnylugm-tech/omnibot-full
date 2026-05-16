@@ -37,7 +37,7 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
 
 ### Entry Gate Verification
 
-- [ ] **[ENTRY-CHECK]** Confirm Phase 6 exit (Gate 4 PASS) before proceeding (HR-03 — no phase skips):
+- [ ] **[ENTRY-CHECK]** Gate 4 PASS:
   Proof: .methodology/quality_manifest.json records Gate 4 PASS from P6.
   If NOT confirmed: return to Phase 6 and complete exit gate first.
 
@@ -58,7 +58,7 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
 
 ### Risk Register (2 total)
 
-- **risk_id**: mitigation strategy required
+- **risk_id**: Define likelihood/impact scores and mitigation approach → document in RISK_REGISTER.md
 - ****Citations** (HR-15): docker-compose.yml:5-50 (entire file — no `deploy.resources.limits`, `mem_limit`, or `cpus` key present for any service; all containers run without resource bounds), 03-development/Dockerfile (API container definition — heap size unconstrained; no `--memory` JVM-equivalent flag set)
 
 ---
@@ -67,7 +67,7 @@ Each FR gets a Gate 1 risk-aware re-evaluation (CHECKPOINT). No phase-exit gate 
 
 ```
 Impact
-  5**: mitigation strategy required
+  5**: Define likelihood/impact scores and mitigation approach → document in RISK_REGISTER.md
 
 ### FR Risk Evaluation (13 total)
 

@@ -37,7 +37,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 
 ### Entry Gate Verification
 
-- [ ] **[ENTRY-CHECK]** Confirm Phase 3 exit (Gate 2 PASS) before proceeding (HR-03 — no phase skips):
+- [ ] **[ENTRY-CHECK]** Gate 2 PASS:
   Proof: .methodology/quality_manifest.json records Gate 2 PASS from P3.
   If NOT confirmed: return to Phase 3 and complete exit gate first.
 
@@ -1514,6 +1514,10 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
 
 #### ASPICE Traceability Requirements (enforced by postflight)
 
+- [ ] **[ASPICE]** Artifact for Phase 4 MUST reference `01-requirements/SRS.md` by filename keyword `SRS` (ASPICE traceability — `postflight_artifact_links()` enforces this)
+- [ ] **[ASPICE]** Artifact for Phase 4 MUST reference `01-requirements/SPEC_TRACKING.md` by filename keyword `SPEC_TRACKING` (ASPICE traceability — `postflight_artifact_links()` enforces this)
+- [ ] **[ASPICE]** Artifact for Phase 4 MUST reference `01-requirements/TRACEABILITY_MATRIX.md` by filename keyword `TRACEABILITY_MATRIX` (ASPICE traceability — `postflight_artifact_links()` enforces this)
+- [ ] **[ASPICE]** Artifact for Phase 4 MUST reference `02-architecture/SAD.md` by filename keyword `SAD` (ASPICE traceability — `postflight_artifact_links()` enforces this)
 
 
 ### Phase 4 → Phase 5: Verification & Delivery

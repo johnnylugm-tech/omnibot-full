@@ -23,7 +23,7 @@ Phase 2 designs the system architecture based on SRS, producing SAD and ADR.
 
 ### Entry Gate Verification
 
-- [ ] **[ENTRY-CHECK]** Confirm Phase 1 exit (P1 human APPROVE) before proceeding (HR-03 — no phase skips):
+- [ ] **[ENTRY-CHECK]** P1 human APPROVE:
   Proof: git log contains commit 'phase1(human-review): Phase 1 deliverables APPROVED'.
   If NOT confirmed: return to Phase 1 and complete exit gate first.
 

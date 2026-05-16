@@ -39,7 +39,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 ### Entry Gate Verification
 
-- [ ] **[ENTRY-CHECK]** Confirm Phase 2 exit (P2 human APPROVE) before proceeding (HR-03 — no phase skips):
+- [ ] **[ENTRY-CHECK]** P2 human APPROVE:
   Proof: git log contains commit 'phase2(human-review): Phase 2 deliverables APPROVED'.
   If NOT confirmed: return to Phase 2 and complete exit gate first.
 

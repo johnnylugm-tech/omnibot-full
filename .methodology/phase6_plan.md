@@ -20,7 +20,7 @@ No FR loop — Gate 4 evaluates the full project (12 dims, CRG recon, Hermes APP
 
 ### Entry Gate Verification
 
-- [ ] **[ENTRY-CHECK]** Confirm Phase 4 exit (Gate 3 PASS) before proceeding (HR-03 — no phase skips):
+- [ ] **[ENTRY-CHECK]** Gate 3 PASS (P4 exit — P5 has no exit gate, P5 completed stands between):
   Proof: .methodology/quality_manifest.json records Gate 3 PASS from P4.
   If NOT confirmed: return to Phase 4 and complete exit gate first.
 

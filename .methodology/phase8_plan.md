@@ -37,7 +37,7 @@ Each FR gets a Gate 1 config-aware re-evaluation (CHECKPOINT). No phase-exit gat
 
 ### Entry Gate Verification
 
-- [ ] **[ENTRY-CHECK]** Confirm Phase 6 exit (Gate 4 PASS) before proceeding (HR-03 — no phase skips):
+- [ ] **[ENTRY-CHECK]** Gate 4 PASS (P6 exit — P7 has no exit gate, P7 completed stands between):
   Proof: .methodology/quality_manifest.json records Gate 4 PASS from P6.
   If NOT confirmed: return to Phase 6 and complete exit gate first.
 
@@ -58,7 +58,7 @@ Each FR gets a Gate 1 config-aware re-evaluation (CHECKPOINT). No phase-exit gat
 
 ### Configuration Items (20 total)
 
-- **Variable**: configuration record required
+- **Variable**: Document value/source/access method → update CONFIG_RECORDS.md
 - ****Secrets Management**: All production secrets must be stored in a secrets manager (e.g., HashiCorp Vault, AWS Secrets Manager, or Kubernetes Secrets). Never hardcode production credentials.
 
 ---
@@ -68,10 +68,10 @@ Each FR gets a Gate 1 config-aware re-evaluation (CHECKPOINT). No phase-exit gat
 > **[FR-01]** Platform Adapter — Telegram + LINE Webhook
 > Citations: SRS.md:13-25, 03-development/src/omnibot/auth/verifier.py:65-74
 
-### Environment Variables / Secrets**: configuration record required
+### Environment Variables / Secrets**: Document value/source/access method → update CONFIG_RECORDS.md
 - ****Secrets Management**: Store both values in a secrets manager (HashiCorp Vault, AWS Secrets Manager, or Kubernetes Secrets). Never commit to version control. Rotate immediately if exposed.
 
-### Webhook Endpoints**: configuration record required
+### Webhook Endpoints**: Document value/source/access method → update CONFIG_RECORDS.md
 - **Signature verification raises `401 Unauthorized` for missing or invalid signatures (see `03-development/src/omnibot/auth/verifier.py:77-103`).
 
 ### Deployment Checklist
@@ -99,11 +99,11 @@ Each FR gets a Gate 1 config-aware re-evaluation (CHECKPOINT). No phase-exit gat
 
 ### Environment Variables / Secrets
 
-No new environment variables are required for FR-02. Signature verification reuses the same secrets provisioned for FR-01. Verification is entirely stateless.**: configuration record required
-- **### Signature Verification Scheme**: configuration record required
-- **----------**: configuration record required
-- **`SHA256(TELEGRAM_BOT_TOKEN)`**: configuration record required
-- **LINE**: configuration record required
+No new environment variables are required for FR-02. Signature verification reuses the same secrets provisioned for FR-01. Verification is entirely stateless.**: Document value/source/access method → update CONFIG_RECORDS.md
+- **### Signature Verification Scheme**: Document value/source/access method → update CONFIG_RECORDS.md
+- **----------**: Document value/source/access method → update CONFIG_RECORDS.md
+- **`SHA256(TELEGRAM_BOT_TOKEN)`**: Document value/source/access method → update CONFIG_RECORDS.md
+- **LINE**: Document value/source/access method → update CONFIG_RECORDS.md
 - **- All comparisons use `hmac.compare_digest()` to prevent timing-attack leakage (`03-development/src/omnibot/auth/verifier.py:17-24`).
 - Verification failure (missing header, wrong signature) returns `401 Unauthorized` with error code `AUTH_INVALID_SIGNATURE`.
 
@@ -137,15 +137,15 @@ No new environment variables are required for FR-02. Signature verification reus
 ### Environment Variables / Secrets
 
 No environment variables are required for FR-03. `UnifiedMessage` and `UnifiedResponse` are pure
-in-memory dataclasses with no external configuration dependencies.**: configuration record required
+in-memory dataclasses with no external configuration dependencies.**: Document value/source/access method → update CONFIG_RECORDS.md
 - **### Data Model Reference
 
-**`Platform` enum** (`models.py:12-20`) — string-valued, `str, Enum`:**: configuration record required
+**`Platform` enum** (`models.py:12-20`) — string-valued, `str, Enum`:**: Document value/source/access method → update CONFIG_RECORDS.md
 - **Adding a new platform requires a **code change** (new enum member + adapter implementation); there is no runtime-configurable platform registry.
 
-**`MessageType` enum** (`models.py:23-32`) — string-valued, `str, Enum`:**: configuration record required
-- **Field**: configuration record required
-- ****`UnifiedResponse` dataclass** (`models.py:59-68`) — `frozen=True`:**: configuration record required
+**`MessageType` enum** (`models.py:23-32`) — string-valued, `str, Enum`:**: Document value/source/access method → update CONFIG_RECORDS.md
+- **Field**: Document value/source/access method → update CONFIG_RECORDS.md
+- ****`UnifiedResponse` dataclass** (`models.py:59-68`) — `frozen=True`:**: Document value/source/access method → update CONFIG_RECORDS.md
 - **### Deployment Checklist
 
 - [ ] Verify all platform adapters (Telegram, LINE, Messenger, WhatsApp) construct `UnifiedMessage` with valid `Platform` and `MessageType` enum members before deploy
@@ -156,7 +156,7 @@ in-memory dataclasses with no external configuration dependencies.**: configurat
 
 ### Monitoring / Observability
 
-Log the following fields on every inbound message for production observability:**: configuration record required
+Log the following fields on every inbound message for production observability:**: Document value/source/access method → update CONFIG_RECORDS.md
 - **Do **not** log `raw_payload` at INFO or above — it may contain PII from platform webhooks.
 
 ### Security Notes
@@ -176,8 +176,8 @@ Log the following fields on every inbound message for production observability:*
 
 No environment variables are required for FR-04. The sanitizer is a pure function with no
 configurable parameters in Phase 1. NFKC normalization is locale-independent and requires
-no locale configuration.**: configuration record required
-- **### Sanitization Pipeline (Phase 1)**: configuration record required
+no locale configuration.**: Document value/source/access method → update CONFIG_RECORDS.md
+- **### Sanitization Pipeline (Phase 1)**: Document value/source/access method → update CONFIG_RECORDS.md
 - **- **No external state**: the function holds no module-level mutable state and has no I/O side effects.
 - **No infrastructure imports**: `app/infrastructure/` imports are forbidden in this module.
 
@@ -189,11 +189,11 @@ no locale configuration.**: configuration record required
 - [ ] Confirm `\n` (newline) and `\t` (tab) are preserved after sanitization
 - [ ] Validate sanitizer is applied before any downstream processing (router, agent dispatch)
 
-### Future Configuration (Phase 2)**: configuration record required
+### Future Configuration (Phase 2)**: Document value/source/access method → update CONFIG_RECORDS.md
 - **`MAX_INPUT_LENGTH` is intentionally omitted from Phase 1; introduce it as an environment variable
 with a sensible default (e.g. `4096`) when DoS protection requirements are formalised.
 
-### Monitoring / Observability**: configuration record required
+### Monitoring / Observability**: Document value/source/access method → update CONFIG_RECORDS.md
 - **Do **not** log raw input content at INFO or above — it may contain PII from platform webhooks.
 
 ### Security Notes
@@ -215,8 +215,8 @@ with a sensible default (e.g. `4096`) when DoS protection requirements are forma
 ### Environment Variables / Secrets
 
 No environment variables are required for FR-05. All regex patterns and sensitive keyword lists
-are hardcoded in Phase 1. PII masking is always on — there is no runtime toggle.**: configuration record required
-- **### Implicit Configuration (Phase 1 — Hardcoded)**: configuration record required
+are hardcoded in Phase 1. PII masking is always on — there is no runtime toggle.**: Document value/source/access method → update CONFIG_RECORDS.md
+- **### Implicit Configuration (Phase 1 — Hardcoded)**: Document value/source/access method → update CONFIG_RECORDS.md
 
 ### FR Configuration Evaluation (13 total)
 
@@ -1640,7 +1640,7 @@ are hardcoded in Phase 1. PII masking is always on — there is no runtime toggl
 
 #### ASPICE Traceability Requirements (enforced by postflight)
 
-- [ ] **[ASPICE]** Artifact for Phase 8 MUST reference `07-risk/RISK_ASSESSMENT.md` by filename keyword `RISK_ASSESSMENT` (ASPICE traceability — `postflight_artifact_links()` enforces this)
+- [ ] **[ASPICE]** Artifact for Phase 8 MUST reference `07-risk/RISK_STATUS_REPORT.md` by filename keyword `RISK_STATUS_REPORT` (ASPICE traceability — `postflight_artifact_links()` enforces this)
 - [ ] **[ASPICE]** Artifact for Phase 8 MUST reference `07-risk/RISK_REGISTER.md` by filename keyword `RISK_REGISTER` (ASPICE traceability — `postflight_artifact_links()` enforces this)
 
 
