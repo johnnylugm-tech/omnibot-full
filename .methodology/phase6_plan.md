@@ -20,9 +20,9 @@ No FR loop — Gate 4 evaluates the full project (12 dims, CRG recon, Hermes APP
 
 ### Entry Gate Verification
 
-- [ ] **[ENTRY-CHECK]** Confirm Phase 5 exit (Gate 3 PASS) before proceeding (HR-03 — no phase skips):
+- [ ] **[ENTRY-CHECK]** Confirm Phase 4 exit (Gate 3 PASS) before proceeding (HR-03 — no phase skips):
   Proof: .methodology/quality_manifest.json records Gate 3 PASS from P4.
-  If NOT confirmed: return to Phase 5 and complete exit gate first.
+  If NOT confirmed: return to Phase 4 and complete exit gate first.
 
 ### Pre-Phase Preflight
 
@@ -89,6 +89,12 @@ No FR loop — Gate 4 evaluates the full project (12 dims, CRG recon, Hermes APP
   > `finalize-gate --gate 4` (G4c) calls `commit_and_push_gate()` which writes
   > `HANDOVER.md` **before** committing + pushing. No separate push needed here.
   > If HANDOVER.md is missing, re-run `finalize-gate` (do **not** raw-push).
+
+- [ ] **[PHASE-TRUTH]** Verify Phase Truth ≥ 90% (HR-11):
+  ```bash
+  python3 harness_cli.py run-pipeline --phase-from 6
+  ```
+  Exit 0 = PASS, 11 = Phase Truth < 90%. Fix gaps before advancing.
 
 ### Phase 6 Deliverables
 - [ ] Gate 4 PASS (composite ≥ 85, all 12 dims, CRG recon done)

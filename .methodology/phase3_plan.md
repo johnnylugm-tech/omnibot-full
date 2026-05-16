@@ -1442,6 +1442,12 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `HANDOVER.md` **before** committing + pushing. No separate push needed here.
   > If HANDOVER.md is missing, re-run `finalize-gate` (do **not** raw-push).
 
+- [ ] **[PHASE-TRUTH]** Verify Phase Truth ≥ 90% (HR-11):
+  ```bash
+  python3 harness_cli.py run-pipeline --phase-from 3
+  ```
+  Exit 0 = PASS, 11 = Phase Truth < 90%. Fix gaps before advancing.
+
 ### Phase 3 Deliverables
 - [ ] `03-development/src/` - All FR modules implemented
 - [ ] `tests/` - Unit tests (≥80% coverage per FR)

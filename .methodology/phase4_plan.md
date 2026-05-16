@@ -56,6 +56,24 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   4. GitHub repo variable `CURRENT_PHASE` = 4 (updated by `advance-phase`)
   > If stale: run `python3 harness_cli.py init-project --phase 4 --project $REPO --overwrite`
 
+### CHECKPOINT-0: Generate TEST_PLAN.md
+
+> Generate `04-testing/TEST_PLAN.md` from SRS.md FR acceptance criteria.
+> This step runs once before per-FR test execution.
+
+**A/B Work — TEST_PLAN.md Generation** (HR-01: A≠B · HR-04: HybridWorkflow ON):
+- [ ] **[A-TP]** Agent A (QA_ENGINEER): Read SRS.md FR acceptance criteria → write TEST_PLAN.md with per-FR test cases
+  - For each FR: test case ID, description, input, expected output, priority
+  - Include positive, negative, boundary, and edge case categories
+  - Output: `04-testing/TEST_PLAN.md`
+- [ ] **[A-DISPATCH-TP]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id ALL \
+    --prompt "Generate TEST_PLAN.md from SRS.md FR acceptance criteria" --phase 4 --project .
+  ```
+- [ ] **[B-TP]** Agent B (ARCHITECT): Review TEST_PLAN.md for completeness and correctness
+- [ ] **[TP-DONE]** TEST_PLAN.md written and reviewed: all FRs have ≥1 test case, NFRs addressed
+
 ### FR Test Coverage
 
 #### FR-01: Platform Adapter — Telegram + LINE Webhook
@@ -1479,6 +1497,12 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). Phase exits via Gate 3 (1
   > `finalize-gate --gate 3` (G3c) calls `commit_and_push_gate()` which writes
   > `HANDOVER.md` **before** committing + pushing. No separate push needed here.
   > If HANDOVER.md is missing, re-run `finalize-gate` (do **not** raw-push).
+
+- [ ] **[PHASE-TRUTH]** Verify Phase Truth ≥ 90% (HR-11):
+  ```bash
+  python3 harness_cli.py run-pipeline --phase-from 4
+  ```
+  Exit 0 = PASS, 11 = Phase Truth < 90%. Fix gaps before advancing.
 
 ### Phase 4 Deliverables
 - [ ] `TEST_PLAN.md` - Test plan

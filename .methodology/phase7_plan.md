@@ -134,9 +134,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-01 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-01')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-01:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-01
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-01 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -228,9 +237,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-02 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-02')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-02:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-02
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-02 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -322,9 +340,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-03 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-03')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-03:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-03
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-03 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -416,9 +443,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-04 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-04')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-04:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-04
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-04 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -510,9 +546,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-05 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-05')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-05:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-05
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-05 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -604,9 +649,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-06 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-06')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-06:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-06
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-06 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -698,9 +752,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-07 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-07')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-07:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-07
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-07 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -792,9 +855,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-08 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-08')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-08:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-08
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-08 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -886,9 +958,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-09 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-09')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-09:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-09
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-09 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -980,9 +1061,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-10 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-10')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-10:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-10
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-10 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -1074,9 +1164,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-11 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-11')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-11:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-11
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-11 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -1168,9 +1267,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-12 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-12')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-12:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-12
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-12 --delta
   ```
   Read the evaluation prompt printed above.
 
@@ -1262,9 +1370,18 @@ Impact
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
+
+> **Delta-check mode** (P7): skip if FR-13 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- $(python3 -c "from scripts.generate_full_plan import _fr_source_paths; print(' '.join(_fr_source_paths('FR-13')))" 2>/dev/null || echo '.')
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
 - [ ] **G1a** Prepare Gate 1 for FR-13:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-13
+  python3 harness_cli.py run-gate --gate 1 --phase 7 --fr-id FR-13 --delta
   ```
   Read the evaluation prompt printed above.
 
