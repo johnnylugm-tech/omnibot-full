@@ -1,4 +1,0 @@
-"""[FR-01] Adapters package — platform-specific webhook payload parsers.
-
-Citations: SRS.md:13-25 (webhook integration)
-"""

@@ -1,4 +1,0 @@
-"""[FR-02] Auth package — platform signature verification for Telegram and Line.
-
-Citations: SRS.md:13-25 (webhook auth requirements)
-"""
