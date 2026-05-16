@@ -2,7 +2,7 @@
 
 **Checkpoint**: `P8-exit-20260516`  
 **Phase**: P8 — Config & Records  
-**Generated**: 2026-05-16T07:38:21Z
+**Generated**: 2026-05-16T08:37:53Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -17,8 +17,9 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 # 2. Set required env vars
 export HERMES_REVIEWER_TARGET=<value>
 
-# 3. Pipeline is complete — all 8 phases done. No further phases.
-# Review HANDOVER.md and archive session via /compact
+# 3. Read plan and start Phase 9
+cat .methodology/phase9_plan.md
+# Follow SKILL.md §0.1 Phase 9 entry check, then execute
 ```
 
 ---
@@ -35,7 +36,8 @@ git log --oneline -3
 # Confirm FSM state
 cat .methodology/state.json   # expected: phase=8 state=ACTIVE last_gate=1 last_fr=FR-13
 
-# Pipeline complete — P1-P8 all done. Archive via /compact.
+# Read active plan
+cat .methodology/phase9_plan.md
 ```
 
 | 欄位 | 值 |
@@ -43,7 +45,7 @@ cat .methodology/state.json   # expected: phase=8 state=ACTIVE last_gate=1 last_
 | Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
 | Branch | `main` |
 | State | `phase=8 state=ACTIVE last_gate=1 last_fr=FR-13` |
-| Plan | Pipeline complete — P8 is the final phase |
+| Plan | `.methodology/phase9_plan.md` |
 
 ---
 
