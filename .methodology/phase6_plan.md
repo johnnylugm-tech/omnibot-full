@@ -40,6 +40,16 @@ No FR loop — Gate 4 evaluates the full project (12 dims, CRG recon, Hermes APP
   4. GitHub repo variable `CURRENT_PHASE` = 6 (updated by `advance-phase`)
   > If stale: run `python3 harness_cli.py init-project --phase 6 --project $REPO --overwrite`
 
+### P6 A/B Roles (Per-Phase, Not Per-FR)
+
+> **Agent A (QA_ENGINEER)** — Gate 4 inline evaluation:
+> Claude evaluates all 12 quality dimensions against SRS/SAD/codebase.
+> No dispatch command — the evaluation protocol runs inline per SAD.md §12.
+> **Agent B (ARCHITECT)** — Hermes APPROVE:
+> Reviews Gate 4 results via Hermes (Telegram/Discord/Slack).
+> Responds APPROVE or REJECT → finalize-gate records outcome.
+> 2 A/B entries in `sessions_spawn.log` (HR-10: per-phase, not per-FR).
+
 ### Existing Quality Metrics (from QUALITY_REPORT.md)
 
 - **Gate**: 4 | **Phase**: 6 — Quality Assurance
