@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-16
+> **Date**: 2026-05-17
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 3 - Implementation
 > **Status**: Full version (including Phase 3 detailed tasks)
@@ -39,8 +39,8 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 ### Entry Gate Verification
 
-- [ ] **[ENTRY-CHECK]** P2 human APPROVE:
-  Proof: git log contains commit 'phase2(human-review): Phase 2 deliverables APPROVED'.
+- [ ] **[ENTRY-CHECK]** P2 review-complete:
+  Proof: git log contains commit 'phase2(review-complete): Phase 2 deliverables APPROVED'.
   If NOT confirmed: return to Phase 2 and complete exit gate first.
 
 ### Pre-Phase Preflight
@@ -58,26 +58,26 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   4. GitHub repo variable `CURRENT_PHASE` = 3 (updated by `advance-phase`)
   > If stale: run `python3 harness_cli.py init-project --phase 3 --project $REPO --overwrite`
 
-### FR Implementation Tasks (13 total)
+### FR Implementation Tasks (11 total)
 
-#### FR-01: Platform Adapter — Telegram + LINE Webhook
-**Task**: 系統必須接收來自 Telegram Bot API 和 LINE Messaging API 的 webhook 請求，轉換為內部統一消息格式（UnifiedMessage）。
+#### FR-14: Platform Adapter — Messenger + WhatsApp Webhook
+**Task**: Phase 1 已支援 Telegram 和 LINE webhook。Phase 2 新增 Messenger 和 WhatsApp 兩個平台的 webhook 接收端點，使用 HMAC-SHA256 驗證，轉換為 UnifiedMessage。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-01** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-14** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-01]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-14]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-01 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-01" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-14 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-14" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-01 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-14 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -92,7 +92,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-01.
+  You are REVIEWER. Your task: review the following deliverable for FR-14.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -121,30 +121,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-01 \
-    --prompt "Review FR-01 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-14 \
+    --prompt "Review FR-14 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-1: Gate 1 — FR-01
+### 🔒 CHECKPOINT-1: Gate 1 — FR-14
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-01:
+- [ ] **G1a** Prepare Gate 1 for FR-14:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-01
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-14
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-01 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-14 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-01:
+- [ ] **G1c** Finalize Gate 1 for FR-14:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-01
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-14
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -162,24 +162,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-02: Webhook Signature Verification
-**Task**: 每個 webhook 請求必須先通過簽名驗證，未通過者拒絕處理。
+#### FR-15: Prompt Injection Defense L3 — Sandwich Defense
+**Task**: 在 Input Sanitizer L2（字元正規化）之後，L3 層偵測 10 種可疑 prompt injection pattern，阻擋攻擊並記錄至 security_logs。安全輸入使用 Sandwich Defense 格式包裹後傳遞給 LLM。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-02** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-15** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-02]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-15]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-02 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-02" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-15 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-15" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-02 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-15 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -194,7 +194,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-02.
+  You are REVIEWER. Your task: review the following deliverable for FR-15.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -223,30 +223,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-02 \
-    --prompt "Review FR-02 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-15 \
+    --prompt "Review FR-15 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-2: Gate 1 — FR-02
+### 🔒 CHECKPOINT-2: Gate 1 — FR-15
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-02:
+- [ ] **G1a** Prepare Gate 1 for FR-15:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-02
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-15
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-02 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-15 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-02:
+- [ ] **G1c** Finalize Gate 1 for FR-15:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-02
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-15
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -264,24 +264,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-03: Unified Message Format
-**Task**: 所有平台消息必須轉換為統一的 `UnifiedMessage` dataclass，對下游模組隱藏平台差異。
+#### FR-16: PII Masking V2 — Credit Card + Luhn Check
+**Task**: 在 Phase 1 PII Masking L4 基礎上新增信用卡號偵測與 Luhn 校驗，確保僅遮蔽有效信用卡號。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-03** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-16** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-03]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-16]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-03 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-03" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-16 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-16" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-03 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-16 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -296,7 +296,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-03.
+  You are REVIEWER. Your task: review the following deliverable for FR-16.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -325,30 +325,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-03 \
-    --prompt "Review FR-03 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-16 \
+    --prompt "Review FR-16 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-3: Gate 1 — FR-03
+### 🔒 CHECKPOINT-3: Gate 1 — FR-16
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-03:
+- [ ] **G1a** Prepare Gate 1 for FR-16:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-03
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-16
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-03 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-16 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-03:
+- [ ] **G1c** Finalize Gate 1 for FR-16:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-03
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-16
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -366,24 +366,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-04: Input Sanitizer L2 — Character Normalization
-**Task**: 所有使用者輸入文字必須經過 NFKC 正規化，移除非列印控制字元。
+#### FR-17: Emotion Analyzer — Sentiment Classification + Decay
+**Task**: 分析每條使用者訊息的情緒類別與強度，追蹤情緒歷史並以 24 小時半衰期進行指數衰減加權。連續 >= 3 次負面情緒自動觸發人工轉接。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-04** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-17** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-04]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-17]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-04 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-04" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-17 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-17" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-04 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-17 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -398,7 +398,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-04.
+  You are REVIEWER. Your task: review the following deliverable for FR-17.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -427,30 +427,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-04 \
-    --prompt "Review FR-04 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-17 \
+    --prompt "Review FR-17 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-4: Gate 1 — FR-04
+### 🔒 CHECKPOINT-4: Gate 1 — FR-17
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-04:
+- [ ] **G1a** Prepare Gate 1 for FR-17:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-04
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-17
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-04 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-17 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-04:
+- [ ] **G1c** Finalize Gate 1 for FR-17:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-04
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-17
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -468,24 +468,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-05: PII Masking L4 — Phone / Email / Address
-**Task**: 使用者訊息中的台灣電話、Email、地址必須在記錄或輸出前遮蔽。敏感關鍵字觸發轉接。
+#### FR-18: Intent Router + Dialogue State Tracker (DST)
+**Task**: 實作 7 狀態對話狀態機（DST），支援意圖偵測、slot filling 與自動轉接。最多 3 輪未完成 slot filling 觸發轉接。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-05** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-18** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-05]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-18]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-05 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-05" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-18 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-18" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-05 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-18 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -500,7 +500,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-05.
+  You are REVIEWER. Your task: review the following deliverable for FR-18.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -529,30 +529,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-05 \
-    --prompt "Review FR-05 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-18 \
+    --prompt "Review FR-18 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-5: Gate 1 — FR-05
+### 🔒 CHECKPOINT-5: Gate 1 — FR-18
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-05:
+- [ ] **G1a** Prepare Gate 1 for FR-18:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-05
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-18
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-05 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-18 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-05:
+- [ ] **G1c** Finalize Gate 1 for FR-18:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-05
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-18
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -570,24 +570,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-06: Rate Limiter — Token Bucket
-**Task**: 每個平台用戶必須有獨立的請求速率限制，防止濫用。
+#### FR-19: Hybrid Knowledge Layer V2 — Four-Layer Architecture
+**Task**: 升級 Phase 1 的 Knowledge Layer V1（僅 Layer 1+4）為完整四層架構（HybridKnowledgeV2）：Layer 1 規則匹配 (40%)、Layer 2 RAG 向量檢索 (40%)、Layer 3 LLM 生成 (10%)、Layer 4 人工轉接 (10%)。Layer 1 + Layer 2 結果透過 RRF k=60 融合排序。實作類別命名為 HybridKnowledgeV2（Phase 2 對應版本）。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-06** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-19** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-06]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-19]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-06 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-06" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-19 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-19" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-06 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-19 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -602,7 +602,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-06.
+  You are REVIEWER. Your task: review the following deliverable for FR-19.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -631,30 +631,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-06 \
-    --prompt "Review FR-06 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-19 \
+    --prompt "Review FR-19 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-6: Gate 1 — FR-06
+### 🔒 CHECKPOINT-6: Gate 1 — FR-19
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-06:
+- [ ] **G1a** Prepare Gate 1 for FR-19:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-06
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-19
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-06 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-19 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-06:
+- [ ] **G1c** Finalize Gate 1 for FR-19:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-06
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-19
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -672,24 +672,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-07: Knowledge Layer V1 — Rule Match + Escalate
-**Task**: 查詢知識庫時先執行 SQL 精確/模糊匹配（Layer 1），信心度 > 0.7 直接回覆，否則轉接人工。
+#### FR-20: Escalation Manager V2 — SLA Priority Levels
+**Task**: 從 Phase 1 BasicEscalationManager 升級，新增 SLA 優先級分級、sla_deadline 計算與違規查詢。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-07** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-20** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-07]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-20]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-07 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-07" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-20 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-20" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-07 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-20 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -704,7 +704,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-07.
+  You are REVIEWER. Your task: review the following deliverable for FR-20.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -733,30 +733,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-07 \
-    --prompt "Review FR-07 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-20 \
+    --prompt "Review FR-20 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-7: Gate 1 — FR-07
+### 🔒 CHECKPOINT-7: Gate 1 — FR-20
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-07:
+- [ ] **G1a** Prepare Gate 1 for FR-20:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-07
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-20
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-07 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-20 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-07:
+- [ ] **G1c** Finalize Gate 1 for FR-20:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-07
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-20
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -774,24 +774,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-08: Basic Escalation Manager — No SLA
-**Task**: 無法匹配的查詢必須進入轉接佇列，支援指派與結案。
+#### FR-21: Grounding Checks L5 — Semantic Alignment Verification
+**Task**: 驗證 LLM 生成輸出與知識庫來源內容的語義相似度，cosine similarity >= 0.75 視為 grounded，低於閾值拒絕輸出並轉接人工。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-08** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-21** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-08]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-21]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-08 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-08" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-21 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-21" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-08 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-21 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -806,7 +806,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-08.
+  You are REVIEWER. Your task: review the following deliverable for FR-21.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -835,30 +835,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-08 \
-    --prompt "Review FR-08 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-21 \
+    --prompt "Review FR-21 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-8: Gate 1 — FR-08
+### 🔒 CHECKPOINT-8: Gate 1 — FR-21
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-08:
+- [ ] **G1a** Prepare Gate 1 for FR-21:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-08
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-21
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-08 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-21 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-08:
+- [ ] **G1c** Finalize Gate 1 for FR-21:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-08
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-21
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -876,24 +876,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-09: Structured Logger — JSON Format
-**Task**: 所有日誌必須以 JSON 結構化格式輸出，包含 timestamp / level / service / message。
+#### FR-22: Prometheus Metrics — Core Instrumentation
+**Task**: 匯出 8 個核心 Prometheus metrics，覆蓋延遲、請求量、FCR、知識層命中、PII 遮蔽、轉接佇列、情緒觸發與 LLM token 用量。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-09** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-22** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-09]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-22]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-09 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-09" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-22 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-22" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-09 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-22 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -908,7 +908,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-09.
+  You are REVIEWER. Your task: review the following deliverable for FR-22.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -937,30 +937,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-09 \
-    --prompt "Review FR-09 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-22 \
+    --prompt "Review FR-22 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-9: Gate 1 — FR-09
+### 🔒 CHECKPOINT-9: Gate 1 — FR-22
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-09:
+- [ ] **G1a** Prepare Gate 1 for FR-22:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-09
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-22
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-09 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-22 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-09:
+- [ ] **G1c** Finalize Gate 1 for FR-22:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-09
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-22
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -978,24 +978,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-10: API Response Format — ApiResponse / PaginatedResponse
-**Task**: 所有 API 回應必須使用統一的 `ApiResponse[T]` 或 `PaginatedResponse[T]` 泛型格式。
+#### FR-23: Database Schema — Phase 2 Incremental Tables + Index
+**Task**: 在 Phase 1 核心表基礎上新增 emotion_history、edge_cases 表，並啟用 knowledge_base 的 pgvector ivfflat 索引。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-10** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-23** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-10]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-23]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-10 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-10" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-23 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-23" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-10 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-23 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -1010,7 +1010,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-10.
+  You are REVIEWER. Your task: review the following deliverable for FR-23.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -1039,30 +1039,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-10 \
-    --prompt "Review FR-10 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-23 \
+    --prompt "Review FR-23 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-10: Gate 1 — FR-10
+### 🔒 CHECKPOINT-10: Gate 1 — FR-23
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-10:
+- [ ] **G1a** Prepare Gate 1 for FR-23:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-10
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-23
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-10 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-23 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-10:
+- [ ] **G1c** Finalize Gate 1 for FR-23:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-10
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-23
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -1080,24 +1080,24 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
 
-#### FR-11: Health Check Endpoint
-**Task**: 系統必須提供健康檢查端點供 Docker / 監控系統使用。
+#### FR-24: Golden Dataset — Edge Case Collection + Regression Baseline
+**Task**: 建立 500 筆黃金數據集，涵蓋 6 種邊界案例類型，用於回歸測試自動化驗證。
 **Forbidden**:
 - app/infrastructure/ (deprecated)
 - @covers: L1 Error
 - @type: edge
 
-**A/B Work — FR-11** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+**A/B Work — FR-24** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
 - [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-11]` tag + `Citations:` with line numbers (HR-15)
+  - Docstrings: `[FR-24]` tag + `Citations:` with line numbers (HR-15)
   - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
 - [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
 - [ ] **[A-DISPATCH]** Dispatch Agent A:
   ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-11 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-11" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role developer --fr-id FR-24 \
+    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-24" --phase 3 --project $REPO
   ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-11 — dispatch as **STATELESS** subagent:
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-24 — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -1112,7 +1112,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
   **Agent B prompt structure** (use this template verbatim):
   ```
-  You are REVIEWER. Your task: review the following deliverable for FR-11.
+  You are REVIEWER. Your task: review the following deliverable for FR-24.
   You have NO access to any files — all context is provided below.
 
   === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
@@ -1141,234 +1141,30 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 - [ ] **[B-DISPATCH]** Dispatch Agent B:
   ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-11 \
-    --prompt "Review FR-11 against SRS + SAD" --phase 3 --project $REPO
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-24 \
+    --prompt "Review FR-24 against SRS + SAD" --phase 3 --project $REPO
   ```
   > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-11: Gate 1 — FR-11
+### 🔒 CHECKPOINT-11: Gate 1 — FR-24
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
-- [ ] **G1a** Prepare Gate 1 for FR-11:
+- [ ] **G1a** Prepare Gate 1 for FR-24:
   ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-11
+  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-24
   ```
   Read the evaluation prompt printed above.
 
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-11 inline:
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-24 inline:
   - Follow `harness/ssi/prompts/evaluate_dimension.md`
   - Write result to `.sessi-work/gate1_result.json`
   - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
 
-- [ ] **G1c** Finalize Gate 1 for FR-11:
+- [ ] **G1c** Finalize Gate 1 for FR-24:
   ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-11
-  ```
-  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
-  **Do NOT proceed to G1d until all dims PASS.**
-
-- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
-  ```bash
-  python3 scripts/generate_sab.py --project $REPO
-  ```
-  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
-
-- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
-  ```bash
-  git log --oneline -1
-  ```
-  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
-
-#### FR-12: Database Schema — All Core Tables
-**Task**: 必須建立所有核心資料表，包含 Phase 2/3 預留欄位，避免後續 ALTER TABLE。
-**Forbidden**:
-- app/infrastructure/ (deprecated)
-- @covers: L1 Error
-- @type: edge
-
-**A/B Work — FR-12** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
-- [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-12]` tag + `Citations:` with line numbers (HR-15)
-  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
-- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
-- [ ] **[A-DISPATCH]** Dispatch Agent A:
-  ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-12 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-12" --phase 3 --project $REPO
-  ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-12 — dispatch as **STATELESS** subagent:
-  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
-  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
-  >
-  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
-  > Round 4 succeeded only after embedding full document content directly.
-
-  **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md §FR-XX section`
-  - `02-architecture/SAD.md module spec for FR-XX`
-  - `03-development/src/…/fr_xx.py (implemented code + tests)`
-
-  **Agent B prompt structure** (use this template verbatim):
-  ```
-  You are REVIEWER. Your task: review the following deliverable for FR-12.
-  You have NO access to any files — all context is provided below.
-
-  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
-  {paste full content here}
-
-  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
-  {paste full content here}
-
-  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
-  {paste full content here}
-
-  Review checklist:
-  - Code matches SRS acceptance criteria?
-  - Tests actually test the spec (not the impl)?
-  - No forbidden patterns (app/infrastructure/, @covers: L1 Error)?
-  - Docstrings have [FR-XX] tag + Citations?
-
-  Return JSON only:
-  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
-   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
-  ```
-
-- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
-  - `APPROVE` → continue to next step
-  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
-
-- [ ] **[B-DISPATCH]** Dispatch Agent B:
-  ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-12 \
-    --prompt "Review FR-12 against SRS + SAD" --phase 3 --project $REPO
-  ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
-
-
-### 🔒 CHECKPOINT-12: Gate 1 — FR-12
-> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
-> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
-
-- [ ] **G1a** Prepare Gate 1 for FR-12:
-  ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-12
-  ```
-  Read the evaluation prompt printed above.
-
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-12 inline:
-  - Follow `harness/ssi/prompts/evaluate_dimension.md`
-  - Write result to `.sessi-work/gate1_result.json`
-  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
-
-- [ ] **G1c** Finalize Gate 1 for FR-12:
-  ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-12
-  ```
-  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
-  **Do NOT proceed to G1d until all dims PASS.**
-
-- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
-  ```bash
-  python3 scripts/generate_sab.py --project $REPO
-  ```
-  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
-
-- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
-  ```bash
-  git log --oneline -1
-  ```
-  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
-  > Push + HANDOVER.md happens at milestone: `push-milestone --type p3-mid` / `p3-pre-ssi` / Gate exit.
-
-#### FR-13: Docker Compose Development Environment
-**Task**: 提供一鍵啟動的開發環境，包含 API、PostgreSQL (pgvector)、Redis。
-**Forbidden**:
-- app/infrastructure/ (deprecated)
-- @covers: L1 Error
-- @type: edge
-
-**A/B Work — FR-13** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
-- [ ] **[A-1]** Agent A (DEVELOPER): TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE)
-  - Docstrings: `[FR-13]` tag + `Citations:` with line numbers (HR-15)
-  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
-- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
-- [ ] **[A-DISPATCH]** Dispatch Agent A:
-  ```bash
-  python3 harness_cli.py dispatch --role developer --fr-id FR-13 \
-    --prompt "TDD: write failing test → implement → refactor (RED→GREEN→IMPROVE) for FR-13" --phase 3 --project $REPO
-  ```
-- [ ] **[B-1]** Agent B (REVIEWER) for FR-13 — dispatch as **STATELESS** subagent:
-  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
-  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
-  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
-  >
-  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
-  > Round 4 succeeded only after embedding full document content directly.
-
-  **Embed these documents in full** (copy content, not paths):
-  - `01-requirements/SRS.md §FR-XX section`
-  - `02-architecture/SAD.md module spec for FR-XX`
-  - `03-development/src/…/fr_xx.py (implemented code + tests)`
-
-  **Agent B prompt structure** (use this template verbatim):
-  ```
-  You are REVIEWER. Your task: review the following deliverable for FR-13.
-  You have NO access to any files — all context is provided below.
-
-  === [DOC 1: 01-requirements/SRS.md §FR-XX section] ===
-  {paste full content here}
-
-  === [DOC 2: 02-architecture/SAD.md module spec for FR-XX] ===
-  {paste full content here}
-
-  === [DOC 3: 03-development/src/…/fr_xx.py (implemented code + tests)] ===
-  {paste full content here}
-
-  Review checklist:
-  - Code matches SRS acceptance criteria?
-  - Tests actually test the spec (not the impl)?
-  - No forbidden patterns (app/infrastructure/, @covers: L1 Error)?
-  - Docstrings have [FR-XX] tag + Citations?
-
-  Return JSON only:
-  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
-   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
-  ```
-
-- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
-  - `APPROVE` → continue to next step
-  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
-
-- [ ] **[B-DISPATCH]** Dispatch Agent B:
-  ```bash
-  python3 harness_cli.py dispatch --role reviewer --fr-id FR-13 \
-    --prompt "Review FR-13 against SRS + SAD" --phase 3 --project $REPO
-  ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
-
-
-### 🔒 CHECKPOINT-13: Gate 1 — FR-13
-> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
-> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
-
-- [ ] **G1a** Prepare Gate 1 for FR-13:
-  ```bash
-  python3 harness_cli.py run-gate --gate 1 --phase 3 --fr-id FR-13
-  ```
-  Read the evaluation prompt printed above.
-
-- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-13 inline:
-  - Follow `harness/ssi/prompts/evaluate_dimension.md`
-  - Write result to `.sessi-work/gate1_result.json`
-  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
-
-- [ ] **G1c** Finalize Gate 1 for FR-13:
-  ```bash
-  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-13
+  python3 harness_cli.py finalize-gate --gate 1 --phase 3 --fr-id FR-24
   ```
   **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
   **Do NOT proceed to G1d until all dims PASS.**
@@ -1408,7 +1204,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > Last stable snapshot before SSI modifies files. HANDOVER.md + push.
 
 
-### 🔒 CHECKPOINT-14: Gate 2 — Phase 3 Exit
+### 🔒 CHECKPOINT-12: Gate 2 — Phase 3 Exit
 > linting(90) · type_safety(85) · test_coverage(80) · security(80) · secrets_scanning(100) · license_compliance(100) · mutation_testing(70)
 
 - [ ] **G2a** Prepare Gate 2:
