@@ -1,8 +1,8 @@
 # Harness Methodology — Session Handover
 
-**Checkpoint**: `P1-exit-20260516`  
-**Phase**: P1 — Spec & Discovery  
-**Generated**: 2026-05-16T18:16:09Z
+**Checkpoint**: `P2-exit-20260517`  
+**Phase**: P2 — Architecture & Design  
+**Generated**: 2026-05-17T06:40:25Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -15,11 +15,11 @@
 git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.git && cd omnibot-full
 
 # 2. Set required env vars
-export HERMES_REVIEWER_TARGET=weixin:o9cq808YRb-FoS5Ek9CwSHm1q-2w@im.wechat
+export HERMES_REVIEWER_TARGET=<value>
 
-# 3. Read plan and start Phase 2
-cat .methodology/phase2_plan.md
-# Follow SKILL.md §0.1 Phase 2 entry check, then execute
+# 3. Read plan and start Phase 3
+cat .methodology/phase3_plan.md
+# Follow SKILL.md §0.1 Phase 3 entry check, then execute
 ```
 
 ---
@@ -34,35 +34,33 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 git log --oneline -3
 
 # Confirm FSM state
-cat .methodology/state.json   # expected: phase=2 state=RUNNING last_gate=4 last_fr=FR-13
+cat .methodology/state.json   # expected: phase=1 state=RUNNING last_gate=4 last_fr=FR-13
 
 # Read active plan
-cat .methodology/phase2_plan.md
+cat .methodology/phase3_plan.md
 ```
 
 | 欄位 | 值 |
 |------|----|
 | Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
 | Branch | `main` |
-| State | `phase=2 state=RUNNING last_gate=4 last_fr=FR-13` |
-| Plan | `.methodology/phase2_plan.md` |
+| State | `phase=1 state=RUNNING last_gate=4 last_fr=FR-13` |
+| Plan | `.methodology/phase3_plan.md` |
 
 ---
 
 ## 任務背景
 
-P1 auto-approved — confidence gate passed, Agent B approvals verified.
+P2 auto-approved — confidence gate passed, Agent B approvals verified.
 
 
 ## 交付物清單
 
-- `01-requirements/SRS.md` ✅ (412L)
-- `01-requirements/SPEC_TRACKING.md` ✅ (95L)
-- `01-requirements/TRACEABILITY_MATRIX.md` ✅ (279L)
+- `02-architecture/SAD.md` ✅ (656L)
 
 ## 目前執行狀況
 
-11 FR(s) defined in SRS [FR-14,FR-15,FR-16,FR-17,FR-18,…+6]. 3/4 deliverables present, Agent-B APPROVED.
+11 FR(s) in quality manifest [FR-14,FR-15,FR-16,FR-17,FR-18,…+6]. 1/3 P2 deliverables present, Agent-B APPROVED.
 
 **A/B Session Results:**
   - SRS.md / requirements_engineer: **success**
@@ -140,18 +138,9 @@ P1 auto-approved — confidence gate passed, Agent B approvals verified.
   - P1-TRACE / reviewer: **complete**
 
 **Recently Committed Files:**
-  - `.claude/worktrees/dreamy-lederberg-2dc606`
-  - `.claude/worktrees/goofy-diffie-7b592a`
-  - `.github/workflows/harness_quality_gate.yml`
-  - `.methodology/agent_b_approvals/.gitkeep`
-  - `.methodology/state.json`
-  - `HANDOVER.md`
+  - `.methodology/phase1_plan.md`
+  - `.methodology/phase2_plan.md`
   - `harness`
-  - `.methodology/sessions_spawn.log`
-  - `01-requirements/SPEC_TRACKING.md`
-  - `01-requirements/SRS.md`
-  - `01-requirements/TRACEABILITY_MATRIX.md`
-  - `01-requirements/archive/phase1/CONSTRAINTS.md`
   - `archive/phase1/01-requirements/CONSTRAINTS.md`
   - `archive/phase1/01-requirements/SPEC_TRACKING.md`
   - `archive/phase1/01-requirements/SRS.md`
@@ -160,13 +149,22 @@ P1 auto-approved — confidence gate passed, Agent B approvals verified.
   - `archive/phase1/02-architecture/SAD.md`
   - `archive/phase1/02-architecture/adr/ADR.md`
   - `archive/phase1/03-development/src/omnibot/__init__.py`
+  - `archive/phase1/03-development/src/omnibot/__pycache__/__init__.cpython-311.pyc`
+  - `archive/phase1/03-development/src/omnibot/__pycache__/app.cpython-311.pyc`
+  - `archive/phase1/03-development/src/omnibot/__pycache__/models.cpython-311.pyc`
+  - `archive/phase1/03-development/src/omnibot/__pycache__/router.cpython-311.pyc`
+  - `archive/phase1/03-development/src/omnibot/adapters/__init__.py`
+  - `archive/phase1/03-development/src/omnibot/adapters/__pycache__/__init__.cpython-311.pyc`
+  - `archive/phase1/03-development/src/omnibot/adapters/__pycache__/line.cpython-311.pyc`
+  - `archive/phase1/03-development/src/omnibot/adapters/__pycache__/telegram.cpython-311.pyc`
+  - `archive/phase1/03-development/src/omnibot/adapters/line.py`
 
 ## 接下來的工作
 
-1. Open `.methodology/phase2_plan.md` and follow from the top
-2. Follow SKILL.md §0.1 for P2 entry
-3. Review carry-forward gaps before starting P2 (SPEC_TRACKING.md gap register)
-4. Confirm HERMES_REVIEWER_TARGET is exported in shell
+1. Open `.methodology/phase3_plan.md` and follow from the top
+2. Implement each FR with TDD (Gate 1 target per FR ≥75)
+3. Push P3-mid checkpoint at ≥50 % FR Gate 1 PASS
+4. Push P3-pre-ssi checkpoint when all FRs done
 
 ## 注意事項
 
@@ -179,7 +177,6 @@ P1 auto-approved — confidence gate passed, Agent B approvals verified.
 ## 附加資訊
 
 - **fr_count**: 11
-- **HERMES_REVIEWER_TARGET**: ✅ set (weixin:o9cq808YRb-FoS5Ek9CwSHm1q-2w@im.wechat)
 
 ---
 *由 `HandoverGenerator` 自動生成。下次 push 時此檔案將被覆寫。*
