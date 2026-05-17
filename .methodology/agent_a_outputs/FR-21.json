@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "files": [
+    "03-development/src/omnibot/grounding.py",
+    "tests/test_fr21.py"
+  ],
+  "confidence": 9,
+  "citations": [
+    "SRS.md:191-209",
+    "SAD.md:311-332"
+  ],
+  "summary": "FR-21: GroundingChecker L5 semantic alignment verification"
+}

@@ -1,1 +1,15 @@
-{"fr":"FR-21","review_status":"APPROVE","docs_embedded":["SRS.md","SPEC_TRACKING.md","TRACEABILITY_MATRIX.md"],"confidence":0.9,"reviewer":"BUSINESS_ANALYST","phase":1,"date":"2026-05-17"}
+{
+  "fr_id": "FR-21",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "phase": 3,
+  "confidence": 9,
+  "reason": "All acceptance criteria met. GroundingResult frozen dataclass, GroundingChecker with injectable embedding_fn (default paraphrase-multilingual-MiniLM-L12-v2), default threshold=0.75, configurable. check() correctly embeds output+sources, computes cosine similarity, picks best match, compares to threshold. Empty sources returns grounded=False/no_source. 17 tests cover all logic paths. Minor dimension guard added per review.",
+  "citations": [
+    "SRS.md:191-209",
+    "SAD.md:311-332",
+    "03-development/src/omnibot/grounding.py",
+    "tests/test_fr21.py"
+  ],
+  "gaps": []
+}
