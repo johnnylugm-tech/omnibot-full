@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "files": [
+    "03-development/src/omnibot/metrics.py",
+    "03-development/src/omnibot/app.py",
+    "tests/test_fr22.py",
+    "03-development/requirements.txt"
+  ],
+  "confidence": 10,
+  "citations": [
+    "SRS.md:214-230",
+    "SAD.md:511-531"
+  ],
+  "summary": "FR-22: Prometheus Metrics Core Instrumentation — PrometheusMetrics class with all 8 metrics (Histogram, Counter, Gauge), GET /metrics endpoint via Response(media_type=\"text/plain\"), 20 tests covering registration, observe/inc/set, labels, text format, and custom registry isolation. No FastAPI TestClient needed for tests."
+}

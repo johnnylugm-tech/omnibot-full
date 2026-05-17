@@ -12,9 +12,10 @@ import logging
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from omnibot.health import HealthCheckService
+from omnibot.metrics import PrometheusMetrics
 from omnibot.models import UnifiedMessage
 from omnibot.router import resolve_route
 
@@ -48,6 +49,8 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
         },
     )
 
+
+metrics_service = PrometheusMetrics()
 
 health_service = HealthCheckService(
     postgres_check=lambda: False,  # stub — Phase 1 no DB
@@ -83,3 +86,12 @@ async def health():
     """Health check endpoint — returns postgres/redis status and uptime."""
     result = health_service.check()
     return JSONResponse(content=result)
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint — returns text format for scraping.
+
+    Citations: SRS.md FR-22, SAD.md 2.5.9 PrometheusMetrics
+    """
+    return Response(content=metrics_service.get_metrics(), media_type="text/plain")

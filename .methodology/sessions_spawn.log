@@ -20,3 +20,26 @@ FR-21: Grounding Checks L5 — Semantic Alignment Verification
 ## Implementation (grounding.py): GroundingResult frozen dataclass, GroundingChecker with check() method, _cosine_similarity function, _default_embedding_fn lazy-load
 
 ## Tests (test_fr21.py): 17 tests all pass, 90% coverage. Mock embeddings for deterministic cosine values.","phase":3,"date":"2026-05-17"}
+{"timestamp": "2026-05-17T20:16:35.324878", "role": "developer", "task": "Create the Prometheus metrics module for FR-22.\n\n## SRS Spec (SRS.md:214-230)\nFR-22: Prometheus Metrics — Core Instrumentation\n- Export 8 core Prometheus metrics via GET /metrics endpoint\n- Metrics:\n ", "session_id": "7bc83d9a-4b23-4e78-8afc-b98ac7d03932", "status": "complete", "phase": 3, "fr_id": "FR-22"}
+{"fr_id":"FR-22","role":"developer","task":"Create PrometheusMetrics module with all 8 metrics and GET /metrics endpoint","phase":3,"date":"2026-05-17"}
+{"fr_id":"FR-22","role":"reviewer","task":"FR-22 B-1 stateless review
+
+## Spec (SRS.md:214-230)
+FR-22: Prometheus Metrics — Core Instrumentation
+- 8 core metrics: omnibot_response_duration_seconds (histogram, labels=[platform,knowledge_source], buckets=[0.1,0.25,0.5,0.75,1.0,2.5,5.0])
+- omnibot_requests_total (counter, labels=[platform,status])
+- omnibot_fcr_total (counter, labels=[resolved])
+- omnibot_knowledge_hit_total (counter, labels=[layer])
+- omnibot_pii_masked_total (counter, labels=[pii_type])
+- omnibot_escalation_queue_size (gauge)
+- omnibot_emotion_escalation_total (counter)
+- omnibot_llm_tokens_total (counter, labels=[model,direction])
+- GET /metrics endpoint in Prometheus text format
+
+## Architecture (SAD.md:511-531)
+- PrometheusMetrics class, prometheus-client library, in-memory
+- GET /metrics wired in FastAPI app.py
+
+## Implementation: PrometheusMetrics class in omnibot/metrics.py with all 8 metrics, get_metrics()
+## app.py: adds /metrics route returning Response(media_type=text/plain)
+## Tests: 18 tests, 100% coverage, lint+types clean","phase":3,"date":"2026-05-17"}
