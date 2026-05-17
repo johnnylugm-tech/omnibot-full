@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "files": [
+    "03-development/src/omnibot/dst.py",
+    "tests/test_fr18.py"
+  ],
+  "confidence": 10,
+  "citations": [
+    "SRS.md:110-133",
+    "SAD.md:363-399"
+  ],
+  "summary": "FR-18: DST 7-state FSM"
+}
