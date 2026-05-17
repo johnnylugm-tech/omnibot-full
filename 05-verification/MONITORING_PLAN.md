@@ -1,59 +1,38 @@
-# Monitoring Plan — OmniBot Phase 1
+# Monitoring Plan — Phase 3 (24 FRs)
 
-> **Version**: 1.0
-> **Date**: 2026-05-14
+> Generated: 2026-05-17
 
----
+## Prometheus Metrics (FR-22)
+- `http_request_duration_seconds` — latency, 7 buckets (0.1-5.0s), platform label
+- `http_requests_total` — status label, platform label
+- `knowledge_hit_total` — source label (rule/rag/llm/escalate)
+- `fcr_total` — resolved label
+- `pii_masked_total` — type label
+- `escalation_queue_depth` — priority label
+- `emotion_trigger_total` — category label
+- `llm_token_usage_total` — model label
 
-## 1. Health Check Monitoring
+## Health Check (FR-11)
+- GET /api/v1/health: status, postgres, redis, uptime_seconds
+- States: healthy, degraded, unhealthy
 
-| Endpoint | Method | Interval | Alert Threshold |
-|----------|--------|----------|-----------------|
-| /api/v1/health | GET | 30s | status != "healthy" for 3 consecutive checks |
+## SLA Monitoring (FR-20)
+- Priority tiers: normal (30min SLA), high (15min), urgent (5min)
+- SLA breach query: unresolved tickets past deadline
+- Target: ≥90% compliance per priority (NFR-14)
 
-**Checks**:
-- `postgres`: PostgreSQL connectivity (bool)
-- `redis`: Redis connectivity (bool)
-- `uptime_seconds`: Process uptime
+## Grounding Assurance (FR-21)
+- Cosine similarity ≥0.75 threshold
+- Ungrounded outputs rejected and escalated
 
-## 2. Performance Monitoring
+## Golden Dataset Regression (FR-24)
+- 510 edge cases, 6 categories
+- Auto-verified on each pipeline run
 
-| Metric | Source | Target | Alert |
-|--------|--------|--------|-------|
-| p95 response latency | Webhook endpoints | < 3.0s | > 3.0s for 5 min |
-| Rate limit rejections | RateLimiter | < 1% of requests | > 5% for 10 min |
-
-## 3. Security Monitoring
-
-| Event | Log Level | Action |
-|-------|-----------|--------|
-| Signature verification failure | CRITICAL | Alert + log source_ip to security_logs |
-| PII detected in message | WARN | Log mask_count + pii_types |
-| Sensitive keyword escalation | WARN | Create escalation record + alert |
-
-## 4. Business Metrics
-
-| Metric | Measurement | Target |
-|--------|-------------|--------|
-| FCR (30-day rolling) | SQL: conversations WHERE first_contact_resolution=TRUE | >= 50% |
-| Knowledge match rate | QueryResult.confidence > 0.7 ratio | Baseline TBD |
-| Escalation rate | Escalation records / total queries | < 30% |
-
-## 5. Log Aggregation
-
-- **Format**: NDJSON (StructuredLogger)
-- **Fields**: timestamp, level, service, message + custom kwargs
-- **Retention**: 30 days (hot) + 90 days (cold)
-- **Levels**: DEBUG (dev only), INFO (business events), WARN (anomalies), ERROR (failures), CRITICAL (integrity threats)
-
-## 6. Docker Health Checks
-
-| Service | Check | Interval | Retries |
-|---------|-------|----------|---------|
-| postgres | pg_isready | 10s | 5 |
-| redis | redis-cli ping | 10s | 5 |
-| omnibot-api | curl /api/v1/health | 30s | 3 |
-
----
-
-*MONITORING_PLAN.md v1.0 — Phase 5 deliverable*
+## NFR Targets
+| NFR | Target | Monitoring Method |
+|-----|--------|-------------------|
+| NFR-07 | FCR ≥80% | Prometheus fcr_total |
+| NFR-08 | p95 < 1.5s | Prometheus histogram |
+| NFR-12 | Block rate ≥95% | Security log audit |
+| NFR-14 | SLA ≥90% | SQL breach query |

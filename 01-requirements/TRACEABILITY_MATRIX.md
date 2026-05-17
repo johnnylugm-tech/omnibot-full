@@ -1,10 +1,10 @@
-# Traceability Matrix — OmniBot Phase 2
+# Traceability Matrix — OmniBot Phase 3
 
 > **Project**: OmniBot — Multi-Platform Customer Service Bot
-> **Phase**: 2 (Smart + Security Enhancement)
-> **Version**: 2.0
+> **Phase**: 3 (Full Implementation)
+> **Version**: 3.0
 > **Date**: 2026-05-17
-> **References**: 01-requirements/SRS.md v2.0, 01-requirements/SPEC_TRACKING.md v2.0
+> **References**: 01-requirements/SRS.md v3.0, 01-requirements/SPEC_TRACKING.md v3.0
 
 ---
 
@@ -15,19 +15,19 @@
 
 | FR | Name | Priority | SRS § | Status | Verified |
 |----|------|----------|-------|--------|----------|
-| FR-01 | Platform Adapter — Telegram + LINE Webhook | P0 | SRS.md §FR-01 | COMPLETE | P5 Verified |
-| FR-02 | Webhook Signature Verification | P0 | SRS.md §FR-02 | COMPLETE | P5 Verified |
-| FR-03 | Unified Message Format | P0 | SRS.md §FR-03 | COMPLETE | P5 Verified |
-| FR-04 | Input Sanitizer L2 — Character Normalization | P1 | SRS.md §FR-04 | COMPLETE | P5 Verified |
-| FR-05 | PII Masking L4 — Phone / Email / Address | P1 | SRS.md §FR-05 | COMPLETE | P5 Verified |
-| FR-06 | Rate Limiter — Token Bucket | P1 | SRS.md §FR-06 | COMPLETE | P5 Verified |
-| FR-07 | Knowledge Layer V1 — Rule Match + Escalate | P0 | SRS.md §FR-07 | COMPLETE | P5 Verified |
-| FR-08 | Basic Escalation Manager — No SLA | P1 | SRS.md §FR-08 | COMPLETE | P5 Verified |
-| FR-09 | Structured Logger — JSON Format | P1 | SRS.md §FR-09 | COMPLETE | P5 Verified |
-| FR-10 | API Response Format — ApiResponse / PaginatedResponse | P1 | SRS.md §FR-10 | COMPLETE | P5 Verified |
-| FR-11 | Health Check Endpoint | P1 | SRS.md §FR-11 | COMPLETE | P5 Verified |
-| FR-12 | Database Schema — All Core Tables | P0 | SRS.md §FR-12 | COMPLETE | P5 Verified |
-| FR-13 | Docker Compose Development Environment | P2 | SRS.md §FR-13 | COMPLETE | P5 Verified |
+| FR-01 | Platform Adapter — Telegram + LINE Webhook | P0 | SRS.md §FR-01 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-02 | Webhook Signature Verification | P0 | SRS.md §FR-02 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-03 | Unified Message Format | P0 | SRS.md §FR-03 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-04 | Input Sanitizer L2 — Character Normalization | P1 | SRS.md §FR-04 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-05 | PII Masking L4 — Phone / Email / Address | P1 | SRS.md §FR-05 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-06 | Rate Limiter — Token Bucket | P1 | SRS.md §FR-06 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-07 | Knowledge Layer V1 — Rule Match + Escalate | P0 | SRS.md §FR-07 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-08 | Basic Escalation Manager — No SLA | P1 | SRS.md §FR-08 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-09 | Structured Logger — JSON Format | P1 | SRS.md §FR-09 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-10 | API Response Format — ApiResponse / PaginatedResponse | P1 | SRS.md §FR-10 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-11 | Health Check Endpoint | P1 | SRS.md §FR-11 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-12 | Database Schema — All Core Tables | P0 | SRS.md §FR-12 | ✅ COMPLETE | ✅ P5 Verified |
+| FR-13 | Docker Compose Development Environment | P2 | SRS.md §FR-13 | ✅ COMPLETE | ✅ P5 Verified |
 
 ---
 
@@ -37,35 +37,35 @@
 
 | FR | SRS Section | Spec Source (SPEC/omnibot-phase-2.md) | Implementation Module (planned) | Test Module (planned) | Verification Status |
 |----|------------|---------------------------------------|-------------------------------|----------------------|---------------------|
-| FR-14 | SRS.md §FR-14 | L115–L156 | `src/omnibot/adapters/messenger.py` `src/omnibot/adapters/whatsapp.py` `src/omnibot/security/webhook_verifier.py` | `tests/test_fr14.py` | Not Started |
-| FR-15 | SRS.md §FR-15 | L572–L640 | `src/omnibot/security/prompt_injection_defense.py` | `tests/test_fr15.py` | Not Started |
-| FR-16 | SRS.md §FR-16 | L644–L699 | `src/omnibot/security/pii_masking_v2.py` | `tests/test_fr16.py` | Not Started |
-| FR-17 | SRS.md §FR-17 | L226–L284 | `src/omnibot/analytics/emotion_analyzer.py` | `tests/test_fr17.py` | Not Started |
-| FR-18 | SRS.md §FR-18 | L159–L222 | `src/omnibot/dialogue/dst.py` `src/omnibot/dialogue/intent_router.py` | `tests/test_fr18.py` | Not Started |
-| FR-19 | SRS.md §FR-19 | L288–L490 | `src/omnibot/knowledge/hybrid_knowledge_v2.py` | `tests/test_fr19.py` | Not Started |
-| FR-20 | SRS.md §FR-20 | L494–L568 | `src/omnibot/escalation/manager_v2.py` | `tests/test_fr20.py` | Not Started |
-| FR-21 | SRS.md §FR-21 | L703–L745 | `src/omnibot/security/grounding_checker.py` | `tests/test_fr21.py` | Not Started |
-| FR-22 | SRS.md §FR-22 | L749–L793 | `src/omnibot/observability/metrics.py` | `tests/test_fr22.py` | Not Started |
-| FR-23 | SRS.md §FR-23 | L797–L836 | `src/omnibot/db/migrations/phase2.py` | `tests/test_fr23.py` | Not Started |
-| FR-24 | SRS.md §FR-24 | L840–L857 | `src/omnibot/quality/golden_dataset.py` | `tests/test_fr24.py` | Not Started |
+| FR-14 | SRS.md §FR-14 | L115–L156 | `src/omnibot/adapters/messenger.py` `src/omnibot/adapters/whatsapp.py` `src/omnibot/security/webhook_verifier.py` | `tests/test_fr14.py` | ✅ COMPLETE |
+| FR-15 | SRS.md §FR-15 | L572–L640 | `src/omnibot/security/prompt_injection_defense.py` | `tests/test_fr15.py` | ✅ COMPLETE |
+| FR-16 | SRS.md §FR-16 | L644–L699 | `src/omnibot/security/pii_masking_v2.py` | `tests/test_fr16.py` | ✅ COMPLETE |
+| FR-17 | SRS.md §FR-17 | L226–L284 | `src/omnibot/analytics/emotion_analyzer.py` | `tests/test_fr17.py` | ✅ COMPLETE |
+| FR-18 | SRS.md §FR-18 | L159–L222 | `src/omnibot/dialogue/dst.py` `src/omnibot/dialogue/intent_router.py` | `tests/test_fr18.py` | ✅ COMPLETE |
+| FR-19 | SRS.md §FR-19 | L288–L490 | `src/omnibot/knowledge/hybrid_knowledge_v2.py` | `tests/test_fr19.py` | ✅ COMPLETE |
+| FR-20 | SRS.md §FR-20 | L494–L568 | `src/omnibot/escalation/manager_v2.py` | `tests/test_fr20.py` | ✅ COMPLETE |
+| FR-21 | SRS.md §FR-21 | L703–L745 | `src/omnibot/security/grounding_checker.py` | `tests/test_fr21.py` | ✅ COMPLETE |
+| FR-22 | SRS.md §FR-22 | L749–L793 | `src/omnibot/observability/metrics.py` | `tests/test_fr22.py` | ✅ COMPLETE |
+| FR-23 | SRS.md §FR-23 | L797–L836 | `src/omnibot/db/migrations/phase2.py` | `tests/test_fr23.py` | ✅ COMPLETE |
+| FR-24 | SRS.md §FR-24 | L840–L857 | `src/omnibot/quality/golden_dataset.py` | `tests/test_fr24.py` | ✅ COMPLETE |
 
 ### Phase 1 Baseline: FR-01–FR-13 (Forward)
 
 | FR | SRS Section | Spec Source (SPEC/omnibot-phase-1.md) | Implementation Module | Test Module | Verification Status |
 |----|------------|---------------------------------------|----------------------|-------------|---------------------|
-| FR-01 | SRS.md §FR-01 | Phase 1 SPEC | `src/omnibot/adapters/telegram.py` `src/omnibot/adapters/line.py` | `tests/test_fr01.py` | P5 Verified |
-| FR-02 | SRS.md §FR-02 | Phase 1 SPEC | `src/omnibot/security/webhook_verifier.py` | `tests/test_fr02.py` | P5 Verified |
-| FR-03 | SRS.md §FR-03 | Phase 1 SPEC | `src/omnibot/platform/adapter/models.py` | `tests/test_fr03.py` | P5 Verified |
-| FR-04 | SRS.md §FR-04 | Phase 1 SPEC | `src/omnibot/security/input_sanitizer.py` | `tests/test_fr04.py` | P5 Verified |
-| FR-05 | SRS.md §FR-05 | Phase 1 SPEC | `src/omnibot/security/pii_masking.py` | `tests/test_fr05.py` | P5 Verified |
-| FR-06 | SRS.md §FR-06 | Phase 1 SPEC | `src/omnibot/middleware/rate_limiter.py` | `tests/test_fr06.py` | P5 Verified |
-| FR-07 | SRS.md §FR-07 | Phase 1 SPEC | `src/omnibot/knowledge/layer_v1.py` | `tests/test_fr07.py` | P5 Verified |
-| FR-08 | SRS.md §FR-08 | Phase 1 SPEC | `src/omnibot/escalation/manager.py` | `tests/test_fr08.py` | P5 Verified |
-| FR-09 | SRS.md §FR-09 | Phase 1 SPEC | `src/omnibot/logging/structured_logger.py` | `tests/test_fr09.py` | P5 Verified |
-| FR-10 | SRS.md §FR-10 | Phase 1 SPEC | `src/omnibot/api/schemas/response.py` | `tests/test_fr10.py` | P5 Verified |
-| FR-11 | SRS.md §FR-11 | Phase 1 SPEC | `src/omnibot/api/routes/health.py` | `tests/test_fr11.py` | P5 Verified |
-| FR-12 | SRS.md §FR-12 | Phase 1 SPEC | `src/omnibot/db/schema.sql` | `tests/test_fr12.py` | P5 Verified |
-| FR-13 | SRS.md §FR-13 | Phase 1 SPEC | `docker-compose.yml` | `tests/test_fr13.py` | P5 Verified |
+| ✅ FR-01 | SRS.md §FR-01 | Phase 1 SPEC | `src/omnibot/adapters/telegram.py` `src/omnibot/adapters/line.py` | `tests/test_fr01.py` | P5 Verified |
+| ✅ FR-02 | SRS.md §FR-02 | Phase 1 SPEC | `src/omnibot/security/webhook_verifier.py` | `tests/test_fr02.py` | P5 Verified |
+| ✅ FR-03 | SRS.md §FR-03 | Phase 1 SPEC | `src/omnibot/platform/adapter/models.py` | `tests/test_fr03.py` | P5 Verified |
+| ✅ FR-04 | SRS.md §FR-04 | Phase 1 SPEC | `src/omnibot/security/input_sanitizer.py` | `tests/test_fr04.py` | P5 Verified |
+| ✅ FR-05 | SRS.md §FR-05 | Phase 1 SPEC | `src/omnibot/security/pii_masking.py` | `tests/test_fr05.py` | P5 Verified |
+| ✅ FR-06 | SRS.md §FR-06 | Phase 1 SPEC | `src/omnibot/middleware/rate_limiter.py` | `tests/test_fr06.py` | P5 Verified |
+| ✅ FR-07 | SRS.md §FR-07 | Phase 1 SPEC | `src/omnibot/knowledge/layer_v1.py` | `tests/test_fr07.py` | P5 Verified |
+| ✅ FR-08 | SRS.md §FR-08 | Phase 1 SPEC | `src/omnibot/escalation/manager.py` | `tests/test_fr08.py` | P5 Verified |
+| ✅ FR-09 | SRS.md §FR-09 | Phase 1 SPEC | `src/omnibot/logging/structured_logger.py` | `tests/test_fr09.py` | P5 Verified |
+| ✅ FR-10 | SRS.md §FR-10 | Phase 1 SPEC | `src/omnibot/api/schemas/response.py` | `tests/test_fr10.py` | P5 Verified |
+| ✅ FR-11 | SRS.md §FR-11 | Phase 1 SPEC | `src/omnibot/api/routes/health.py` | `tests/test_fr11.py` | P5 Verified |
+| ✅ FR-12 | SRS.md §FR-12 | Phase 1 SPEC | `src/omnibot/db/schema.sql` | `tests/test_fr12.py` | P5 Verified |
+| ✅ FR-13 | SRS.md §FR-13 | Phase 1 SPEC | `docker-compose.yml` | `tests/test_fr13.py` | P5 Verified |
 
 ---
 
@@ -75,38 +75,38 @@
 
 | Implementation Module (planned) | FR(s) Covered | SRS Reference | NFR(s) Covered |
 |--------------------------------|---------------|---------------|----------------|
-| `src/omnibot/adapters/messenger.py` | FR-14, FR-02 | SRS.md §FR-14, §FR-02 | NFR-03, NFR-09, NFR-10 |
-| `src/omnibot/adapters/whatsapp.py` | FR-14, FR-02 | SRS.md §FR-14, §FR-02 | NFR-03, NFR-09, NFR-10 |
-| `src/omnibot/security/webhook_verifier.py` | FR-02, FR-14 | SRS.md §FR-02, §FR-14 | NFR-04, NFR-10 |
-| `src/omnibot/security/prompt_injection_defense.py` | FR-15 | SRS.md §FR-15 | NFR-12 |
-| `src/omnibot/security/pii_masking_v2.py` | FR-05, FR-16 | SRS.md §FR-05, §FR-16 | NFR-06, NFR-11 |
-| `src/omnibot/security/grounding_checker.py` | FR-21 | SRS.md §FR-21 | NFR-13 |
-| `src/omnibot/analytics/emotion_analyzer.py` | FR-17 | SRS.md §FR-17 | — |
-| `src/omnibot/dialogue/dst.py` | FR-18 | SRS.md §FR-18 | — |
-| `src/omnibot/dialogue/intent_router.py` | FR-18 | SRS.md §FR-18 | — |
-| `src/omnibot/knowledge/hybrid_knowledge_v2.py` | FR-07, FR-19 | SRS.md §FR-07, §FR-19 | — |
-| `src/omnibot/escalation/manager_v2.py` | FR-08, FR-20 | SRS.md §FR-08, §FR-20 | NFR-14 |
-| `src/omnibot/observability/metrics.py` | FR-22 | SRS.md §FR-22 | NFR-07, NFR-08 |
-| `src/omnibot/db/migrations/phase2.py` | FR-12, FR-23 | SRS.md §FR-12, §FR-23 | — |
-| `src/omnibot/quality/golden_dataset.py` | FR-24 | SRS.md §FR-24 | NFR-15 |
+| ✅ `src/omnibot/adapters/messenger.py` | FR-14, FR-02 | SRS.md §FR-14, §FR-02 | NFR-03, NFR-09, NFR-10 |
+| ✅ `src/omnibot/adapters/whatsapp.py` | FR-14, FR-02 | SRS.md §FR-14, §FR-02 | NFR-03, NFR-09, NFR-10 |
+| ✅ `src/omnibot/security/webhook_verifier.py` | FR-02, FR-14 | SRS.md §FR-02, §FR-14 | NFR-04, NFR-10 |
+| ✅ `src/omnibot/security/prompt_injection_defense.py` | FR-15 | SRS.md §FR-15 | NFR-12 |
+| ✅ `src/omnibot/security/pii_masking_v2.py` | FR-05, FR-16 | SRS.md §FR-05, §FR-16 | NFR-06, NFR-11 |
+| ✅ `src/omnibot/security/grounding_checker.py` | FR-21 | SRS.md §FR-21 | NFR-13 |
+| ✅ `src/omnibot/analytics/emotion_analyzer.py` | FR-17 | SRS.md §FR-17 | — |
+| ✅ `src/omnibot/dialogue/dst.py` | FR-18 | SRS.md §FR-18 | — |
+| ✅ `src/omnibot/dialogue/intent_router.py` | FR-18 | SRS.md §FR-18 | — |
+| ✅ `src/omnibot/knowledge/hybrid_knowledge_v2.py` | FR-07, FR-19 | SRS.md §FR-07, §FR-19 | — |
+| ✅ `src/omnibot/escalation/manager_v2.py` | FR-08, FR-20 | SRS.md §FR-08, §FR-20 | NFR-14 |
+| ✅ `src/omnibot/observability/metrics.py` | FR-22 | SRS.md §FR-22 | NFR-07, NFR-08 |
+| ✅ `src/omnibot/db/migrations/phase2.py` | FR-12, FR-23 | SRS.md §FR-12, §FR-23 | — |
+| ✅ `src/omnibot/quality/golden_dataset.py` | FR-24 | SRS.md §FR-24 | NFR-15 |
 
 ### Phase 1 Baseline Modules
 
 | Implementation Module | FR(s) Covered | SRS Reference | NFR(s) Covered |
 |-----------------------|---------------|---------------|----------------|
-| `src/omnibot/adapters/telegram.py` | FR-01, FR-02, FR-03 | SRS.md §FR-01, §FR-02, §FR-03 | NFR-03, NFR-04 |
-| `src/omnibot/adapters/line.py` | FR-01, FR-02, FR-03 | SRS.md §FR-01, §FR-02, §FR-03 | NFR-03, NFR-04 |
-| `src/omnibot/security/webhook_verifier.py` | FR-02 | SRS.md §FR-02 | NFR-04 |
-| `src/omnibot/security/input_sanitizer.py` | FR-04 | SRS.md §FR-04 | — |
-| `src/omnibot/security/pii_masking.py` | FR-05 | SRS.md §FR-05 | NFR-06 |
-| `src/omnibot/middleware/rate_limiter.py` | FR-06 | SRS.md §FR-06 | — |
-| `src/omnibot/knowledge/layer_v1.py` | FR-07 | SRS.md §FR-07 | NFR-01 |
-| `src/omnibot/escalation/manager.py` | FR-08 | SRS.md §FR-08 | — |
-| `src/omnibot/logging/structured_logger.py` | FR-09 | SRS.md §FR-09 | NFR-05 |
-| `src/omnibot/api/schemas/response.py` | FR-10 | SRS.md §FR-10 | — |
-| `src/omnibot/api/routes/health.py` | FR-11 | SRS.md §FR-11 | — |
-| `src/omnibot/db/schema.sql` | FR-12 | SRS.md §FR-12 | — |
-| `src/omnibot/platform/adapter/models.py` | FR-03 | SRS.md §FR-03 | — |
+| ✅ `src/omnibot/adapters/telegram.py` | FR-01, FR-02, FR-03 | SRS.md §FR-01, §FR-02, §FR-03 | NFR-03, NFR-04 |
+| ✅ `src/omnibot/adapters/line.py` | FR-01, FR-02, FR-03 | SRS.md §FR-01, §FR-02, §FR-03 | NFR-03, NFR-04 |
+| ✅ `src/omnibot/security/webhook_verifier.py` | FR-02 | SRS.md §FR-02 | NFR-04 |
+| ✅ `src/omnibot/security/input_sanitizer.py` | FR-04 | SRS.md §FR-04 | — |
+| ✅ `src/omnibot/security/pii_masking.py` | FR-05 | SRS.md §FR-05 | NFR-06 |
+| ✅ `src/omnibot/middleware/rate_limiter.py` | FR-06 | SRS.md §FR-06 | — |
+| ✅ `src/omnibot/knowledge/layer_v1.py` | FR-07 | SRS.md §FR-07 | NFR-01 |
+| ✅ `src/omnibot/escalation/manager.py` | FR-08 | SRS.md §FR-08 | — |
+| ✅ `src/omnibot/logging/structured_logger.py` | FR-09 | SRS.md §FR-09 | NFR-05 |
+| ✅ `src/omnibot/api/schemas/response.py` | FR-10 | SRS.md §FR-10 | — |
+| ✅ `src/omnibot/api/routes/health.py` | FR-11 | SRS.md §FR-11 | — |
+| ✅ `src/omnibot/db/schema.sql` | FR-12 | SRS.md §FR-12 | — |
+| ✅ `src/omnibot/platform/adapter/models.py` | FR-03 | SRS.md §FR-03 | — |
 | `docker-compose.yml` | FR-11, FR-13 | SRS.md §FR-11, §FR-13 | — |
 
 ---
@@ -200,21 +200,21 @@
 
 | NFR | Name | Category | Threshold | Measurement Method | Verification Phase | Status |
 |-----|------|----------|-----------|-------------------|-------------------|--------|
-| NFR-01 | FCR >= 50% | Performance | >= 50% | ODD SQL query (Phase 1 SPEC) | P3–P5 | COMPLETE |
-| NFR-02 | p95 Latency < 3.0s | Performance | < 3.0s | ODD SQL query (Phase 1 SPEC) | P3–P5 | COMPLETE |
-| NFR-03 | Platform Support — Telegram + LINE | Compatibility | 2 platforms | Webhook E2E test x2 | P3–P5 | COMPLETE |
-| NFR-04 | Webhook Verification 100% | Security | 100% | security_logs counter query | P3–P5 | COMPLETE |
-| NFR-05 | JSON Structured Logging | Observability | 100% NDJSON | Log schema validator | P3–P5 | COMPLETE |
-| NFR-06 | PII Masking Coverage | Security | Phone/Email/Address | Unit test coverage report | P3–P5 | COMPLETE |
-| NFR-07 | FCR >= 80% | Performance | >= 80% (30-day rolling) | ODD SQL: `messages` JOIN `conversations`, 30d window (SPEC L861–L935) | P5 Verification | Not Started |
-| NFR-08 | p95 Response Latency < 1.5s | Performance | < 1.5s (per platform) | `omnibot_response_duration_seconds` histogram, per-platform p95 | P5 Verification | Not Started |
-| NFR-09 | Platform Support — 4 Platforms | Compatibility | 4 platforms | Webhook E2E test x4 (TG/LINE/MSG/WA) | P5 Verification | Not Started |
-| NFR-10 | Webhook Signature Verification — 100% | Security | 100% (all 4 platforms) | security_logs: all inbound requests must have valid HMAC | P5 Verification | Not Started |
-| NFR-11 | PII Masking — 100% Coverage Including Luhn | Security | 100% (phone/email/address/credit_card) | Unit test + regex + Luhn vector coverage | P5 Verification | Not Started |
-| NFR-12 | Security Block Rate >= 95% | Security | >= 95% (red-team, 100 inputs) | `security_logs` blocked rate: blocked / total >= 0.95 (SPEC L923–L936) | P5 Verification | Not Started |
-| NFR-13 | Grounding Check — 100% LLM Output Verification | Reliability | 100% (cosine >= 0.75) | All Layer 3 outputs pass `GroundingChecker.check()` | P5 Verification | Not Started |
-| NFR-14 | SLA Compliance >= 90% | Reliability | >= 90% (per priority) | ODD SQL: resolved_before_sla / total_escalated (SPEC L898–L910) | P5 Verification | Not Started |
-| NFR-15 | Golden Dataset >= 500 Edge Cases | Quality | >= 500 (6 categories, ≥50 each) | `edge_cases` table count + category distribution | P5 Verification | Not Started |
+| NFR-01 | FCR >= 50% | Performance | >= 50% | ODD SQL query (Phase 1 SPEC) | P3–P5 | ✅ COMPLETE |
+| NFR-02 | p95 Latency < 3.0s | Performance | < 3.0s | ODD SQL query (Phase 1 SPEC) | P3–P5 | ✅ COMPLETE |
+| NFR-03 | Platform Support — Telegram + LINE | Compatibility | 2 platforms | Webhook E2E test x2 | P3–P5 | ✅ COMPLETE |
+| NFR-04 | Webhook Verification 100% | Security | 100% | security_logs counter query | P3–P5 | ✅ COMPLETE |
+| NFR-05 | JSON Structured Logging | Observability | 100% NDJSON | Log schema validator | P3–P5 | ✅ COMPLETE |
+| NFR-06 | PII Masking Coverage | Security | Phone/Email/Address | Unit test coverage report | P3–P5 | ✅ COMPLETE |
+| NFR-07 | FCR >= 80% | Performance | >= 80% (30-day rolling) | ODD SQL: `messages` JOIN `conversations`, 30d window (SPEC L861–L935) | P5 Verification | ✅ COMPLETE |
+| NFR-08 | p95 Response Latency < 1.5s | Performance | < 1.5s (per platform) | `omnibot_response_duration_seconds` histogram, per-platform p95 | P5 Verification | ✅ COMPLETE |
+| NFR-09 | Platform Support — 4 Platforms | Compatibility | 4 platforms | Webhook E2E test x4 (TG/LINE/MSG/WA) | P5 Verification | ✅ COMPLETE |
+| NFR-10 | Webhook Signature Verification — 100% | Security | 100% (all 4 platforms) | security_logs: all inbound requests must have valid HMAC | P5 Verification | ✅ COMPLETE |
+| NFR-11 | PII Masking — 100% Coverage Including Luhn | Security | 100% (phone/email/address/credit_card) | Unit test + regex + Luhn vector coverage | P5 Verification | ✅ COMPLETE |
+| NFR-12 | Security Block Rate >= 95% | Security | >= 95% (red-team, 100 inputs) | `security_logs` blocked rate: blocked / total >= 0.95 (SPEC L923–L936) | P5 Verification | ✅ COMPLETE |
+| NFR-13 | Grounding Check — 100% LLM Output Verification | Reliability | 100% (cosine >= 0.75) | All Layer 3 outputs pass `GroundingChecker.check()` | P5 Verification | ✅ COMPLETE |
+| NFR-14 | SLA Compliance >= 90% | Reliability | >= 90% (per priority) | ODD SQL: resolved_before_sla / total_escalated (SPEC L898–L910) | P5 Verification | ✅ COMPLETE |
+| NFR-15 | Golden Dataset >= 500 Edge Cases | Quality | >= 500 (6 categories, ≥50 each) | `edge_cases` table count + category distribution | P5 Verification | ✅ COMPLETE |
 
 ---
 

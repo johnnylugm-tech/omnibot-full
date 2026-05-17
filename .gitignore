@@ -3,3 +3,23 @@
 .sessi-work/
 .methodology/last_block.md
 .methodology/steering_history.json
+
+# Python build artifacts
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Coverage output
+.coverage
+.coverage.*
+coverage.xml
+coverage.json
+htmlcov/
+
+# Runtime files
+sessions_spawn.log
+DEVELOPMENT_LOG.md

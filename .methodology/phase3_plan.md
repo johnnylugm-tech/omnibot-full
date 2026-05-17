@@ -33,9 +33,20 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 > - CHECKPOINT-11: Gate 1 / FR-11 *(local commit)*
 > - CHECKPOINT-12: Gate 1 / FR-12 *(local commit)*
 > - CHECKPOINT-13: Gate 1 / FR-13 *(local commit)*
+> - CHECKPOINT-14: Gate 1 / FR-14 *(local commit)*
+> - CHECKPOINT-15: Gate 1 / FR-15 *(local commit)*
+> - CHECKPOINT-16: Gate 1 / FR-16 *(local commit)*
+> - CHECKPOINT-17: Gate 1 / FR-17 *(local commit)*
+> - CHECKPOINT-18: Gate 1 / FR-18 *(local commit)*
+> - CHECKPOINT-19: Gate 1 / FR-19 *(local commit)*
+> - CHECKPOINT-20: Gate 1 / FR-20 *(local commit)*
+> - CHECKPOINT-21: Gate 1 / FR-21 *(local commit)*
+> - CHECKPOINT-22: Gate 1 / FR-22 *(local commit)*
+> - CHECKPOINT-23: Gate 1 / FR-23 *(local commit)*
+> - CHECKPOINT-24: Gate 1 / FR-24 *(local commit)*
 > - MILESTONE: P3-mid push (≥50% FRs Gate 1 PASS) → **HANDOVER.md**
 > - MILESTONE: P3-pre-SSI push (all FRs done) → **HANDOVER.md**
-> - CHECKPOINT-14: Gate 2 (Phase 3 Exit) → **push + HANDOVER.md**
+> - CHECKPOINT-25: Gate 2 (Phase 3 Exit) → **push + HANDOVER.md**
 
 ### Entry Gate Verification
 
@@ -55,7 +66,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   1. `.github/workflows/harness_quality_gate.yml` exists
   2. Git hooks installed (`ls .git/hooks/prepare-commit-msg`)
   3. harness importable (submodule, PYTHONPATH, or vendored `quality_gate/`)
-  4. GitHub repo variable `CURRENT_PHASE` = 3 (updated by `advance-phase`)
+  4. Phase 3 confirmed in `.methodology/state.json` (`advance-phase` already run)
   > If stale: run `python3 harness_cli.py init-project --phase 3 --project $REPO --overwrite`
 
 ### FR Implementation Tasks (11 total)
@@ -1186,20 +1197,20 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 > Per-FR Gate 1 only commits locally. The two **milestone pushes** below
 > write `HANDOVER.md` and push to origin — these are the crash-recovery checkpoints.
-> All FR IDs in this project: FR-01,FR-02,FR-03,FR-04,FR-05,…+8
+> All FR IDs in this project: FR-01,FR-02,FR-03,FR-04,FR-05,…+19
 
-- [ ] **PUSH ③ — P3-mid** (trigger when ≥6/13 FRs have Gate 1 PASS):
+- [ ] **PUSH ③ — P3-mid** (trigger when ≥12/24 FRs have Gate 1 PASS):
   ```bash
   python3 harness_cli.py push-milestone --type p3-mid --project . \
-    --fr-done 6 --fr-total 13 --fr-ids FR-01,FR-02,FR-03,FR-04,FR-05,FR-06
+    --fr-done 12 --fr-total 24 --fr-ids FR-01,FR-02,FR-03,FR-04,FR-05,FR-06,FR-07,FR-08,FR-09,FR-10,FR-11,FR-12
   ```
-  > `--fr-ids` lists the FRs with Gate 1 PASS so far. Replace `FR-01,FR-02,FR-03,FR-04,FR-05,FR-06` with actual.
+  > `--fr-ids` lists the FRs with Gate 1 PASS so far. Replace `FR-01,FR-02,FR-03,FR-04,FR-05,FR-06,FR-07,FR-08,FR-09,FR-10,FR-11,FR-12` with actual.
   > Writes HANDOVER.md + commits + pushes. Next session reads HANDOVER.md to resume.
 
-- [ ] **PUSH ④ — P3-pre-SSI** (trigger when all 13 FRs Gate 1 PASS, before SSI):
+- [ ] **PUSH ④ — P3-pre-SSI** (trigger when all 24 FRs Gate 1 PASS, before SSI):
   ```bash
   python3 harness_cli.py push-milestone --type p3-pre-ssi --project . \
-    --fr-ids FR-01,FR-02,FR-03,FR-04,FR-05,FR-06,FR-07,FR-08,FR-09,FR-10,FR-11,FR-12,FR-13
+    --fr-ids FR-01,FR-02,FR-03,FR-04,FR-05,FR-06,FR-07,FR-08,FR-09,FR-10,FR-11,FR-12,FR-13,FR-14,FR-15,FR-16,FR-17,FR-18,FR-19,FR-20,FR-21,FR-22,FR-23,FR-24
   ```
   > Last stable snapshot before SSI modifies files. HANDOVER.md + push.
 
