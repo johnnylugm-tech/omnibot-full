@@ -46,4 +46,5 @@
 
 ## Quality Gates
 - Gate 1 (per-FR): All 24 FRs PASS (93.0–100.0)
+- Gate 3 (Phase 4 exit): 92.3 PASS (12 dimensions)
 - Gate 4 (full): 96.33 PASS
