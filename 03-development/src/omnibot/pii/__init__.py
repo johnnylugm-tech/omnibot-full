@@ -1,11 +1,13 @@
 """[FR-05] PII Masking L4 — Phone, Email, Address detection and masking.
+[FR-16] PII Masking V2 — Credit Card + Luhn Check.
 
-Citations: SRS.md FR-05 section
+Citations: SRS.md FR-05, FR-16 sections; SAD.md:274-294
 """
 
 import re
 from dataclasses import dataclass, field
 from typing import List
+
 
 # ── PII Mask Result ─────────────────────────────────────────────────────────────
 
@@ -35,6 +37,8 @@ _TW_ADDRESS = re.compile(
     r".{0,10}"
 )
 
+_CREDIT_CARD = re.compile(r"\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b")
+
 # Keywords that trigger escalation
 _SENSITIVE_KEYWORDS = [
     "自殺", "自殘", "自傷",
@@ -44,6 +48,10 @@ _SENSITIVE_KEYWORDS = [
     "password", "密碼", "銀行帳戶", "bank account",
     "信用卡", "credit card", "提款卡", "debit card",
     "銀行卡號", "card number", "身分證", "身份證",
+]
+
+_ESCALATION_KEYWORDS_V2 = [
+    "密碼", "銀行帳戶", "信用卡號", "提款卡",
 ]
 
 
@@ -60,39 +68,122 @@ class EscalationFlag:
     escalate: bool = True
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# ── Luhn check ────────────────────────────────────────────────────────────────
+
+def _luhn_check(card_number: str) -> bool:
+    """Validate a 16-digit card number using the Luhn algorithm.
+
+    Right-to-left: skip position 1 (check digit), double even positions
+    (2,4,6...), if >9 subtract 9. Sum % 10 == 0 → valid.
+
+    Citations: SRS.md:73-76, SAD.md:286-289
+    """
+    digits = re.sub(r"[\s-]", "", card_number)
+    if len(digits) != 16 or not digits.isdigit():
+        return False
+    total = 0
+    for i, ch in enumerate(reversed(digits)):
+        d = int(ch)
+        pos = i + 1  # 1-indexed from right
+        if pos % 2 == 0:  # even positions get doubled
+            d *= 2
+            if d > 9:
+                d -= 9
+        total += d
+    return total % 10 == 0
+
+
+# ── PIIMasking base class ─────────────────────────────────────────────────────
+
+class PIIMasking:
+    """Phase 1 PII masking: phone, email, address.
+
+    Citations: SRS.md FR-05
+    """
+
+    @staticmethod
+    def should_escalate(text: str) -> bool:
+        """Check if text contains sensitive keywords requiring escalation."""
+        return any(kw in text for kw in _SENSITIVE_KEYWORDS)
+
+    def mask(self, text: str) -> PIIMaskResult:
+        """Mask PII in text: phone numbers, emails, and addresses."""
+        result = text
+        pii_types: List[str] = []
+        mask_count = 0
+
+        if _TW_MOBILE.search(result):
+            pii_types.append("phone")
+        result, n = _TW_MOBILE.subn("[PHONE]", result)
+        mask_count += n
+        result, n = _TW_LANDLINE.subn("[PHONE]", result)
+        mask_count += n
+        if n > 0 and "phone" not in pii_types:
+            pii_types.append("phone")
+
+        if _EMAIL.search(text):
+            pii_types.append("email")
+        result, n = _EMAIL.subn("[EMAIL]", result)
+        mask_count += n
+
+        if _TW_ADDRESS.search(text):
+            pii_types.append("address")
+        result, n = _TW_ADDRESS.subn("[ADDR]", result)
+        mask_count += n
+
+        return PIIMaskResult(masked_text=result, mask_count=mask_count,
+                             pii_types=pii_types)
+
+
+# ── PIIMaskingV2 ──────────────────────────────────────────────────────────────
+
+class PIIMaskingV2(PIIMasking):
+    """Phase 2 PII masking: inherits phone/email/address, adds credit card + Luhn.
+
+    Citations: SRS.md:65-83, SAD.md:274-294
+    """
+
+    @staticmethod
+    def _luhn_check(card_number: str) -> bool:
+        """Validate a 16-digit card number using the Luhn algorithm."""
+        return _luhn_check(card_number)
+
+    @staticmethod
+    def should_escalate(text: str) -> bool:
+        """Check escalation keywords including credit card terms."""
+        return any(kw in text for kw in _ESCALATION_KEYWORDS_V2)
+
+    def mask(self, text: str) -> PIIMaskResult:
+        """Mask PII: phone, email, address (Phase 1) + credit card with Luhn."""
+        result = super().mask(text)
+        masked = result.masked_text
+        cc_count = 0
+
+        # Collect matches rightmost-first to avoid index shift
+        matches = list(_CREDIT_CARD.finditer(masked))
+        for m in reversed(matches):
+            raw = m.group(0)
+            if _luhn_check(raw):
+                start, end = m.start(), m.end()
+                masked = masked[:start] + "[credit_card_masked]" + masked[end:]
+                cc_count += 1
+
+        pii_types = list(result.pii_types)
+        if cc_count > 0 and "credit_card" not in pii_types:
+            pii_types.append("credit_card")
+
+        return PIIMaskResult(masked_text=masked,
+                             mask_count=result.mask_count + cc_count,
+                             pii_types=pii_types)
+
+
+# ── Backward-compatible public API ────────────────────────────────────────────
 
 def mask_pii(text: str) -> PIIMaskResult:
-    """Mask PII in text: phone numbers, emails, and addresses.
-
-    Returns PIIMaskResult with masked_text, count of masks applied, and PII types found.
-    """
-    result = text
-    pii_types: List[str] = []
-    mask_count = 0
-
-    if _TW_MOBILE.search(result):
-        pii_types.append("phone")
-    result, n = _TW_MOBILE.subn("[PHONE]", result)
-    mask_count += n
-    result, n = _TW_LANDLINE.subn("[PHONE]", result)
-    mask_count += n
-    if n > 0 and "phone" not in pii_types:
-        pii_types.append("phone")
-
-    if _EMAIL.search(text):
-        pii_types.append("email")
-    result, n = _EMAIL.subn("[EMAIL]", result)
-    mask_count += n
-
-    if _TW_ADDRESS.search(text):
-        pii_types.append("address")
-    result, n = _TW_ADDRESS.subn("[ADDR]", result)
-    mask_count += n
-
-    return PIIMaskResult(masked_text=result, mask_count=mask_count, pii_types=pii_types)
+    """Mask PII using Phase 1 logic (backward compatible with FR-05)."""
+    return PIIMasking().mask(text)
 
 
 def contains_sensitive_keywords(text: str) -> bool:
-    """Check if text contains keywords that require escalation."""
-    return any(kw in text for kw in _SENSITIVE_KEYWORDS)
+    """Check if text contains sensitive keywords (backward compatible with FR-05)."""
+    return PIIMasking.should_escalate(text)

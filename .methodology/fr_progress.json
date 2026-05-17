@@ -1,6 +1,6 @@
 {
   "phase": 3,
-  "updated_at": "2026-05-17T10:26:18Z",
+  "updated_at": "2026-05-17T10:53:53Z",
   "frs": {
     "FR-01": {
       "status": "gate1_pass",
@@ -93,10 +93,10 @@
       "timestamp": "2026-05-17T10:26:18Z"
     },
     "FR-16": {
-      "status": "architecture_design",
-      "score": null,
-      "phase": 2,
-      "timestamp": "2026-05-17T08:49:20Z"
+      "status": "gate1_pass",
+      "score": 97.0,
+      "phase": 3,
+      "timestamp": "2026-05-17T10:53:53Z"
     },
     "FR-17": {
       "status": "architecture_design",
