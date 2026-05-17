@@ -1,8 +1,7 @@
 {
   "state": "RUNNING",
-  "current_phase": 1,
-  "last_gate": 0,
+  "current_phase": 3,
+  "last_gate": 4,
   "last_fr": "FR-13",
-  "last_update": "2026-05-17T12:00:00",
-  "last_push_checkpoint": "P1-exit-20260517"
+  "last_update": "2026-05-17T08:49:20.248546+00:00"
 }

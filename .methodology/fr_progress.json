@@ -1,6 +1,6 @@
 {
   "phase": 3,
-  "updated_at": "2026-05-17T07:21:46Z",
+  "updated_at": "2026-05-17T08:49:20Z",
   "frs": {
     "FR-01": {
       "status": "gate1_pass",
@@ -79,6 +79,72 @@
       "score": 94.67,
       "phase": 8,
       "timestamp": "2026-05-16T06:51:19Z"
+    },
+    "FR-14": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-15": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-16": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-17": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-18": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-19": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-20": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-21": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-22": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-23": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
+    },
+    "FR-24": {
+      "status": "architecture_design",
+      "score": null,
+      "phase": 2,
+      "timestamp": "2026-05-17T08:49:20Z"
     }
   }
 }

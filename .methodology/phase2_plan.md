@@ -247,7 +247,7 @@ are not re-opened. This bounds backtracking to a single step.
   {"phase": 2, "reviewer": "AGENT_B", "status": "APPROVE", "reason": "All 24 FRs covered, 0 unmapped. Both deliverables (SAD.md, ADR.md) approved after round 2 review. All 5 gaps from round 1 fixed and verified. 10 NFRs addressed with quality scenarios. No circular dependencies. SAB.json + quality_manifest.json generated."}
   ```
   - If REJECT → author fixes → re-review. Max 5 rounds (HR-12).
-- [ ] **[B-PUSH]** ✅ Push to GitHub + HANDOVER.md — retry until success (CHECKPOINT-1 saved):
+- [x] **[B-PUSH]** ✅ Push to GitHub + HANDOVER.md — retry until success (CHECKPOINT-1 saved):
   > Run `push-checkpoint` → if blocked, read the error → fix → re-run until green.
   > Do NOT use `--no-verify` or `--skip-confidence` to bypass.
   ```bash
@@ -260,16 +260,16 @@ are not re-opened. This bounds backtracking to a single step.
 
 ### Phase 2 → Phase 3: Implementation
 
-- [ ] Confirm ALL checkpoints in this plan are ✓  (no skips — HR-03)
-- [ ] Generate Phase 3 plan:
+- [x] Confirm ALL checkpoints in this plan are ✓  (no skips — HR-03)
+- [x] Generate Phase 3 plan:
   ```bash
   python3 harness_cli.py plan-phase --phase 3 --project $REPO \
     --output $REPO/.methodology/phase3_plan.md
   ```
-- [ ] Advance FSM to Phase 3 (writes new HANDOVER.md + local commit):
+- [x] Advance FSM to Phase 3 (writes new HANDOVER.md + local commit):
   ```bash
   python3 harness_cli.py advance-phase --completed 2 --project .
   ```
-- [ ] Confirm `HANDOVER.md` reflects Phase 3 entry (`P3-entry` checkpoint, correct plan path)
+- [x] Confirm `HANDOVER.md` reflects Phase 3 entry (`P3-entry` checkpoint, correct plan path)
 - [ ] Open `phase3_plan.md` and follow from the top.
 - [ ] If session crashes during Phase 3: read `HANDOVER.md` or run `generate-next-plan`
