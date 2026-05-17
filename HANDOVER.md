@@ -2,7 +2,7 @@
 
 **Checkpoint**: `P2-exit-20260517`  
 **Phase**: P2 — Architecture & Design  
-**Generated**: 2026-05-17T06:40:25Z
+**Generated**: 2026-05-17T07:21:01Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -34,7 +34,7 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 git log --oneline -3
 
 # Confirm FSM state
-cat .methodology/state.json   # expected: phase=1 state=RUNNING last_gate=4 last_fr=FR-13
+cat .methodology/state.json   # expected: phase=3 state=RUNNING last_gate=4 last_fr=FR-13
 
 # Read active plan
 cat .methodology/phase3_plan.md
@@ -44,7 +44,7 @@ cat .methodology/phase3_plan.md
 |------|----|
 | Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
 | Branch | `main` |
-| State | `phase=1 state=RUNNING last_gate=4 last_fr=FR-13` |
+| State | `phase=3 state=RUNNING last_gate=4 last_fr=FR-13` |
 | Plan | `.methodology/phase3_plan.md` |
 
 ---
@@ -138,8 +138,12 @@ P2 auto-approved — confidence gate passed, Agent B approvals verified.
   - P1-TRACE / reviewer: **complete**
 
 **Recently Committed Files:**
-  - `.methodology/phase1_plan.md`
+  - `.methodology/agent_b_approvals/ADR.md.json`
+  - `.methodology/agent_b_approvals/SAD.md.json`
+  - `.methodology/agent_b_approvals/p2-checkpoint1-review.json`
   - `.methodology/phase2_plan.md`
+  - `HANDOVER.md`
+  - `.methodology/phase1_plan.md`
   - `harness`
   - `archive/phase1/01-requirements/CONSTRAINTS.md`
   - `archive/phase1/01-requirements/SPEC_TRACKING.md`
@@ -154,10 +158,6 @@ P2 auto-approved — confidence gate passed, Agent B approvals verified.
   - `archive/phase1/03-development/src/omnibot/__pycache__/models.cpython-311.pyc`
   - `archive/phase1/03-development/src/omnibot/__pycache__/router.cpython-311.pyc`
   - `archive/phase1/03-development/src/omnibot/adapters/__init__.py`
-  - `archive/phase1/03-development/src/omnibot/adapters/__pycache__/__init__.cpython-311.pyc`
-  - `archive/phase1/03-development/src/omnibot/adapters/__pycache__/line.cpython-311.pyc`
-  - `archive/phase1/03-development/src/omnibot/adapters/__pycache__/telegram.cpython-311.pyc`
-  - `archive/phase1/03-development/src/omnibot/adapters/line.py`
 
 ## 接下來的工作
 
