@@ -1,1 +1,13 @@
-{"fr":"FR-17","review_status":"APPROVE","docs_embedded":["SRS.md","SPEC_TRACKING.md","TRACEABILITY_MATRIX.md"],"confidence":0.9,"reviewer":"BUSINESS_ANALYST","phase":1,"date":"2026-05-17"}
+{
+  "fr_id": "FR-17",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "phase": 3,
+  "confidence": 10,
+  "reason": "All 7 acceptance criteria satisfied. EmotionCategory enum, EmotionScore frozen dataclass, EmotionTracker with exponential decay formula, consecutive-negative counting from tail, escalation at >=3, configurable half-life. 30 tests cover all edge cases.",
+  "citations": [
+    "omnibot/emotion.py",
+    "tests/test_fr17.py"
+  ],
+  "gaps": []
+}

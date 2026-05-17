@@ -1,0 +1,66 @@
+"""[FR-17] EmotionAnalyzer — sentiment classification with exponential decay.
+
+EmotionCategory enum, EmotionScore frozen dataclass, and EmotionTracker
+with 24h half-life weighted scoring and escalation trigger (>=3 consecutive negatives).
+
+Citations: SRS.md:87-106, SAD.md:336-359
+"""
+
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from enum import Enum
+
+
+class EmotionCategory(str, Enum):
+    POSITIVE = "POSITIVE"
+    NEUTRAL = "NEUTRAL"
+    NEGATIVE = "NEGATIVE"
+
+
+@dataclass(frozen=True)
+class EmotionScore:
+    category: EmotionCategory
+    intensity: float
+    timestamp: datetime
+
+
+class EmotionTracker:
+    def __init__(self, half_life_hours: float = 24.0) -> None:
+        self.half_life_hours = half_life_hours
+        self.history: list[EmotionScore] = []
+
+    def add(self, score: EmotionScore) -> None:
+        self.history.append(score)
+
+    def current_weighted_score(self) -> float:
+        if not self.history:
+            return 0.0
+        now = datetime.now(timezone.utc)
+        weighted_sum = 0.0
+        total_weight = 0.0
+        for score in self.history:
+            hours_ago = (now - score.timestamp).total_seconds() / 3600.0
+            decay = math.exp(-0.693 * hours_ago / self.half_life_hours)
+            if score.category == EmotionCategory.POSITIVE:
+                weighted_sum += score.intensity * decay
+            elif score.category == EmotionCategory.NEGATIVE:
+                weighted_sum -= score.intensity * decay
+            total_weight += decay
+        if total_weight == 0.0:
+            return 0.0
+        return weighted_sum / total_weight
+
+    def consecutive_negative_count(self) -> int:
+        count = 0
+        for score in reversed(self.history):
+            if score.category == EmotionCategory.NEGATIVE:
+                count += 1
+            else:
+                break
+        return count
+
+    def should_escalate(self) -> bool:
+        return self.consecutive_negative_count() >= 3
