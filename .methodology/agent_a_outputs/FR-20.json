@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "files": [
+    "03-development/src/omnibot/escalation/v2.py",
+    "tests/test_fr20.py"
+  ],
+  "confidence": 9,
+  "citations": [
+    "SRS.md:170-186",
+    "SAD.md:454-477"
+  ],
+  "summary": "FR-20: EscalationManagerV2 SLA priority"
+}

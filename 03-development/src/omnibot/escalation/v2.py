@@ -1,0 +1,170 @@
+"""[FR-20] EscalationManagerV2 — SLA-prioritized escalation with deadline
+computation, agent assignment, and breach detection.
+
+Dependencies: PostgreSQL (asyncpg), StructuredLogger
+Persistence: escalation_queue table
+
+Citations: SRS.md:170-186, SAD.md:454-477
+"""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+from enum import Enum
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
+# ── SLA Configuration ──────────────────────────────────────────────────────────
+
+SLA_BY_PRIORITY: dict[int, int] = {0: 30, 1: 15, 2: 5}
+
+
+# ── Domain Types ───────────────────────────────────────────────────────────────
+
+class EscalationReason(Enum):
+    """Reason for escalation.
+
+    Citations: SRS.md:170-186 line 177
+    """
+
+    OUT_OF_SCOPE = "out_of_scope"
+    LOW_CONFIDENCE = "low_confidence"
+    EMOTION_TRIGGER = "emotion_trigger"
+
+
+@dataclass(frozen=True)
+class EscalationRequest:
+    """Frozen input for creating an escalation.
+
+    Citations: SRS.md:170-186 lines 176-177
+    """
+
+    conversation_id: int
+    reason: EscalationReason
+    priority: int  # 0=normal, 1=high, 2=urgent
+
+
+# ── Manager ────────────────────────────────────────────────────────────────────
+
+class EscalationManagerV2:
+    """SLA-prioritized escalation manager backed by asyncpg.
+
+    Dependencies injected via constructor for testability.
+    Computes sla_deadline from SLA_BY_PRIORITY on create.
+
+    Citations: SRS.md:170-186, SAD.md:454-477
+    """
+
+    def __init__(self, db_pool: Any):
+        """Initialize with an asyncpg connection pool.
+
+        Citations: SAD.md:454-477 lines 460-465
+        """
+        self._db_pool = db_pool
+
+    async def create(self, request: EscalationRequest) -> int:
+        """Create a new escalation record with SLA deadline.
+
+        Looks up SLA minutes from SLA_BY_PRIORITY, computes
+        sla_deadline, inserts into escalation_queue, returns id.
+
+        Citations: SRS.md:170-186 lines 178-181, SAD.md:454-477 lines 470-473
+        """
+        if request.priority not in SLA_BY_PRIORITY:
+            raise ValueError(
+                f"Invalid priority {request.priority}. "
+                f"Must be one of {list(SLA_BY_PRIORITY.keys())}"
+            )
+
+        sla_minutes = SLA_BY_PRIORITY[request.priority]
+        sla_deadline = datetime.now(timezone.utc) + timedelta(minutes=sla_minutes)
+
+        async with self._db_pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """INSERT INTO escalation_queue
+                   (conversation_id, reason, priority, sla_deadline)
+                   VALUES ($1, $2, $3, $4)
+                   RETURNING id""",
+                request.conversation_id,
+                request.reason.value,
+                request.priority,
+                sla_deadline,
+            )
+
+        eid: int = row["id"]
+        logger.info(
+            "Escalation created: id=%d conversation=%d reason=%s priority=%d sla_deadline=%s",
+            eid,
+            request.conversation_id,
+            request.reason.value,
+            request.priority,
+            sla_deadline.isoformat(),
+        )
+        return eid
+
+    async def assign(self, escalation_id: int, agent_id: str) -> None:
+        """Assign an agent to the escalation.
+
+        Sets assigned_agent and picked_at = NOW().
+
+        Citations: SRS.md:170-186 line 182, SAD.md:454-477 line 474
+        """
+        async with self._db_pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """UPDATE escalation_queue
+                   SET assigned_agent = $1, picked_at = NOW()
+                   WHERE id = $2
+                   RETURNING id""",
+                agent_id,
+                escalation_id,
+            )
+
+        if row is None:
+            raise KeyError(f"Escalation {escalation_id} not found")
+
+        logger.info("Escalation %d assigned to agent %s", escalation_id, agent_id)
+
+    async def resolve(self, escalation_id: int) -> None:
+        """Mark an escalation as resolved.
+
+        Sets resolved_at = NOW().
+
+        Citations: SRS.md:170-186 line 183, SAD.md:454-477 line 475
+        """
+        async with self._db_pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """UPDATE escalation_queue
+                   SET resolved_at = NOW()
+                   WHERE id = $1
+                   RETURNING id""",
+                escalation_id,
+            )
+
+        if row is None:
+            raise KeyError(f"Escalation {escalation_id} not found")
+
+        logger.info("Escalation %d resolved", escalation_id)
+
+    async def get_sla_breaches(self) -> list[dict[str, Any]]:
+        """Query unresolved escalations past their sla_deadline.
+
+        Returns rows where resolved_at IS NULL AND sla_deadline < NOW(),
+        ordered by priority DESC, created_at ASC (highest priority first).
+
+        Citations: SRS.md:170-186 line 184, SAD.md:454-477 line 476
+        """
+        async with self._db_pool.acquire() as conn:
+            rows = await conn.fetch(
+                """SELECT id, conversation_id, reason, priority,
+                          sla_deadline, assigned_agent, picked_at,
+                          resolved_at, created_at
+                   FROM escalation_queue
+                   WHERE resolved_at IS NULL
+                     AND sla_deadline < NOW()
+                   ORDER BY priority DESC, created_at ASC"""
+            )
+
+        return [dict(row) for row in rows]

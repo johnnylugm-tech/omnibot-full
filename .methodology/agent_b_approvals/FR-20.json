@@ -1,1 +1,15 @@
-{"fr":"FR-20","review_status":"APPROVE","docs_embedded":["SRS.md","SPEC_TRACKING.md","TRACEABILITY_MATRIX.md"],"confidence":0.9,"reviewer":"BUSINESS_ANALYST","phase":1,"date":"2026-05-17"}
+{
+  "fr_id": "FR-20",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "phase": 3,
+  "confidence": 9,
+  "reason": "All acceptance criteria met. EscalationRequest frozen dataclass, EscalationReason enum (out_of_scope, low_confidence, emotion_trigger), EscalationManagerV2 with create (SLA deadline computation), assign, resolve, get_sla_breaches. SLA_BY_PRIORITY configurable dict. 16 tests cover all operations including edge cases.",
+  "citations": [
+    "SRS.md:170-186",
+    "SAD.md:454-477",
+    "03-development/src/omnibot/escalation/v2.py",
+    "tests/test_fr20.py"
+  ],
+  "gaps": []
+}
