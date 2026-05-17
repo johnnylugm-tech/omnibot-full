@@ -142,9 +142,9 @@
     },
     "FR-24": {
       "status": "gate1_pass",
-      "score": 100.0,
-      "phase": 3,
-      "timestamp": "2026-05-17T12:58:57Z"
+      "score": 97.67,
+      "phase": 4,
+      "timestamp": "2026-05-17T17:36:57Z"
     }
   }
 }
