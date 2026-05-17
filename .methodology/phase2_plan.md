@@ -19,12 +19,12 @@ Phase 2 designs the system architecture based on SRS, producing SAD and ADR.
 > If context is lost, read `HANDOVER.md` first — it contains phase, status, and next steps.
 
 > **Checkpoint Index** (push to GitHub = checkpoint + HANDOVER.md saved):
-> - CHECKPOINT-1: Human Peer Review (Phase 2 Exit) → `push-checkpoint --phase 2`
+> - CHECKPOINT-1: Agent B Peer Review (Phase 2 Exit) → `push-checkpoint --phase 2`
 
 ### Entry Gate Verification
 
-- [x] **[ENTRY-CHECK]** P1 human APPROVE:
-  Proof: git log contains commit 'phase1(human-review): Phase 1 deliverables APPROVED'.
+- [x] **[ENTRY-CHECK]** P1 review-complete:
+  Proof: git log contains commit 'phase1(review-complete): Phase 1 deliverables APPROVED'.
   If NOT confirmed: return to Phase 1 and complete exit gate first.
 
 ### Pre-Phase Preflight
@@ -169,10 +169,10 @@ are not re-opened. This bounds backtracking to a single step.
   ```
 
 - [x] **[B-2]** Agent B returns JSON — parse `review_status` **AND** `gaps` severity:
-  - `APPROVE` + all gaps are `low` → all deliverables complete; proceed to Human Peer Review
+  - `APPROVE` + all gaps are `low` → all deliverables complete; proceed to Agent B Peer Review
   - `APPROVE` + any gap is `medium` or `high` → fix gaps → **re-dispatch B as round 2**
     (embed same docs as B-1 above, replacing `ADR.md` with its updated content)
-    → all deliverables complete; proceed to Human Peer Review only after round-2 APPROVE
+    → all deliverables complete; proceed to Agent B Peer Review only after round-2 APPROVE
   - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
 
   > ⚠️ **BLOCKING**: Do NOT start the next Sub-Task until this sub-task's current
@@ -234,20 +234,20 @@ are not re-opened. This bounds backtracking to a single step.
 - [x] `sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
 
 
-### 🔒 CHECKPOINT-1: Human Peer Review — Phase 2 Exit
-> Phase 1/2 exit gate = human document review (NOT `harness run-gate --gate 1`).
+### 🔒 CHECKPOINT-1: Agent B Peer Review — Phase 2 Exit
+> Phase 1/2 exit gate = Agent B document review (NOT `harness run-gate --gate 1`).
 > APPROVE criteria: all FRs addressed, no critical gaps, terminology consistent.
 
-- [x] **[HR-READ]** Reviewer reads all deliverables:
+- [x] **[B-READ]** Reviewer reads all deliverables:
   - `02-architecture/SAD.md`
   - `02-architecture/ADR.md`
   - Checklist: All FRs covered? No contradictions? Each item testable/traceable?
-- [x] **[HR-DECIDE]** Reviewer records decision:
+- [x] **[B-DECIDE]** Reviewer records decision:
   ```json
   {"phase": 2, "reviewer": "XXXX", "status": "APPROVE", "reason": "..."}
   ```
   - If REJECT → author fixes → re-review. Max 5 rounds (HR-12).
-- [x] **[HR-PUSH]** ✅ Push to GitHub + HANDOVER.md (CHECKPOINT-1 saved):
+- [x] **[B-PUSH]** ✅ Push to GitHub + HANDOVER.md (CHECKPOINT-1 saved):
   ```bash
   python3 harness_cli.py push-checkpoint --phase 2 --project . \
     --fr-ids FR-01,FR-02,FR-03
