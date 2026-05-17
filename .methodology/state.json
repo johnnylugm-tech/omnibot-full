@@ -3,5 +3,14 @@
   "current_phase": 3,
   "last_gate": 4,
   "last_fr": "FR-13",
-  "last_update": "2026-05-17T04:01:18.662673+00:00"
+  "last_update": "2026-05-17T04:01:18.662673+00:00",
+  "phase_completed": {
+    "2": {
+      "sha": "8df06ef17fcb08f553e850deb1080f98065f0c14",
+      "timestamp": "2026-05-17T04:00:00Z",
+      "gate_score": 96.5,
+      "reviewer": "johnnylugm-tech",
+      "note": "push-checkpoint P2-exit-20260517: SAD.md Agent-B R2 APPROVE, ADR.md Agent-B R1 APPROVE, SAB.json 13 layers"
+    }
+  }
 }

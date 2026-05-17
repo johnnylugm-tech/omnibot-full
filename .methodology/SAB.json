@@ -257,7 +257,92 @@
     "webhook_verification_coverage": 1.0,
     "golden_dataset_min_size": 500
   },
-  "nfr_dimension_mapping": {},
-  "architecture_constraints": [],
-  "high_risk_modules": []
+  "nfr_dimension_mapping": {
+    "NFR-07": {
+      "dimension": "fcr",
+      "modules": [
+        "HybridKnowledgeV2",
+        "DialogueStateTracker",
+        "EmotionTracker"
+      ],
+      "target": "fcr_rate >= 0.8"
+    },
+    "NFR-08": {
+      "dimension": "latency",
+      "modules": [
+        "HybridKnowledgeV2",
+        "GroundingChecker"
+      ],
+      "target": "p95_latency_ms < 1500"
+    },
+    "NFR-09": {
+      "dimension": "platforms",
+      "modules": [
+        "MessengerWebhookVerifier",
+        "WhatsAppWebhookVerifier"
+      ],
+      "target": "4 platforms"
+    },
+    "NFR-10": {
+      "dimension": "security",
+      "modules": [
+        "SignatureVerifier",
+        "MessengerWebhookVerifier",
+        "WhatsAppWebhookVerifier"
+      ],
+      "target": "webhook_verification_coverage = 1.0"
+    },
+    "NFR-11": {
+      "dimension": "pii",
+      "modules": [
+        "PIIMaskingV2"
+      ],
+      "target": "pii_masking_coverage = 1.0"
+    },
+    "NFR-12": {
+      "dimension": "security_block",
+      "modules": [
+        "PromptInjectionDefense"
+      ],
+      "target": "security_block_rate >= 0.95"
+    },
+    "NFR-13": {
+      "dimension": "grounding",
+      "modules": [
+        "GroundingChecker",
+        "HybridKnowledgeV2"
+      ],
+      "target": "grounding_coverage = 1.0"
+    },
+    "NFR-14": {
+      "dimension": "sla",
+      "modules": [
+        "EscalationManagerV2"
+      ],
+      "target": "sla_compliance_rate >= 0.9"
+    },
+    "NFR-15": {
+      "dimension": "golden_dataset",
+      "modules": [
+        "edge_cases"
+      ],
+      "target": "golden_dataset_min_size >= 500"
+    }
+  },
+  "architecture_constraints": [
+    "GroundingChecker.check() MUST run AFTER LLM call, never before (§3.9 SAD Conformance Constraint)",
+    "All webhook signature verification MUST use hmac.compare_digest() constant-time comparison",
+    "No circular dependencies between layers: adapter → pipeline → knowledge → escalation",
+    "LLM path MUST fall through to L4 escalation when GroundingChecker score < 0.75",
+    "Sandwich Defense MUST wrap all user input before LLM call in L3",
+    "PIIMaskingV2 MUST run rightmost-first to prevent index shift on multiple matches"
+  ],
+  "high_risk_modules": [
+    "HybridKnowledgeV2",
+    "PromptInjectionDefense",
+    "GroundingChecker",
+    "EmotionClassifier",
+    "DialogueStateTracker",
+    "EscalationManagerV2"
+  ]
 }

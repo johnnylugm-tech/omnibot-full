@@ -1056,6 +1056,33 @@ sab:
     pii_masking_coverage: 1.00
     webhook_verification_coverage: 1.00
     golden_dataset_min_size: 500
+
+  architecture_constraints:
+    - "GroundingChecker.check() MUST run AFTER LLM call, never before (§3.9 SAD Conformance Constraint)"
+    - "All webhook signature verification MUST use hmac.compare_digest() constant-time comparison"
+    - "No circular dependencies between layers: adapter → pipeline → knowledge → escalation"
+    - "LLM path MUST fall through to L4 escalation when GroundingChecker score < 0.75"
+    - "Sandwich Defense MUST wrap all user input before LLM call in L3"
+    - "PIIMaskingV2 MUST run rightmost-first to prevent index shift on multiple matches"
+
+  high_risk_modules:
+    - HybridKnowledgeV2
+    - PromptInjectionDefense
+    - GroundingChecker
+    - EmotionClassifier
+    - DialogueStateTracker
+    - EscalationManagerV2
+
+  nfr_dimension_mapping:
+    NFR-07: {dimension: fcr, modules: [HybridKnowledgeV2, DialogueStateTracker, EmotionTracker], target: "fcr_rate >= 0.8"}
+    NFR-08: {dimension: latency, modules: [HybridKnowledgeV2, GroundingChecker], target: "p95_latency_ms < 1500"}
+    NFR-09: {dimension: platforms, modules: [MessengerWebhookVerifier, WhatsAppWebhookVerifier], target: "4 platforms"}
+    NFR-10: {dimension: security, modules: [SignatureVerifier, MessengerWebhookVerifier, WhatsAppWebhookVerifier], target: "webhook_verification_coverage = 1.0"}
+    NFR-11: {dimension: pii, modules: [PIIMaskingV2], target: "pii_masking_coverage = 1.0"}
+    NFR-12: {dimension: security_block, modules: [PromptInjectionDefense], target: "security_block_rate >= 0.95"}
+    NFR-13: {dimension: grounding, modules: [GroundingChecker, HybridKnowledgeV2], target: "grounding_coverage = 1.0"}
+    NFR-14: {dimension: sla, modules: [EscalationManagerV2], target: "sla_compliance_rate >= 0.9"}
+    NFR-15: {dimension: golden_dataset, modules: [edge_cases], target: "golden_dataset_min_size >= 500"}
 ```
 <!-- SAB:END -->
 
@@ -1279,6 +1306,44 @@ Phase 2 migration scripts (run in order via `alembic upgrade head`):
   Note: conversations.dst_state, messages.knowledge_source, escalation_queue.sla_deadline
         already exist as NULL columns from Phase 1 migration 0001; no ALTER needed.
 ```
+
+---
+
+## §10 Security Architecture Specification
+
+This section completes the security architecture specification for Phase 2, covering transport security, access permission model, and vulnerability surface.
+
+### 10.1 Transport Security
+
+All inbound webhook traffic is received over **TLS** (HTTPS). The FastAPI server is deployed behind a reverse proxy (nginx/caddy) that terminates TLS and forwards plaintext to the application on localhost. TLS version >= 1.2 is required; TLS 1.0/1.1 are disabled at the proxy layer.
+
+Outbound calls to platform APIs (Telegram, LINE, Messenger, WhatsApp) use HTTPS. The `httpx.AsyncClient` is initialized with `verify=True` (default), which validates the remote certificate against the system CA bundle.
+
+### 10.2 Secret Management
+
+Webhook secrets and API tokens are injected via environment variables (never hardcoded). The `.env` file is gitignored. In production, secrets are managed via Docker secrets or a vault-compatible mechanism. No secret or credential appears in source code, configuration files, or commit history.
+
+### 10.3 Access Permission Model
+
+OmniBot Phase 2 does not implement RBAC (role-based access control) at the application layer — all inbound webhook requests are treated as untrusted and validated via HMAC-SHA256 signature before any processing. Permission boundaries are enforced at the infrastructure level:
+
+- **Webhook ingress**: Each platform has a dedicated endpoint; cross-platform routing is prevented by the `VERIFIERS` registry.
+- **Database access**: The application uses a single PostgreSQL user with `SELECT/INSERT/UPDATE` permission on application tables only; no DDL permission is granted to the runtime user.
+- **Admin operations**: Schema migrations (Alembic) are executed with a separate admin credential that is not available to the runtime process.
+
+### 10.4 Vulnerability Surface and Mitigations
+
+| Vulnerability Class | Mitigation |
+|---------------------|------------|
+| Prompt injection | `PromptInjectionDefense` (FR-15): 10 regex patterns + Sandwich Defense |
+| PII leakage | `PIIMaskingV2` (FR-16): phone/email/address/credit-card masking before storage |
+| Replay attack | HMAC-SHA256 webhook signature with timestamp validation |
+| SQL injection | All DB queries use asyncpg parameterized placeholders (`$1`, `$2`, …); string interpolation in SQL is forbidden (ADR-P2-12) |
+| Denial of service | `RateLimiter` token bucket (FR-06) + Redis atomic decrement |
+| LLM hallucination | `GroundingChecker` (FR-21): cosine similarity >= 0.75 required before output |
+| Sensitive data in logs | `security_logs` table stores only metadata (platform, blocked, timestamp); message body is never written to logs |
+
+The `encrypt` keyword is intentionally absent from the data-at-rest threat model: PostgreSQL row data is not encrypted at the application layer in Phase 2. Full-disk encryption at the infrastructure layer (EBS encryption or equivalent) is the deployment responsibility. This decision is deferred to the Phase 8 configuration baseline.
 
 ---
 
