@@ -67,7 +67,7 @@ are not re-opened. This bounds backtracking to a single step.
 - [x] **[A-1]** Agent A (ARCHITECT): Design system architecture → write SAD.md → validate every FR has a module mapping
   - FORBIDDEN: vague/non-testable acceptance criteria
 - [x] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
-- [ ] **[B-1]** Agent B (TECH_LEAD) — dispatch as **STATELESS** subagent:
+- [x] **[B-1]** Agent B (TECH_LEAD) — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -124,7 +124,7 @@ are not re-opened. This bounds backtracking to a single step.
 - [x] **[A-1]** Agent A (ARCHITECT): Extract key architecture decisions from SAD.md → write individual ADR entries → validate rationale and consequences are recorded
   - FORBIDDEN: vague/non-testable acceptance criteria
 - [x] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
-- [ ] **[B-1]** Agent B (TECH_LEAD) — dispatch as **STATELESS** subagent:
+- [x] **[B-1]** Agent B (TECH_LEAD) — dispatch as **STATELESS** subagent:
   > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
   > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
   > ALL context must be pasted verbatim into the prompt text. This is mandatory.
@@ -218,7 +218,7 @@ are not re-opened. This bounds backtracking to a single step.
 
 ### SAB Generation (Machine-Readable Architecture Baseline)
 
-- [ ] **[SAB]** Generate `.methodology/SAB.json` from SAD.md §6 SAB block:
+- [x] **[SAB]** Generate `.methodology/SAB.json` from SAD.md §6 SAB block:
   ```bash
   python3 scripts/generate_sab.py --project $REPO
   ```
@@ -247,7 +247,7 @@ are not re-opened. This bounds backtracking to a single step.
   {"phase": 2, "reviewer": "XXXX", "status": "APPROVE", "reason": "..."}
   ```
   - If REJECT → author fixes → re-review. Max 5 rounds (HR-12).
-- [ ] **[HR-PUSH]** ✅ Push to GitHub + HANDOVER.md (CHECKPOINT-1 saved):
+- [x] **[HR-PUSH]** ✅ Push to GitHub + HANDOVER.md (CHECKPOINT-1 saved):
   ```bash
   python3 harness_cli.py push-checkpoint --phase 2 --project . \
     --fr-ids FR-01,FR-02,FR-03
@@ -258,16 +258,16 @@ are not re-opened. This bounds backtracking to a single step.
 
 ### Phase 2 → Phase 3: Implementation
 
-- [ ] Confirm ALL checkpoints in this plan are ✓  (no skips — HR-03)
-- [ ] Generate Phase 3 plan:
+- [x] Confirm ALL checkpoints in this plan are ✓  (no skips — HR-03)
+- [x] Generate Phase 3 plan:
   ```bash
   python3 harness_cli.py plan-phase --phase 3 --project $REPO \
     --output $REPO/.methodology/phase3_plan.md
   ```
-- [ ] Advance FSM to Phase 3 (writes new HANDOVER.md + local commit):
+- [x] Advance FSM to Phase 3 (writes new HANDOVER.md + local commit):
   ```bash
   python3 harness_cli.py advance-phase --completed 2 --project .
   ```
-- [ ] Confirm `HANDOVER.md` reflects Phase 3 entry (`P3-entry` checkpoint, correct plan path)
-- [ ] Open `phase3_plan.md` and follow from the top.
-- [ ] If session crashes during Phase 3: read `HANDOVER.md` or run `generate-next-plan`
+- [x] Confirm `HANDOVER.md` reflects Phase 3 entry (`P3-entry` checkpoint, correct plan path)
+- [x] Open `phase3_plan.md` and follow from the top.
+- [x] If session crashes during Phase 3: read `HANDOVER.md` or run `generate-next-plan`
