@@ -1,8 +1,8 @@
 # Harness Methodology — Session Handover
 
-**Checkpoint**: `P4-entry-20260517`  
-**Phase**: P4 — Testing  
-**Generated**: 2026-05-17T13:13:58Z
+**Checkpoint**: `P3-gate2-20260517`  
+**Phase**: P3 — Implementation  
+**Generated**: 2026-05-17T15:08:24Z
 
 > ⚠️  **開始下一個工作階段前，請先執行 `/compact` 壓縮上下文**，再從「接下來的工作」繼續。
 
@@ -17,9 +17,9 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 # 2. Set required env vars
 export HERMES_REVIEWER_TARGET=<value>
 
-# 3. Read plan and continue Phase 4
+# 3. Read plan and start Phase 4
 cat .methodology/phase4_plan.md
-# Follow the active plan and continue from where you left off
+# Follow SKILL.md §0.1 Phase 4 entry check, then execute
 ```
 
 ---
@@ -34,7 +34,7 @@ git clone --recurse-submodules https://github.com/johnnylugm-tech/omnibot-full.g
 git log --oneline -3
 
 # Confirm FSM state
-cat .methodology/state.json   # expected: phase=4 state=RUNNING last_gate=4 last_fr=FR-24
+cat .methodology/state.json   # expected: phase=4 state=RUNNING last_gate=2
 
 # Read active plan
 cat .methodology/phase4_plan.md
@@ -44,29 +44,35 @@ cat .methodology/phase4_plan.md
 |------|----|
 | Remote | `https://github.com/johnnylugm-tech/omnibot-full.git` |
 | Branch | `main` |
-| State | `phase=4 state=RUNNING last_gate=4 last_fr=FR-24` |
+| State | `phase=4 state=RUNNING last_gate=2` |
 | Plan | `.methodology/phase4_plan.md` |
 
 ---
 
 ## 任務背景
 
-Phase 3 complete (24/24 FRs Gate 1 PASS). Gate 4 (score=96.33). Advancing to Phase 4.
+Gate 2 PASS — SSI quality cycle complete.
 
 ## 目前執行狀況
 
-Phase 3: 24/24 FRs Gate 1 PASS. Gate 4 (score=96.33) — quality_complete. Ready to begin Phase 4.
+Gate 2 PASS: score=96.5.
 
 ## 接下來的工作
 
-1. Follow SKILL.md §0.1 Phase 4 entry checklist
-2. Read the Phase 4 plan and execute
+1. Proceed to P4: Testing
+2. Build full test suite (Gate 3 target ≥ 80)
+3. On Gate 3 PASS → call commit_and_push_gate(gate_num=3, ...)
 
 ## 注意事項
 
 - 100% follow SKILL.md
 - Do NOT commit `.sessi-work/` or `.methodology/` runtime artifacts
 - Git failures are warnings — they never block the pipeline
+
+## 附加資訊
+
+- **gate**: 2
+- **score**: 96.5
 
 ---
 *由 `HandoverGenerator` 自動生成。下次 push 時此檔案將被覆寫。*
