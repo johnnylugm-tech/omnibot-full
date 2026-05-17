@@ -1,0 +1,8 @@
+{
+  "fr": "ADR.md",
+  "review_status": "APPROVE",
+  "docs_embedded": ["SRS.md", "SAD.md"],
+  "confidence": 0.9,
+  "round": 1,
+  "source_file": "P2-ADR.json"
+}
