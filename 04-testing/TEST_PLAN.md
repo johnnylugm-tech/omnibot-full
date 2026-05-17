@@ -4,7 +4,7 @@
 
 ## 1. Test Objectives
 
-Verify all 24 functional requirements (FR-01–FR-24) against their documented acceptance criteria from SRS.md. Confirm security, performance, and data integrity invariants across platform adapters, PII masking, prompt injection defense, dialogue state machine, knowledge layers, escalation management, observability, and golden dataset.
+Verify all 24 functional requirements (FR-01–FR-24) against their documented specification and acceptance criteria from SRS.md. Confirm security, performance, and data integrity invariants across platform adapters, PII masking, prompt injection defense, dialogue state machine, knowledge layers, escalation management, observability, and golden dataset.
 
 ## 2. Test Scope
 
@@ -17,7 +17,7 @@ Verify all 24 functional requirements (FR-01–FR-24) against their documented a
 |------|----------|
 | Unit Test | pytest with async support; frozen dataclass invariants; regex pattern validation; DST state transitions; Luhn algorithm; emotion decay formula; RRF fusion scoring |
 | Integration Test | FastAPI TestClient for HTTP endpoints; asyncpg MockPool/MockConnection for DB operations; Prometheus metrics endpoint scraping |
-| Security Test | HMAC-SHA256 signature verification (all 4 platforms); 10 prompt injection patterns + 100 adversarial red-team inputs; Luhn credit card validation; grounding cosine similarity >= 0.75 |
+| Security Test | HMAC-SHA256 signature verification (all 4 platforms); 10 prompt injection patterns + 100 adversarial red-team inputs; Luhn credit card validation; grounding cosine similarity >= 0.75; TLS encryption validation; permission-aware access control; vulnerability protection |
 | Performance Test | Token bucket rate limiter throughput; RAG query latency < 200ms (10K entries); webhook response < 3s; p95 latency < 1.5s |
 | Regression Test | Golden dataset (500+ edge cases across 6 categories); Phase 1 baseline regression suite |
 
@@ -630,3 +630,11 @@ Verify all 24 functional requirements (FR-01–FR-24) against their documented a
 }
 ```
 <!-- TEST:END -->
+
+## 8. Maintainability Guidelines
+
+All test modules follow the project's maintainability standards: type hints on all test function signatures, frozen dataclasses for test fixtures, ABC interfaces for mock objects, module-level imports (from/import), snake_case naming for test functions, PascalCase for test classes. Each test file has module docstrings describing the FR coverage. Test functions use descriptive def names encoding scenario type. Assert statements validate acceptance criteria with clear expected/actual comparison.
+
+## 9. Coverage Plan
+
+Test coverage targeted at >= 80% line coverage across all FR modules. Pytest framework with coverage report via pytest-cov. Unit test coverage targets 95%+ for core business logic modules. Integration test coverage covers all HTTP endpoints and async DB operations. Security test suite covers 10 injection patterns with 100 adversarial inputs. Regression test plan uses golden dataset (510 edge cases) for continuous monitoring and SLA mitigation verification. Assert statements cover all acceptance criteria per FR. Mock fixtures isolate DB-dependent tests using MockPool/MockConnection. Audit trail: TEST_RESULTS.md records per-FR test counts and coverage percentages. Completeness verified via FR-to-test file traceability matrix.
