@@ -101,8 +101,8 @@
     "FR-17": {
       "status": "gate1_pass",
       "score": 97.67,
-      "phase": 3,
-      "timestamp": "2026-05-17T11:07:08Z"
+      "phase": 4,
+      "timestamp": "2026-05-17T17:10:24Z"
     },
     "FR-18": {
       "status": "gate1_pass",
