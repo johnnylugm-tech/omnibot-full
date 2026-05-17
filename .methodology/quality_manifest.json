@@ -30,11 +30,11 @@
   "nfr_dimension_mapping": {
     "NFR-01": {
       "dimension": "effectiveness",
-      "baseline": "FCR \u2265 50%"
+      "baseline": "FCR ≥ 50%"
     },
     "NFR-07": {
       "dimension": "effectiveness",
-      "target": "FCR \u2265 80%"
+      "target": "FCR ≥ 80%"
     },
     "NFR-08": {
       "dimension": "performance",
@@ -54,7 +54,7 @@
     },
     "NFR-12": {
       "dimension": "security",
-      "target": "\u226595% injection block rate"
+      "target": "≥95% injection block rate"
     },
     "NFR-13": {
       "dimension": "correctness",
@@ -62,11 +62,11 @@
     },
     "NFR-14": {
       "dimension": "reliability",
-      "target": "SLA compliance \u226590%"
+      "target": "SLA compliance ≥90%"
     },
     "NFR-15": {
       "dimension": "testability",
-      "target": "\u2265500 golden dataset edge cases"
+      "target": "≥500 golden dataset edge cases"
     }
   },
   "architecture_constraints": [
@@ -78,11 +78,11 @@
     "Python 3.11+, stdlib-first dependency policy"
   ],
   "high_risk_modules": [
-    "PromptInjectionDefense (security boundary, NFR-12 \u226595% block rate)",
+    "PromptInjectionDefense (security boundary, NFR-12 ≥95% block rate)",
     "PIIMaskingV2 (data privacy, Luhn validation correctness)",
     "GroundingChecker (LLM output hallucination prevention)",
     "HybridKnowledgeV2 (core business logic, 4-layer orchestration)",
-    "EscalationManagerV2 (SLA compliance NFR-14 \u226590%)",
+    "EscalationManagerV2 (SLA compliance NFR-14 ≥90%)",
     "DialogueStateTracker (7-state FSM correctness, slot filling limits)"
   ],
   "gate_score_overrides": {},
@@ -174,6 +174,13 @@
       },
       "FR-13": {
         "score": 94.67,
+        "quality_complete": true,
+        "rounds_used": 0,
+        "open_critical": 0,
+        "open_high": 0
+      },
+      "FR-14": {
+        "score": 93.0,
         "quality_complete": true,
         "rounds_used": 0,
         "open_critical": 0,
@@ -418,8 +425,8 @@
       "ADR-002: PostgreSQL 16 + pgvector (single database)",
       "ADR-003: Redis 7 for rate limiter state (fail-open)",
       "ADR-004: frozen dataclasses for immutable message/state types",
-      "ADR-005: VERIFIERS dict registry \u2014 4 platforms (Telegram, LINE, Messenger, WhatsApp)",
-      "ADR-006: Four-layer hybrid knowledge (L1 rule \u2192 L2 RAG+RRF \u2192 L3 LLM+sandwich \u2192 L4 escalate)",
+      "ADR-005: VERIFIERS dict registry — 4 platforms (Telegram, LINE, Messenger, WhatsApp)",
+      "ADR-006: Four-layer hybrid knowledge (L1 rule → L2 RAG+RRF → L3 LLM+sandwich → L4 escalate)",
       "ADR-007: stdlib re for PII masking + prompt injection patterns",
       "ADR-008: ConversationContext as explicit pipeline stage",
       "ADR-009: Docker Compose v2 (single-node dev)",
@@ -427,9 +434,9 @@
       "ADR-011: Alembic (manual scripts, asyncpg run_sync)",
       "ADR-012: secrets via env vars (.env gitignored)",
       "ADR-013: Messenger + WhatsApp adapters (VERIFIERS dict extension)",
-      "ADR-014: Prompt injection defense L3 \u2014 regex pattern matching",
+      "ADR-014: Prompt injection defense L3 — regex pattern matching",
       "ADR-015: Luhn algorithm for credit card validation (false positive elimination)",
-      "ADR-016: Emotion analyzer \u2014 rule-based keyword + intensity scoring",
+      "ADR-016: Emotion analyzer — rule-based keyword + intensity scoring",
       "ADR-017: DST 7-state finite state machine with immutable transitions",
       "ADR-018: Reciprocal Rank Fusion (k=60) for L1+L2 hybrid retrieval",
       "ADR-019: paraphrase-multilingual-MiniLM-L12-v2 shared embedding model",

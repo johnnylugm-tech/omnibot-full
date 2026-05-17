@@ -1,1 +1,16 @@
-{"fr":"FR-14","review_status":"APPROVE","docs_embedded":["SRS.md","SPEC_TRACKING.md","TRACEABILITY_MATRIX.md"],"confidence":0.9,"reviewer":"BUSINESS_ANALYST","phase":1,"date":"2026-05-17"}
+{
+  "fr_id": "FR-14",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "phase": 3,
+  "confidence": 10,
+  "reason": "All FR-14 acceptance criteria are met: both Messenger and WhatsApp webhook endpoints registered with correct HMAC-SHA256 verification, hmac.compare_digest() used for timing-attack resistance, VERIFIERS dict contains both keys, route table registers both platforms, docstrings carry [FR-14] tag + SAD citations, and 13 tests cover valid/invalid signatures, response timing (<3s), missing headers, platform enums, and verifier registration.",
+  "citations": [
+    "omnibot/adapters/messenger.py",
+    "omnibot/adapters/whatsapp.py",
+    "omnibot/router.py",
+    "omnibot/auth/verifier.py",
+    "tests/test_fr14.py"
+  ],
+  "gaps": []
+}

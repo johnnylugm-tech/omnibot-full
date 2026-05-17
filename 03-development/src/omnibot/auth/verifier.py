@@ -31,6 +31,17 @@ def verify_line_signature(secret: str, body: bytes, signature: str) -> bool:
     return hmac.compare_digest(expected, signature)
 
 
+def _verify_hub_signature(secret: str, body: bytes, signature: str) -> bool:
+    """Verify HMAC-SHA256 signature with sha256= prefix (Messenger + WhatsApp).
+
+    Both platforms use: sha256= + HMAC-SHA256(app_secret, body).hexdigest()
+    compared against the X-Hub-Signature-256 header using hmac.compare_digest().
+    """
+    digest = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+    expected = f"sha256={digest}"
+    return hmac.compare_digest(expected, signature)
+
+
 # ── Verifier registry ─────────────────────────────────────────────────────────
 
 class PlatformVerifier:
@@ -43,6 +54,8 @@ class PlatformVerifier:
         self._verifiers: Dict[Platform, Callable[[str, bytes, str], bool]] = {
             Platform.TELEGRAM: verify_telegram_signature,
             Platform.LINE: verify_line_signature,
+            Platform.MESSENGER: _verify_hub_signature,
+            Platform.WHATSAPP: _verify_hub_signature,
         }
 
     def register(self, platform: Platform, verifier: Callable[[str, bytes, str], bool]) -> None:
@@ -70,6 +83,14 @@ _PLATFORM_CONFIG: Dict[Platform, Dict[str, str]] = {
     Platform.LINE: {
         "secret_header": "X-Line-Channel-Secret",
         "signature_header": "X-Line-Signature",
+    },
+    Platform.MESSENGER: {
+        "secret_header": "X-Messenger-App-Secret",
+        "signature_header": "X-Hub-Signature-256",
+    },
+    Platform.WHATSAPP: {
+        "secret_header": "X-WhatsApp-App-Secret",
+        "signature_header": "X-Hub-Signature-256",
     },
 }
 

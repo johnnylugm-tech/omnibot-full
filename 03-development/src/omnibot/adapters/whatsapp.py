@@ -1,0 +1,41 @@
+"""[FR-14] WhatsAppAdapter — parse WhatsApp WebhookEvent → UnifiedMessage.
+
+Citations: SAD.md:128-141
+"""
+
+from typing import Any, Dict
+
+from omnibot.models import UnifiedMessage, Platform, MessageType
+
+
+def parse_whatsapp_webhook(payload: Dict[str, Any]) -> UnifiedMessage:
+    """Parse a WhatsApp WebhookEvent into a UnifiedMessage.
+
+    Raises ValueError if the changes array or messages array is empty or missing.
+    """
+    entry = payload.get("entry", [])
+    if not entry:
+        raise ValueError("WhatsApp webhook payload contains no entries")
+
+    changes = entry[0].get("changes", [])
+    if not changes:
+        raise ValueError("WhatsApp webhook payload contains no changes")
+
+    value = changes[0].get("value", {})
+
+    messages = value.get("messages", [])
+    if not messages:
+        raise ValueError("WhatsApp webhook payload contains no messages")
+
+    msg = messages[0]
+    platform_user_id = str(msg.get("from", ""))
+    text_body = msg.get("text", {}).get("body", "")
+    message_type = MessageType.TEXT
+
+    return UnifiedMessage(
+        platform=Platform.WHATSAPP,
+        platform_user_id=platform_user_id,
+        message_type=message_type,
+        content=text_body,
+        raw_payload=payload,
+    )

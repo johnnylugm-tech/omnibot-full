@@ -8,6 +8,8 @@ from typing import Callable, Dict, Optional, Tuple
 
 from omnibot.adapters.telegram import parse_telegram_update
 from omnibot.adapters.line import parse_line_event
+from omnibot.adapters.messenger import parse_messenger_webhook
+from omnibot.adapters.whatsapp import parse_whatsapp_webhook
 from omnibot.models import Platform, UnifiedMessage
 
 
@@ -15,6 +17,8 @@ from omnibot.models import Platform, UnifiedMessage
 PLATFORM_ROUTES: Dict[str, Tuple[Platform, Callable]] = {
     "telegram": (Platform.TELEGRAM, parse_telegram_update),
     "line": (Platform.LINE, parse_line_event),
+    "messenger": (Platform.MESSENGER, parse_messenger_webhook),
+    "whatsapp": (Platform.WHATSAPP, parse_whatsapp_webhook),
 }
 
 

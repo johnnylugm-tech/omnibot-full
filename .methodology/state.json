@@ -1,7 +1,7 @@
 {
   "state": "RUNNING",
   "current_phase": 3,
-  "last_gate": 4,
-  "last_fr": "FR-13",
-  "last_update": "2026-05-17T08:49:20.248546+00:00"
+  "last_gate": 1,
+  "last_fr": "FR-14",
+  "last_update": "2026-05-17T10:14:47.450572+00:00"
 }
