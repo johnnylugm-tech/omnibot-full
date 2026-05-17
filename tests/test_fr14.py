@@ -246,12 +246,108 @@ def test_whatsapp_webhook_missing_secret_header():
     assert response.status_code == 401
 
 
+# ── Messenger parser edge cases ────────────────────────────────────────────────
+
+def test_messenger_empty_entry():
+    """Payload with empty entry list returns 400 after valid signature."""
+    bad_payload = {"object": "page", "entry": []}
+    body = json.dumps(bad_payload).encode()
+    response = client.post(
+        "/api/v1/webhook/messenger",
+        content=body,
+        headers=_messenger_headers(body),
+    )
+    assert response.status_code == 400
+    assert "no entries" in response.json()["detail"]
+
+
+def test_messenger_empty_messaging():
+    """Payload with valid entry but empty messaging array returns 400."""
+    bad_payload = {
+        "object": "page",
+        "entry": [{"id": "123", "time": 1, "messaging": []}],
+    }
+    body = json.dumps(bad_payload).encode()
+    response = client.post(
+        "/api/v1/webhook/messenger",
+        content=body,
+        headers=_messenger_headers(body),
+    )
+    assert response.status_code == 400
+    assert "no messaging" in response.json()["detail"]
+
+
+# ── WhatsApp parser edge cases ─────────────────────────────────────────────────
+
+def test_whatsapp_empty_entry():
+    """Payload with empty entry list returns 400 after valid signature."""
+    bad_payload = {"object": "whatsapp_business_account", "entry": []}
+    body = json.dumps(bad_payload).encode()
+    response = client.post(
+        "/api/v1/webhook/whatsapp",
+        content=body,
+        headers=_whatsapp_headers(body),
+    )
+    assert response.status_code == 400
+    assert "no entries" in response.json()["detail"]
+
+
+def test_whatsapp_empty_changes():
+    """Payload with valid entry but empty changes array returns 400."""
+    bad_payload = {
+        "object": "whatsapp_business_account",
+        "entry": [{"id": "111", "changes": []}],
+    }
+    body = json.dumps(bad_payload).encode()
+    response = client.post(
+        "/api/v1/webhook/whatsapp",
+        content=body,
+        headers=_whatsapp_headers(body),
+    )
+    assert response.status_code == 400
+    assert "no changes" in response.json()["detail"]
+
+
+def test_whatsapp_empty_messages():
+    """Payload with valid entry/changes but empty messages array returns 400."""
+    bad_payload = {
+        "object": "whatsapp_business_account",
+        "entry": [{
+            "id": "111",
+            "changes": [{"value": {"messaging_product": "whatsapp", "messages": []}}],
+        }],
+    }
+    body = json.dumps(bad_payload).encode()
+    response = client.post(
+        "/api/v1/webhook/whatsapp",
+        content=body,
+        headers=_whatsapp_headers(body),
+    )
+    assert response.status_code == 400
+    assert "no messages" in response.json()["detail"]
+
+
 # ── Verifier registry ─────────────────────────────────────────────────────────
 
 def test_verifiers_dict_contains_messenger_and_whatsapp():
     """VERIFIERS registry includes messenger and whatsapp platforms."""
     import omnibot.auth.verifier as v
     assert v.VERIFIERS.verify(v.Platform.MESSENGER, "test", b"body", "sig") in (True, False)
+    assert v.VERIFIERS.verify(v.Platform.WHATSAPP, "test", b"body", "sig") in (True, False)
+
+
+def test_hub_signature_uses_compare_digest():
+    """TC-FR14-05: _verify_hub_signature uses hmac.compare_digest for timing safety."""
+    import omnibot.auth.verifier as v
+
+    secret = "test_secret"
+    body = b"test body"
+    digest = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+    valid_sig = f"sha256={digest}"
+
+    assert v._verify_hub_signature(secret, body, valid_sig) is True
+    assert v._verify_hub_signature(secret, body, "sha256=deadbeef") is False
+    assert v._verify_hub_signature(secret, body, "badformat") is False
 
 
 # ── Platform enum ─────────────────────────────────────────────────────────────
