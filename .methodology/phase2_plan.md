@@ -13,7 +13,7 @@
 
 ### Phase 2 Overview
 Phase 2 designs the system architecture based on SRS, producing SAD and ADR.
-**Exit gate = human peer review of deliverables** (not `harness run-gate --gate 1`).
+**Exit gate = Agent B peer review of deliverables** (not `harness run-gate --gate 1`).
 
 > **Crash Recovery**: after each push, `HANDOVER.md` is written to project root.
 > If context is lost, read `HANDOVER.md` first — it contains phase, status, and next steps.
