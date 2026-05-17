@@ -1,45 +1,8 @@
-{"fr_id":"FR-21","role":"developer","task":"Implement GroundingChecker L5 with GroundingResult dataclass, cosine similarity, injectable embedding_fn, configurable threshold.","phase":3,"date":"2026-05-17"}
-{"fr_id":"FR-21","role":"reviewer","task":"FR-21 B-1 stateless review
-
-## Spec (SRS.md:191-209)
-FR-21: Grounding Checks L5 — Semantic Alignment Verification
-- Priority P1
-- Validate cosine similarity between LLM output and knowledge source embeddings
-- Default threshold=0.75, configurable via constructor
-- GroundingChecker.check(llm_output, source_texts) → GroundingResult(grounded, score, reason, best_match_index)
-- Empty source_texts → grounded=False, reason=\"no_source\"
-- Steps: embed LLM output → embed sources → cosine similarity → max score → threshold compare
-- Grounding failure → LLM output discarded, route to Layer 4 (escalation)
-
-## Architecture (SAD.md:311-332)
-- GroundingResult: frozen dataclass with grounded: bool, score: float, reason: str, best_match_index: int
-- Default model: paraphrase-multilingual-MiniLM-L12-v2 (384-dim)
-- Embedding function injectable via constructor
-- Default threshold=0.75
-
-## Implementation (grounding.py): GroundingResult frozen dataclass, GroundingChecker with check() method, _cosine_similarity function, _default_embedding_fn lazy-load
-
-## Tests (test_fr21.py): 17 tests all pass, 90% coverage. Mock embeddings for deterministic cosine values.","phase":3,"date":"2026-05-17"}
-{"timestamp": "2026-05-17T20:16:35.324878", "role": "developer", "task": "Create the Prometheus metrics module for FR-22.\n\n## SRS Spec (SRS.md:214-230)\nFR-22: Prometheus Metrics — Core Instrumentation\n- Export 8 core Prometheus metrics via GET /metrics endpoint\n- Metrics:\n ", "session_id": "7bc83d9a-4b23-4e78-8afc-b98ac7d03932", "status": "complete", "phase": 3, "fr_id": "FR-22"}
-{"fr_id":"FR-22","role":"developer","task":"Create PrometheusMetrics module with all 8 metrics and GET /metrics endpoint","phase":3,"date":"2026-05-17"}
-{"fr_id":"FR-22","role":"reviewer","task":"FR-22 B-1 stateless review
-
-## Spec (SRS.md:214-230)
-FR-22: Prometheus Metrics — Core Instrumentation
-- 8 core metrics: omnibot_response_duration_seconds (histogram, labels=[platform,knowledge_source], buckets=[0.1,0.25,0.5,0.75,1.0,2.5,5.0])
-- omnibot_requests_total (counter, labels=[platform,status])
-- omnibot_fcr_total (counter, labels=[resolved])
-- omnibot_knowledge_hit_total (counter, labels=[layer])
-- omnibot_pii_masked_total (counter, labels=[pii_type])
-- omnibot_escalation_queue_size (gauge)
-- omnibot_emotion_escalation_total (counter)
-- omnibot_llm_tokens_total (counter, labels=[model,direction])
-- GET /metrics endpoint in Prometheus text format
-
-## Architecture (SAD.md:511-531)
-- PrometheusMetrics class, prometheus-client library, in-memory
-- GET /metrics wired in FastAPI app.py
-
-## Implementation: PrometheusMetrics class in omnibot/metrics.py with all 8 metrics, get_metrics()
-## app.py: adds /metrics route returning Response(media_type=text/plain)
-## Tests: 18 tests, 100% coverage, lint+types clean","phase":3,"date":"2026-05-17"}
+{"fr_id": "FR-21", "role": "developer", "task": "Implement GroundingChecker L5 with GroundingResult dataclass, cosine similarity, injectable embedding_fn, configurable threshold.", "phase": 3, "date": "2026-05-17"}
+{"fr_id": "FR-21", "role": "reviewer", "task": "FR-21 B-1 stateless review. SRS spec: GroundingResult(grounded,score,reason,best_match_index), GroundingChecker.check(llm_output,source_texts), empty sources=no_source, default threshold=0.75, configurable. Steps: embed output/embed sources/cosine sim/max score/threshold compare. SAD: frozen dataclass, paraphrase-multilingual-MiniLM-L12-v2, injectable embedding_fn. 17 tests pass, 90% coverage.", "phase": 3, "date": "2026-05-17"}
+{"fr_id": "FR-22", "role": "developer", "task": "Create the Prometheus metrics module for FR-22. SRS: 8 core Prometheus metrics (1 histogram, 6 counters, 1 gauge) via GET /metrics endpoint. SAD: PrometheusMetrics class, prometheus-client library, in-memory, GET /metrics wired in FastAPI app.py.", "phase": 3, "session_id": "7bc83d9a-4b23-4e78-8afc-b98ac7d03932", "status": "complete"}
+{"fr_id": "FR-22", "role": "developer", "task": "Create PrometheusMetrics module with all 8 metrics and GET /metrics endpoint", "phase": 3, "date": "2026-05-17"}
+{"fr_id": "FR-22", "role": "reviewer", "task": "FR-22 B-1 stateless review. SRS: 8 metrics (omnibot_response_duration_seconds histogram with buckets, 5 counters with labels, 1 gauge). SAD: PrometheusMetrics class, prometheus-client, GET /metrics route. Implementation: metrics.py with all 8 metrics + app.py /metrics route. 18 tests, 100% coverage, lint+type clean.", "phase": 3, "date": "2026-05-17"}
+{"timestamp": "2026-05-17T20:23:28.331546", "role": "developer", "task": "Extend the Phase 1 database schema for FR-23 (Phase 2 Incremental).\n\n## Existing Phase 1 Schema\nLocated at 03-development/src/omnibot/schema/__init__.py — contains TABLE_DEFS list with 8 tables: users", "session_id": "e56db846-0dc4-4e8f-8d47-d445d8885e61", "status": "complete", "phase": 3, "fr_id": "FR-23"}
+{"fr_id": "FR-23", "role": "developer", "task": "Extend Phase 1 schema with PHASE2_TABLE_DEFS (emotion_history, edge_cases), PHASE2_SQL (tables + ivfflat + emotion index), get_phase2_schema_sql() function.", "phase": 3, "date": "2026-05-17"}
+{"fr_id": "FR-23", "role": "reviewer", "task": "FR-23 B-1 stateless review. SRS: emotion_history (6 cols, FK, CHECK), edge_cases (7 cols, DEFAULT, CHECK), ivfflat index on knowledge_base, Phase 1 column activation (dst_state/knowledge_source already exist). SAD: new tables + ivfflat index. Implementation: PHASE2_TABLE_DEFS, PHASE2_SQL, get_phase2_schema_sql(). 13 tests, 100% coverage.", "phase": 3, "date": "2026-05-17"}

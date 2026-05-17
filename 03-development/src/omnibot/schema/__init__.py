@@ -109,3 +109,46 @@ def get_schema_sql() -> str:
     """
     setup = "CREATE EXTENSION IF NOT EXISTS vector;\n"
     return setup + "\n".join(ddl for _, ddl in TABLE_DEFS)
+
+
+PHASE2_TABLE_DEFS = [
+    ("emotion_history", """
+CREATE TABLE IF NOT EXISTS emotion_history (
+    id SERIAL PRIMARY KEY,
+    unified_user_id UUID NOT NULL REFERENCES users(unified_user_id),
+    conversation_id INTEGER NOT NULL REFERENCES conversations(id),
+    category VARCHAR(20) NOT NULL CHECK (category IN ('positive', 'neutral', 'negative')),
+    intensity FLOAT NOT NULL CHECK (intensity >= 0 AND intensity <= 1),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""),
+    ("edge_cases", """
+CREATE TABLE IF NOT EXISTS edge_cases (
+    id SERIAL PRIMARY KEY,
+    query TEXT NOT NULL,
+    expected_intent VARCHAR(50),
+    expected_answer TEXT,
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+    annotated_at TIMESTAMPTZ,
+    used_in_regression BOOLEAN DEFAULT FALSE
+);
+"""),
+]
+
+PHASE2_SQL = (
+    "\n".join(ddl for _, ddl in PHASE2_TABLE_DEFS)
+    + "\n"
+    + "CREATE INDEX IF NOT EXISTS idx_emotion_history_user_time "
+    + "ON emotion_history (unified_user_id, created_at DESC);\n"
+    + "CREATE INDEX IF NOT EXISTS idx_kb_embeddings "
+    + "ON knowledge_base USING ivfflat (embeddings vector_cosine_ops) WITH (lists = 100);\n"
+)
+
+
+def get_phase2_schema_sql() -> str:
+    """Return the Phase 2 incremental schema as a SQL string.
+
+    Combines Phase 2 table DDLs and corresponding indexes.
+    Phase 1 tables are NOT included — use get_schema_sql() for those.
+    """
+    return PHASE2_SQL

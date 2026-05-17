@@ -1,0 +1,148 @@
+"""[FR-23] Database Schema — Phase 2 Incremental Tables + Index.
+
+Tests for emotion_history, edge_cases tables and ivfflat index.
+Verifies Phase 2 DDL does not duplicate Phase 1 tables.
+
+Citations: SRS.md:234-263, SAD.md:537-563
+"""
+
+from __future__ import annotations
+
+from omnibot.schema import PHASE2_TABLE_DEFS, get_phase2_schema_sql, get_schema_sql, TABLE_DEFS
+
+
+# -- PHASE2_TABLE_DEFS structure --
+
+
+def test_phase2_table_defs_has_two_entries():
+    """PHASE2_TABLE_DEFS contains exactly 2 table definitions."""
+    assert len(PHASE2_TABLE_DEFS) == 2
+
+
+def test_phase2_table_names():
+    """PHASE2_TABLE_DEFS has emotion_history and edge_cases."""
+    names = {name for name, _ in PHASE2_TABLE_DEFS}
+    assert names == {"emotion_history", "edge_cases"}
+
+
+# -- get_phase2_schema_sql() content --
+
+
+def test_phase2_sql_contains_emotion_history():
+    """get_phase2_schema_sql() contains CREATE TABLE emotion_history."""
+    sql = get_phase2_schema_sql()
+    assert "CREATE TABLE IF NOT EXISTS emotion_history" in sql
+
+
+def test_phase2_sql_contains_edge_cases():
+    """get_phase2_schema_sql() contains CREATE TABLE edge_cases."""
+    sql = get_phase2_schema_sql()
+    assert "CREATE TABLE IF NOT EXISTS edge_cases" in sql
+
+
+def test_phase2_sql_contains_ivfflat_index():
+    """get_phase2_schema_sql() contains idx_kb_embeddings ivfflat index."""
+    sql = get_phase2_schema_sql()
+    assert "CREATE INDEX IF NOT EXISTS idx_kb_embeddings" in sql
+    assert "USING ivfflat" in sql
+    assert "vector_cosine_ops" in sql
+    assert "lists = 100" in sql
+
+
+def test_phase2_sql_contains_emotion_history_index():
+    """get_phase2_schema_sql() contains idx_emotion_history_user_time index."""
+    sql = get_phase2_schema_sql()
+    assert "CREATE INDEX IF NOT EXISTS idx_emotion_history_user_time" in sql
+    assert "unified_user_id, created_at DESC" in sql
+
+
+# -- No Phase 1 duplication --
+
+
+def test_phase2_sql_no_phase1_duplication():
+    """get_phase2_schema_sql() does NOT contain Phase 1 table DDL."""
+    sql = get_phase2_schema_sql()
+    phase1_names = {name for name, _ in TABLE_DEFS}
+    for name in phase1_names:
+        assert f"CREATE TABLE IF NOT EXISTS {name}" not in sql, (
+            f"Phase 1 table '{name}' should not appear in Phase 2 SQL"
+        )
+
+
+def test_phase2_table_defs_no_phase1_duplication():
+    """PHASE2_TABLE_DEFS does NOT contain any Phase 1 table names."""
+    phase1_names = {name for name, _ in TABLE_DEFS}
+    phase2_names = {name for name, _ in PHASE2_TABLE_DEFS}
+    assert phase1_names.isdisjoint(phase2_names)
+
+
+# -- emotion_history columns --
+
+
+def test_emotion_history_has_all_columns():
+    """emotion_history DDL contains all required columns."""
+    emotion_ddl = dict(PHASE2_TABLE_DEFS)["emotion_history"]
+    required = [
+        "id SERIAL PRIMARY KEY",
+        "unified_user_id UUID",
+        "conversation_id INTEGER",
+        "category VARCHAR(20)",
+        "intensity FLOAT",
+        "created_at TIMESTAMPTZ",
+    ]
+    for col in required:
+        assert col in emotion_ddl, f"Missing column: {col}"
+
+
+def test_emotion_history_constraints():
+    """emotion_history has NOT NULL, CHECK, and foreign key constraints."""
+    emotion_ddl = dict(PHASE2_TABLE_DEFS)["emotion_history"]
+    assert "unified_user_id UUID NOT NULL REFERENCES users(unified_user_id)" in emotion_ddl
+    assert "conversation_id INTEGER NOT NULL REFERENCES conversations(id)" in emotion_ddl
+    assert "category VARCHAR(20) NOT NULL" in emotion_ddl
+    assert "CHECK (category IN ('positive', 'neutral', 'negative'))" in emotion_ddl
+    assert "intensity FLOAT NOT NULL" in emotion_ddl
+    assert "CHECK (intensity >= 0 AND intensity <= 1)" in emotion_ddl
+    assert "created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()" in emotion_ddl
+
+
+# -- edge_cases columns --
+
+
+def test_edge_cases_has_all_columns():
+    """edge_cases DDL contains all required columns."""
+    edge_ddl = dict(PHASE2_TABLE_DEFS)["edge_cases"]
+    required = [
+        "id SERIAL PRIMARY KEY",
+        "query TEXT",
+        "expected_intent VARCHAR(50)",
+        "expected_answer TEXT",
+        "status VARCHAR(20)",
+        "annotated_at TIMESTAMPTZ",
+        "used_in_regression BOOLEAN",
+    ]
+    for col in required:
+        assert col in edge_ddl, f"Missing column: {col}"
+
+
+def test_edge_cases_constraints():
+    """edge_cases has NOT NULL, DEFAULT, and CHECK constraints."""
+    edge_ddl = dict(PHASE2_TABLE_DEFS)["edge_cases"]
+    assert "query TEXT NOT NULL" in edge_ddl
+    assert "status VARCHAR(20) DEFAULT 'pending'" in edge_ddl
+    assert "CHECK (status IN ('pending', 'approved', 'rejected'))" in edge_ddl
+    assert "used_in_regression BOOLEAN DEFAULT FALSE" in edge_ddl
+
+
+# -- get_phase2_schema_sql return type --
+
+
+def test_get_phase2_schema_sql_returns_str():
+    """get_phase2_schema_sql() returns a string."""
+    result = get_phase2_schema_sql()
+    assert isinstance(result, str)
+    assert len(result) > 0
+    # Also verify Phase 1 schema function works
+    p1 = get_schema_sql()
+    assert isinstance(p1, str)
+    assert "CREATE TABLE IF NOT EXISTS users" in p1
