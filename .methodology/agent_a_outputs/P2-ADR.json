@@ -1,0 +1,22 @@
+{
+  "status": "success",
+  "files": [
+    "02-architecture/adr/ADR.md"
+  ],
+  "confidence": 10,
+  "citations": [
+    "02-architecture/SAD.md:86-158",
+    "02-architecture/SAD.md:237-272",
+    "02-architecture/SAD.md:274-293",
+    "02-architecture/SAD.md:336-359",
+    "02-architecture/SAD.md:363-399",
+    "02-architecture/SAD.md:403-451",
+    "02-architecture/SAD.md:454-477",
+    "02-architecture/SAD.md:480-531",
+    "02-architecture/SAD.md:536-563",
+    "02-architecture/SAD.md:574-597",
+    "01-requirements/SRS.md:19-287",
+    "harness/templates/ADR.md:1-20"
+  ],
+  "summary": "Wrote ADR.md v2.0 with 24 ADRs (ADR-001–ADR-012 preserved from Phase 1, ADR-013–ADR-024 new for Phase 2). Each ADR follows the template format (Status, Context, Decision, Rationale, Consequences) and aligns with SAD.md v2.0 architecture. Phase 2 ADRs cover: Messenger/WhatsApp adapters (013), prompt injection defense (014), credit card Luhn check (015), emotion analyzer (016), DST 7-state FSM (017), RRF fusion k=60 (018), embedding model choice (019), SLA priority tiers (020), cosine similarity grounding (021), Prometheus library choice (022), ivfflat index config (023), golden dataset schema (024)."
+}
