@@ -9,6 +9,8 @@ Citations: SRS.md FR-07 section
 from dataclasses import dataclass
 from typing import List
 
+from omnibot.knowledge.v2 import HybridKnowledgeV2, KnowledgeResult, _reciprocal_rank_fusion  # noqa: F401
+
 
 @dataclass
 class QueryResult:

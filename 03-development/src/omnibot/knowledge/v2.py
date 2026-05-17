@@ -1,0 +1,341 @@
+"""[FR-19] HybridKnowledgeV2 — 4-layer knowledge architecture.
+
+L1: SQL ILIKE + ANY(keywords) → confidence > 0.9 fast-return (source="rule")
+L2: RAG vector retrieval → pgvector cosine similarity → Top-5
+RRF: _reciprocal_rank_fusion(L1+L2, k=60) → Top-3 → best > 0.7 return (source="rag")
+L3: LLM generation with Sandwich Prompt → PromptInjectionDefense → GroundingChecker
+L4: Escalation → KnowledgeResult(id=-1, confidence=0.0, source="escalate")
+
+Citations: SRS.md:139-164, SAD.md:403-451
+"""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Any, Awaitable, Callable, List, Optional
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class KnowledgeResult:
+    """Result from the knowledge pipeline.
+
+    Citations: SRS.md:139-164, SAD.md:403-451
+    """
+
+    id: int
+    query: str
+    response: str
+    confidence: float
+    source: str  # rule | rag | llm | escalate
+
+
+def _reciprocal_rank_fusion(
+    results_lists: List[List[KnowledgeResult]],
+    k: int = 60,
+) -> List[KnowledgeResult]:
+    """Reciprocal Rank Fusion: combine multiple ranked result lists.
+
+    For each document id, sum 1/(rank + k) across all lists,
+    then sort descending by score and return Top-3.
+
+    Citations: SAD.md:403-451
+    """
+    scores: dict[int, float] = {}
+    doc_map: dict[int, KnowledgeResult] = {}
+
+    for results in results_lists:
+        for rank, result in enumerate(results):
+            doc_id = result.id
+            scores[doc_id] = scores.get(doc_id, 0.0) + 1.0 / (rank + k)
+            if doc_id not in doc_map:
+                doc_map[doc_id] = result
+
+    sorted_ids = sorted(scores, key=lambda x: scores[x], reverse=True)
+    top_3 = sorted_ids[:3]
+
+    fused = []
+    for doc_id in top_3:
+        result = doc_map[doc_id]
+        # Use the maximum original confidence from any source list,
+        # not the RRF score (which is a ranking signal ~1/(rank+k)).
+        orig_confidence = max(
+            r.confidence for results in results_lists
+            for r in results if r.id == doc_id
+        )
+        fused.append(KnowledgeResult(
+            id=result.id,
+            query=result.query,
+            response=result.response,
+            confidence=orig_confidence,
+            source=result.source,
+        ))
+
+    return fused
+
+
+class HybridKnowledgeV2:
+    """4-layer hybrid knowledge architecture.
+
+    Dependencies injected via constructor for testability.
+    Executes L1 (rule) → L2 (RAG) → RRF → L3 (LLM) → L4 (escalate)
+    with fast-return thresholds at each layer.
+
+    Citations: SRS.md:139-164, SAD.md:403-451
+    """
+
+    def __init__(
+        self,
+        embedding_fn: Callable[[str], List[float]],
+        db_pool: Any,
+        llm_fn: Callable[..., Awaitable[str]],
+        defense: Any,
+        grounder: Any,
+    ):
+        self._embedding_fn = embedding_fn
+        self._db_pool = db_pool
+        self._llm_fn = llm_fn
+        self._defense = defense
+        self._grounder = grounder
+
+    async def query(self, query: str, user_context: dict[str, Any]) -> KnowledgeResult:
+        """Execute 4-layer knowledge pipeline.
+
+        L1 → L2 → RRF → L3 → L4 with early-exit thresholds.
+        Logs knowledge_source for each result.
+        """
+        # L1: SQL rule match
+        l1_results = await self._rule_match(query)
+        if l1_results and l1_results[0].confidence > 0.9:
+            logger.info(
+                "L1 fast-return: rule match id=%d confidence=%.2f",
+                l1_results[0].id, l1_results[0].confidence,
+            )
+            return l1_results[0]
+
+        # L2: RAG vector retrieval
+        l2_results = await self._rag_search(query)
+
+        # RRF fusion of L1 + L2
+        fused = _reciprocal_rank_fusion([l1_results, l2_results], k=60)
+        if fused and fused[0].confidence > 0.7:
+            best = fused[0]
+            logger.info(
+                "RRF fusion return: id=%d confidence=%.2f",
+                best.id, best.confidence,
+            )
+            return KnowledgeResult(
+                id=best.id, query=best.query, response=best.response,
+                confidence=best.confidence, source="rag",
+            )
+
+        # L3: LLM generation
+        llm_result = await self._llm_generate(query, user_context, fused)
+        if llm_result is not None:
+            return llm_result
+
+        # L4: Escalation
+        logger.info("L4 escalation: no result from L1-L3")
+        return self._escalate(query)
+
+    async def _rule_match(self, query: str) -> List[KnowledgeResult]:
+        """L1: SQL ILIKE + ANY(keywords) match.
+
+        SQL: (question ILIKE '%' || $1 || '%' OR $1 = ANY(keywords)) AND is_active = TRUE
+
+        Citations: SAD.md:403-451 lines 427-435
+        """
+        try:
+            async with self._db_pool.acquire() as conn:
+                rows = await conn.fetch(
+                    """SELECT id, question, answer, keywords
+                       FROM knowledge_base
+                       WHERE (question ILIKE '%' || $1 || '%' OR $1 = ANY(keywords))
+                         AND is_active = TRUE
+                       ORDER BY id
+                       LIMIT 10""",
+                    query,
+                )
+        except Exception:
+            logger.exception("L1 rule match query failed")
+            return []
+
+        results = []
+        for row in rows:
+            keywords = row["keywords"] or []
+            question = row["question"] or ""
+            confidence = self._compute_l1_confidence(query, keywords, question)
+            results.append(KnowledgeResult(
+                id=row["id"],
+                query=query,
+                response=row["answer"] or "",
+                confidence=confidence,
+                source="rule",
+            ))
+
+        results.sort(key=lambda r: r.confidence, reverse=True)
+        return results
+
+    def _compute_l1_confidence(
+        self, query: str, keywords: List[str], question: str
+    ) -> float:
+        """Compute L1 confidence from keyword match ratio.
+
+        Full keyword match → 1.0; ILIKE-only → 0.85; partial → ratio.
+        """
+        query_lower = query.lower()
+        matched = sum(1 for kw in keywords if kw.lower() in query_lower)
+        if matched > 0:
+            return matched / len(keywords)
+        if query_lower in question.lower():
+            return 0.85
+        return 0.0
+
+    async def _rag_search(self, query: str) -> List[KnowledgeResult]:
+        """L2: RAG vector retrieval via pgvector cosine similarity.
+
+        Uses paraphrase-multilingual-MiniLM-L12-v2 384-dim embeddings.
+        pgvector <=> cosine distance, filter by embedding_model, Top-5.
+
+        Citations: SAD.md:403-451 lines 437-445
+        """
+        try:
+            embedding = self._embedding_fn(query)
+        except Exception:
+            logger.exception("L2 embedding generation failed")
+            return []
+
+        try:
+            async with self._db_pool.acquire() as conn:
+                rows = await conn.fetch(
+                    """SELECT id, question, answer,
+                              1 - (embeddings <=> $1::vector) AS similarity
+                       FROM knowledge_base
+                       WHERE embeddings IS NOT NULL
+                         AND embedding_model = 'paraphrase-multilingual-MiniLM-L12-v2'
+                         AND is_active = TRUE
+                       ORDER BY embeddings <=> $1::vector
+                       LIMIT 5""",
+                    str(embedding),
+                )
+        except Exception:
+            logger.exception("L2 RAG query failed")
+            return []
+
+        results = []
+        for row in rows:
+            similarity = float(row["similarity"])
+            results.append(KnowledgeResult(
+                id=row["id"],
+                query=query,
+                response=row["answer"] or "",
+                confidence=similarity,
+                source="rag",
+            ))
+
+        return results
+
+    async def _llm_generate(
+        self,
+        query: str,
+        user_context: dict[str, Any],
+        context_results: List[KnowledgeResult],
+    ) -> Optional[KnowledgeResult]:
+        """L3: LLM generation with Sandwich Prompt.
+
+        Flow:
+        1. PromptInjectionDefense.check_input() — unsafe → escalate
+        2. GroundingChecker.check() — not grounded → None (L4 fallthrough)
+        3. Sandwich Prompt via defense.build_sandwich_prompt()
+        4. LLM call with 30s timeout; empty/timed-out → None (L4 fallthrough)
+
+        Citations: SRS.md:139-164 lines 155-160, SAD.md:403-451 lines 446-448
+        """
+        # Step 1: Check for prompt injection
+        security = self._defense.check_input(query)
+        if not security.is_safe:
+            logger.warning(
+                "L3 blocked by PromptInjectionDefense: %s", security.blocked_reason
+            )
+            return KnowledgeResult(
+                id=-1,
+                query=query,
+                response="",
+                confidence=0.0,
+                source="escalate",
+            )
+
+        # Build context from RRF results
+        if context_results:
+            context_text = "\n".join(
+                f"Q: {r.query}\nA: {r.response}" for r in context_results
+            )
+        else:
+            context_text = "No relevant context available."
+
+        # Build sandwich prompt
+        system_instruction = (
+            "你是一個專業的客服助手。請根據提供的上下文來回答使用者的問題。"
+            "如果上下文不足以回答問題，請如實告知。"
+        )
+        prompt = self._defense.build_sandwich_prompt(
+            system_instruction=system_instruction,
+            user_input=query,
+            context=context_text,
+        )
+
+        # Step 2: LLM call with timeout
+        try:
+            llm_response = await asyncio.wait_for(
+                self._llm_fn(prompt, user_context),
+                timeout=30.0,
+            )
+        except asyncio.TimeoutError:
+            logger.error("L3 LLM call timed out")
+            return None
+        except Exception:
+            logger.exception("L3 LLM call failed")
+            return None
+
+        if not llm_response or not llm_response.strip():
+            logger.warning("L3 LLM returned empty response")
+            return None
+
+        # Step 3: Grounding check
+        source_texts = [r.response for r in context_results] if context_results else []
+        if source_texts:
+            try:
+                grounding = self._grounder.check(llm_response, source_texts)
+                if not grounding.grounded:
+                    logger.warning(
+                        "L3 LLM response not grounded: score=%.3f reason=%s",
+                        grounding.score, grounding.reason,
+                    )
+                    return None
+            except Exception:
+                logger.exception("L3 grounding check failed")
+                return None
+
+        return KnowledgeResult(
+            id=-1,
+            query=query,
+            response=llm_response.strip(),
+            confidence=0.85,
+            source="llm",
+        )
+
+    def _escalate(self, query: str) -> KnowledgeResult:
+        """L4: Escalation — return sentinel result.
+
+        Citations: SRS.md:139-164 line 161
+        """
+        return KnowledgeResult(
+            id=-1,
+            query=query,
+            response="",
+            confidence=0.0,
+            source="escalate",
+        )
