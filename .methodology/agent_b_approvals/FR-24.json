@@ -1,10 +1,23 @@
 {
-  "fr_id": "FR-24",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. EdgeCase frozen dataclass with 7 fields. EdgeCaseCollector with ingest/approve/mark_for_regression/get_regression_set using asyncpg. GOLDEN_DATASET has 510 entries (6 categories x 85 each). 6 categories: asr_garbled, spelling_error, dialect, multi_intent, emotional_outburst, prompt_injection. Import-time assertion verifies >=500 entries and >=50 per category. get_category() correctly identifies all 6 categories. All 13/13 tests pass. Coverage 100%.",
+  "review_status": "APPROVE",
+  "reason": "All FR-24 acceptance criteria are satisfied. GOLDEN_DATASET contains 510 entries (6 × 85, range(1,86)), exceeding the 500-record minimum. Each category has 85 entries, well above the 50-per-category floor. Import-time assertions enforce both invariants at load. Each dict entry carries the required query/expected_intent/expected_answer fields. EdgeCaseCollector.ingest() stores those three fields; approve() sets status='approved' and annotated_at to a UTC ISO timestamp; mark_for_regression() sets used_in_regression=TRUE; get_regression_set() filters WHERE used_in_regression=TRUE AND status='approved', matching the AC exactly. EdgeCase dataclass captures all six required columns. get_category() correctly classifies all six boundary types via substring matching that aligns with the generated query patterns. MockPool/MockConnection in the test file provide full coverage of all four DB methods without requiring a live database. Minor observation: no bulk-seed utility is shipped to auto-approve and flag all 510 entries from GOLDEN_DATASET in one call; callers must loop and invoke approve()+mark_for_regression() per record. This is a usability gap, not an AC gap, since the AC specifies the schema state rather than a seeding mechanism, and the tools to reach that state are all present.",
   "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "dataset.py", "tests/test_fr24.py", "TEST_RESULTS.md"],
-  "citations": ["test_fr24.py:76-93", "test_fr24.py:108-116", "test_fr24.py:119-128", "test_fr24.py:131-139", "test_fr24.py:142-157", "test_fr24.py:176-178", "test_fr24.py:235-246"],
-  "gaps": []
+  "citations": [
+    "dataset.py:104",
+    "dataset.py:107",
+    "dataset.py:110",
+    "dataset.py:113",
+    "dataset.py:116",
+    "dataset.py:119",
+    "dataset.py:123",
+    "dataset.py:125",
+    "dataset.py:49",
+    "dataset.py:57",
+    "dataset.py:64",
+    "dataset.py:72"
+  ],
+  "gaps": [
+    "No bulk-seed helper to ingest GOLDEN_DATASET into DB with status=approved and used_in_regression=TRUE in one call; callers must implement the loop manually."
+  ]
 }
