@@ -1,0 +1,11 @@
+ctx:
+  agent_id: GATE
+  phase: 5
+  fr_id: FR-04
+  trace_id: ff14ae05
+  timestamp: '2026-05-18T20:54:39.199816+00:00'
+decision: GATE_PASS
+reasoning: 'Gate 1: score=95.7, critical=0, high=0'
+scores:
+  gate_score: 95.7
+metadata: {}
