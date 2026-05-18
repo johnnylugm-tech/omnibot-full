@@ -202,7 +202,7 @@
       },
       "FR-17": {
         "score": 99.3,
-        "quality_complete": false,
+        "quality_complete": true,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
