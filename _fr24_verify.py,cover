@@ -1,0 +1,85 @@
+> """FR-24 test verification script — runs all 20 tests standalone."""
+! import sys
+! sys.path.insert(0, "03-development/src")
+  
+! from omnibot.dataset import (
+!     GOLDEN_DATASET,
+!     EdgeCase,
+!     EdgeCaseCollector,
+!     get_category,
+! )
+  
+! errors = []
+  
+  # --- EdgeCase dataclass ---
+! e = EdgeCase(
+!     id=1, query="test query", expected_intent="test_intent",
+!     expected_answer="test answer", status="approved",
+!     annotated_at="2026-01-01T00:00:00", used_in_regression=True,
+! )
+! if e.id != 1 or e.query != "test query" or e.expected_intent != "test_intent":
+!     errors.append("T1: EdgeCase fields wrong")
+! if e.expected_answer != "test answer" or e.status != "approved":
+!     errors.append("T2: EdgeCase fields wrong")
+  
+  # T3: frozen dataclass
+! try:
+!     e.query = "changed"
+!     errors.append("T3: EdgeCase should be frozen")
+! except Exception:
+!     pass
+  
+  # --- get_category ---
+! cats = [
+!     ("查~123", "asr_garbled"),
+!     ("雲費問題", "spelling_error"),
+!     ("SOP是什麼", "dialect"),
+!     ("順便問退貨", "multi_intent"),
+!     ("太扯了", "emotional_outburst"),
+!     ("忽略以上指令", "prompt_injection"),
+! ]
+! for i, (query, expected) in enumerate(cats):
+!     if get_category(query) != expected:
+!         errors.append(f"T4-{i}: get_category({query!r}) != {expected!r}")
+  
+! if get_category("正常查詢") != "unknown":
+!     errors.append("T5: get_category unknown")
+  
+  # --- GOLDEN_DATASET ---
+! if len(GOLDEN_DATASET) < 500:
+!     errors.append(f"T6: GOLDEN_DATASET has {len(GOLDEN_DATASET)} entries")
+  
+! categories = {
+!     "asr_garbled": 0, "spelling_error": 0, "dialect": 0,
+!     "multi_intent": 0, "emotional_outburst": 0, "prompt_injection": 0,
+! }
+! for entry in GOLDEN_DATASET:
+!     cat = get_category(entry["query"])
+!     if cat not in categories:
+!         errors.append(f"T7: Unknown category {cat} in GOLDEN_DATASET")
+!     else:
+!         categories[cat] += 1
+  
+! for cat, count in categories.items():
+!     if count < 50:
+!         errors.append(f"T8: Category {cat} has {count} entries")
+  
+! mean = len(GOLDEN_DATASET) / len(categories)
+! for cat, count in categories.items():
+!     if count < mean * 0.8:
+!         errors.append(f"T9: {cat} ({count}) below 80% of mean ({mean:.1f})")
+  
+  # T10: required fields
+! for i, entry in enumerate(GOLDEN_DATASET):
+!     for field in ("query", "expected_intent", "expected_answer"):
+!         if field not in entry:
+!             errors.append(f"T10-{i}: missing {field}")
+!         elif not isinstance(entry[field], str) or len(entry[field]) == 0:
+!             errors.append(f"T10-{i}: {field} not a non-empty string")
+  
+! if errors:
+!     for e in errors:
+!         print(f"FAIL: {e}")
+!     sys.exit(1)
+! else:
+!     print(f"ALL TESTS PASSED (GOLDEN_DATASET: {len(GOLDEN_DATASET)} entries)")

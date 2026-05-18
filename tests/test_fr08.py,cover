@@ -1,0 +1,119 @@
+> """FR-08: Basic Escalation Manager — No SLA.
+  
+> [FR-08] Acceptance criteria:
+>   - create() writes escalation_queue record with conversation_id + reason
+>   - assign() sets assigned_agent + picked_at
+>   - resolve() sets resolved_at
+>   - Phase 1: no SLA tracking (sla_deadline is None)
+  
+> Citations: SRS.md FR-08 section, SAD.md 2.4.1 EscalationService
+> """
+  
+> import pytest
+> from datetime import datetime, timezone
+  
+> from omnibot.escalation import EscalationManager, EscalationRecord
+  
+  
+> def test_create_returns_escalation_id():
+>     """create() returns a positive integer escalation_id."""
+>     mgr = EscalationManager()
+>     eid = mgr.create("conv_001", "low_confidence")
+>     assert isinstance(eid, int)
+>     assert eid > 0
+  
+  
+> def test_create_stores_conversation_id_and_reason():
+>     """create() stores conversation_id, reason, and created_at."""
+>     mgr = EscalationManager()
+>     eid = mgr.create("conv_001", "no_match")
+>     record = mgr.get(eid)
+>     assert record is not None
+>     assert record.conversation_id == "conv_001"
+>     assert record.reason == "no_match"
+>     assert isinstance(record.created_at, datetime)
+  
+  
+> def test_create_increments_id():
+>     """Successive create() calls return incrementing IDs."""
+>     mgr = EscalationManager()
+>     e1 = mgr.create("conv_001", "reason_a")
+>     e2 = mgr.create("conv_002", "reason_b")
+>     assert e2 > e1
+  
+  
+> def test_assign_sets_agent_and_picked_at():
+>     """assign() sets assigned_agent and picked_at timestamp."""
+>     mgr = EscalationManager()
+>     eid = mgr.create("conv_001", "low_confidence")
+>     mgr.assign(eid, "agent_42")
+>     record = mgr.get(eid)
+>     assert record.assigned_agent == "agent_42"
+>     assert isinstance(record.picked_at, datetime)
+  
+  
+> def test_resolve_sets_resolved_at():
+>     """resolve() sets resolved_at timestamp."""
+>     mgr = EscalationManager()
+>     eid = mgr.create("conv_001", "low_confidence")
+>     mgr.assign(eid, "agent_42")
+>     mgr.resolve(eid)
+>     record = mgr.get(eid)
+>     assert isinstance(record.resolved_at, datetime)
+  
+  
+> def test_phase1_no_sla():
+>     """Phase 1: sla_deadline field exists but is None."""
+>     mgr = EscalationManager()
+>     eid = mgr.create("conv_001", "low_confidence")
+>     record = mgr.get(eid)
+>     assert record.sla_deadline is None
+  
+  
+> def test_assign_nonexistent_raises():
+>     """assign() on non-existent ID raises KeyError."""
+>     mgr = EscalationManager()
+>     with pytest.raises(KeyError):
+>         mgr.assign(999, "agent_1")
+  
+  
+> def test_resolve_nonexistent_raises():
+>     """resolve() on non-existent ID raises KeyError."""
+>     mgr = EscalationManager()
+>     with pytest.raises(KeyError):
+>         mgr.resolve(999)
+  
+  
+> def test_escalation_record_fields():
+>     """EscalationRecord has all expected fields."""
+>     r = EscalationRecord(
+>         escalation_id=1,
+>         conversation_id="conv_001",
+>         reason="test",
+>         created_at=datetime.now(timezone.utc),
+>     )
+>     assert r.escalation_id == 1
+>     assert r.assigned_agent is None
+>     assert r.picked_at is None
+>     assert r.resolved_at is None
+>     assert r.sla_deadline is None
+  
+  
+> def test_full_lifecycle():
+>     """Full lifecycle: create → assign → resolve."""
+>     mgr = EscalationManager()
+>     eid = mgr.create("conv_full", "needs_human")
+>     record = mgr.get(eid)
+>     assert record.assigned_agent is None
+>     assert record.resolved_at is None
+  
+>     mgr.assign(eid, "agent_7")
+>     record = mgr.get(eid)
+>     assert record.assigned_agent == "agent_7"
+>     assert record.picked_at is not None
+>     assert record.resolved_at is None
+  
+>     mgr.resolve(eid)
+>     record = mgr.get(eid)
+>     assert record.resolved_at is not None
+>     assert record.resolved_at >= record.picked_at

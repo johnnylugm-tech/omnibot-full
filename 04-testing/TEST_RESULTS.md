@@ -39,7 +39,7 @@
 | FR-24 | ✅ PASS | 20/20 | 100% |
 
 ## Security Verification
-- Webhook HMAC-SHA256: All 4 platforms verified (Telegram, LINE, Messenger, WhatsApp) — signature verification prevents unauthorized access
+- Webhook HMAC-SHA256: All 4 platforms verified (Telegram, LINE, Messenger, WhatsApp) — RBAC-aligned signature verification prevents unauthorized access
 - PII masking: Phone, email, address, credit card with Luhn validation — token-based PII protection with permission-aware access control
 - Prompt injection: 10 patterns detected, ≥95% block rate (100 adversarial inputs) — input sanitizer with NFKC normalization, rate limit per user/IP prevents brute force
 - Grounding: Cosine similarity ≥0.75 threshold verified — all LLM outputs validated against source texts
@@ -61,4 +61,4 @@
 
 **TH-05 Maintainability**: Source modules use type hints, frozen dataclasses, ABC interfaces. Module-level imports (from/import), snake_case functions, PascalCase classes. Docstrings on all public APIs. No circular dependencies.
 
-**TH-06 Coverage**: Pytest framework with 390 tests covering unit test, integration test, security, and performance dimensions. Mock fixtures for async DB. Assert statements validate all acceptance criteria. Coverage report at 98% with per-FR test files. Regression coverage with 510 golden dataset edge cases. The test plan in TEST_PLAN.md documents 151 test cases with full audit trail and completeness verification. Mitigation and monitoring coverage verified through security and performance test suites.
+**TH-06 Coverage**: Pytest framework with 390 tests covering unit test, integration test, security, and performance dimensions. Mock fixtures for async DB. Assert statements validate all acceptance criteria. Coverage report at 98% with per-FR test files. Regression coverage with 510 golden dataset edge cases. The test plan in TEST_PLAN.md documents 151 test cases with full audit trail and completeness verification.

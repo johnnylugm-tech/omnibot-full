@@ -1,0 +1,516 @@
+> """[FR-18] Intent Router + Dialogue State Tracker (DST) — 7-state FSM.
+  
+> Acceptance criteria:
+>   - ConversationState enum: IDLE, INTENT_DETECTED, SLOT_FILLING, AWAITING_CONFIRMATION,
+>     PROCESSING, RESOLVED, ESCALATED
+>   - DialogueSlot(name, value, required, prompt) — required slot missing triggers prompt
+>   - DialogueState fields: conversation_id, current_state, primary_intent, sub_intents,
+>     slots dict, turn_count, last_updated
+>   - DialogueState.transition(new_state) immutable: returns new DialogueState,
+>     turn_count += 1, last_updated = UTC now
+>   - DialogueState.missing_slots() returns required slots where value is None
+>   - State transitions: IDLE→INTENT_DETECTED, INTENT_DETECTED→PROCESSING|SLOT_FILLING,
+>     SLOT_FILLING→AWAITING_CONFIRMATION|ESCALATED, AWAITING_CONFIRMATION→PROCESSING|SLOT_FILLING,
+>     PROCESSING→RESOLVED|ESCALATED, ESCALATED→RESOLVED
+  
+> Citations: SRS.md:110-133, SAD.md:363-399
+> """
+  
+> from dataclasses import FrozenInstanceError
+> from datetime import datetime, timezone
+  
+> import pytest
+  
+> from omnibot.dst import ConversationState, DialogueSlot, DialogueState
+  
+  
+  # ── ConversationState enum ─────────────────────────────────────────────────────
+  
+> def test_conversation_state_has_seven_values():
+>     """ConversationState enum contains all 7 states."""
+>     states = list(ConversationState)
+>     assert len(states) == 7
+>     names = {s.name for s in states}
+>     assert names == {
+>         "IDLE", "INTENT_DETECTED", "SLOT_FILLING", "AWAITING_CONFIRMATION",
+>         "PROCESSING", "RESOLVED", "ESCALATED",
+>     }
+  
+  
+> def test_conversation_state_values_are_uppercase_strings():
+>     """Each enum member's value equals its name."""
+>     for state in ConversationState:
+>         assert state.value == state.name
+  
+  
+  # ── DialogueSlot frozen dataclass ──────────────────────────────────────────────
+  
+> def test_slot_construction_with_all_fields():
+>     """DialogueSlot can be constructed with name, value, required, prompt."""
+>     slot = DialogueSlot(name="destination", value="Paris", required=True, prompt="Where to?")
+>     assert slot.name == "destination"
+>     assert slot.value == "Paris"
+>     assert slot.required is True
+>     assert slot.prompt == "Where to?"
+  
+  
+> def test_slot_construction_with_value_none():
+>     """DialogueSlot value can be None."""
+>     slot = DialogueSlot(name="date", value=None, required=True, prompt="What date?")
+>     assert slot.name == "date"
+>     assert slot.value is None
+>     assert slot.required is True
+  
+  
+> def test_slot_defaults():
+>     """DialogueSlot defaults: value=None, required=False, prompt=''."""
+>     slot = DialogueSlot(name="notes")
+>     assert slot.value is None
+>     assert slot.required is False
+>     assert slot.prompt == ""
+  
+  
+> def test_slot_is_frozen():
+>     """DialogueSlot is frozen — mutation raises FrozenInstanceError."""
+>     slot = DialogueSlot(name="x", value="y", required=True, prompt="p")
+>     with pytest.raises(FrozenInstanceError):
+>         slot.value = "z"
+  
+  
+> def test_slot_equality():
+>     """DialogueSlot equality is based on all fields."""
+>     a = DialogueSlot(name="dest", value="NYC", required=True, prompt="Where?")
+>     b = DialogueSlot(name="dest", value="NYC", required=True, prompt="Where?")
+>     c = DialogueSlot(name="dest", value="LA", required=True, prompt="Where?")
+>     assert a == b
+>     assert a != c
+  
+  
+  # ── DialogueState construction ─────────────────────────────────────────────────
+  
+> def test_dialogue_state_defaults():
+>     """DialogueState defaults: IDLE, no intent, empty slots, turn_count=0."""
+>     ds = DialogueState(conversation_id="conv_001")
+>     assert ds.conversation_id == "conv_001"
+>     assert ds.current_state == ConversationState.IDLE
+>     assert ds.primary_intent is None
+>     assert ds.sub_intents == []
+>     assert ds.slots == {}
+>     assert ds.turn_count == 0
+>     assert isinstance(ds.last_updated, datetime)
+  
+  
+> def test_dialogue_state_construction_with_all_fields():
+>     """DialogueState can be constructed with all fields specified."""
+>     now = datetime.now(timezone.utc)
+>     slot = DialogueSlot(name="dest", value="Tokyo", required=True, prompt="Where?")
+>     ds = DialogueState(
+>         conversation_id="conv_002",
+>         current_state=ConversationState.SLOT_FILLING,
+>         primary_intent="book_flight",
+>         sub_intents=["check_price"],
+>         slots={"dest": slot},
+>         turn_count=2,
+>         last_updated=now,
+>     )
+>     assert ds.conversation_id == "conv_002"
+>     assert ds.current_state == ConversationState.SLOT_FILLING
+>     assert ds.primary_intent == "book_flight"
+>     assert ds.sub_intents == ["check_price"]
+>     assert ds.slots == {"dest": slot}
+>     assert ds.turn_count == 2
+>     assert ds.last_updated == now
+  
+  
+> def test_dialogue_state_is_frozen():
+>     """DialogueState is frozen — attribute assignment raises FrozenInstanceError."""
+>     ds = DialogueState(conversation_id="conv_001")
+>     with pytest.raises(FrozenInstanceError):
+>         ds.turn_count = 5
+  
+  
+> def test_dialogue_state_slots_are_independent():
+>     """Each DialogueState instance gets its own slots dict."""
+>     ds1 = DialogueState(conversation_id="c1")
+>     ds2 = DialogueState(conversation_id="c2")
+>     assert ds1.slots is not ds2.slots
+  
+  
+  # ── missing_slots() ────────────────────────────────────────────────────────────
+  
+> def test_missing_slots_empty():
+>     """missing_slots() returns empty list when no slots defined."""
+>     ds = DialogueState(conversation_id="conv_001")
+>     assert ds.missing_slots() == []
+  
+  
+> def test_missing_slots_all_filled():
+>     """missing_slots() returns empty list when all required slots have values."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         slots={
+>             "dest": DialogueSlot(name="dest", value="Paris", required=True, prompt="Where?"),
+>             "date": DialogueSlot(name="date", value="tomorrow", required=True, prompt="When?"),
+>         },
+>     )
+>     assert ds.missing_slots() == []
+  
+  
+> def test_missing_slots_some_required_missing():
+>     """missing_slots() returns required slots where value is None."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         slots={
+>             "dest": DialogueSlot(name="dest", value="Paris", required=True, prompt="Where?"),
+>             "date": DialogueSlot(name="date", value=None, required=True, prompt="When?"),
+>         },
+>     )
+>     missing = ds.missing_slots()
+>     assert len(missing) == 1
+>     assert missing[0].name == "date"
+>     assert missing[0].required is True
+>     assert missing[0].value is None
+  
+  
+> def test_missing_slots_optional_are_ignored():
+>     """Optional slots (required=False) are never returned by missing_slots()."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         slots={
+>             "dest": DialogueSlot(name="dest", value=None, required=True, prompt="Where?"),
+>             "notes": DialogueSlot(name="notes", value=None, required=False),
+>         },
+>     )
+>     missing = ds.missing_slots()
+>     assert len(missing) == 1
+>     assert missing[0].name == "dest"
+  
+  
+> def test_missing_slots_all_missing():
+>     """When all required slots have None values, all are returned."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         slots={
+>             "dest": DialogueSlot(name="dest", value=None, required=True, prompt="Where?"),
+>             "date": DialogueSlot(name="date", value=None, required=True, prompt="When?"),
+>             "pax": DialogueSlot(name="pax", value=None, required=True, prompt="How many?"),
+>         },
+>     )
+>     missing = ds.missing_slots()
+>     assert len(missing) == 3
+>     names = {s.name for s in missing}
+>     assert names == {"dest", "date", "pax"}
+  
+  
+> def test_missing_slots_mixed_required_and_optional():
+>     """Only required+None slots are returned; optional+None and required+filled are excluded."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         slots={
+>             "a": DialogueSlot(name="a", value="ok", required=True, prompt="A?"),
+>             "b": DialogueSlot(name="b", value=None, required=True, prompt="B?"),
+>             "c": DialogueSlot(name="c", value=None, required=False),
+>             "d": DialogueSlot(name="d", value="ok", required=False),
+>         },
+>     )
+>     missing = ds.missing_slots()
+>     assert len(missing) == 1
+>     assert missing[0].name == "b"
+  
+  
+  # ── transition() — valid transitions ───────────────────────────────────────────
+  
+> def test_transition_idle_to_intent_detected():
+>     """IDLE → INTENT_DETECTED is valid."""
+>     ds = DialogueState(conversation_id="conv_001")
+>     new_ds = ds.transition(ConversationState.INTENT_DETECTED)
+>     assert new_ds.current_state == ConversationState.INTENT_DETECTED
+>     assert new_ds is not ds
+  
+  
+> def test_transition_intent_detected_to_processing():
+>     """INTENT_DETECTED → PROCESSING is valid."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.INTENT_DETECTED,
+>         slots={"dest": DialogueSlot(name="dest", value="Paris", required=True, prompt="Where?")},
+>     )
+>     new_ds = ds.transition(ConversationState.PROCESSING)
+>     assert new_ds.current_state == ConversationState.PROCESSING
+  
+  
+> def test_transition_intent_detected_to_slot_filling():
+>     """INTENT_DETECTED → SLOT_FILLING is valid."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.INTENT_DETECTED,
+>     )
+>     new_ds = ds.transition(ConversationState.SLOT_FILLING)
+>     assert new_ds.current_state == ConversationState.SLOT_FILLING
+  
+  
+> def test_transition_slot_filling_to_awaiting_confirmation():
+>     """SLOT_FILLING → AWAITING_CONFIRMATION is valid."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.SLOT_FILLING,
+>         slots={"dest": DialogueSlot(name="dest", value="Paris", required=True, prompt="Where?")},
+>     )
+>     new_ds = ds.transition(ConversationState.AWAITING_CONFIRMATION)
+>     assert new_ds.current_state == ConversationState.AWAITING_CONFIRMATION
+  
+  
+> def test_transition_slot_filling_to_escalated():
+>     """SLOT_FILLING → ESCALATED is valid."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.SLOT_FILLING,
+>         turn_count=3,
+>     )
+>     new_ds = ds.transition(ConversationState.ESCALATED)
+>     assert new_ds.current_state == ConversationState.ESCALATED
+  
+  
+> def test_transition_awaiting_confirmation_to_processing():
+>     """AWAITING_CONFIRMATION → PROCESSING is valid (user confirms)."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.AWAITING_CONFIRMATION,
+>     )
+>     new_ds = ds.transition(ConversationState.PROCESSING)
+>     assert new_ds.current_state == ConversationState.PROCESSING
+  
+  
+> def test_transition_awaiting_confirmation_to_slot_filling():
+>     """AWAITING_CONFIRMATION → SLOT_FILLING is valid (user denies)."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.AWAITING_CONFIRMATION,
+>     )
+>     new_ds = ds.transition(ConversationState.SLOT_FILLING)
+>     assert new_ds.current_state == ConversationState.SLOT_FILLING
+  
+  
+> def test_transition_processing_to_resolved():
+>     """PROCESSING → RESOLVED is valid."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.PROCESSING,
+>     )
+>     new_ds = ds.transition(ConversationState.RESOLVED)
+>     assert new_ds.current_state == ConversationState.RESOLVED
+  
+  
+> def test_transition_processing_to_escalated():
+>     """PROCESSING → ESCALATED is valid (low confidence)."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.PROCESSING,
+>     )
+>     new_ds = ds.transition(ConversationState.ESCALATED)
+>     assert new_ds.current_state == ConversationState.ESCALATED
+  
+  
+> def test_transition_escalated_to_resolved():
+>     """ESCALATED → RESOLVED is valid (human intervention)."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.ESCALATED,
+>     )
+>     new_ds = ds.transition(ConversationState.RESOLVED)
+>     assert new_ds.current_state == ConversationState.RESOLVED
+  
+  
+  # ── transition() — property changes ────────────────────────────────────────────
+  
+> def test_transition_increments_turn_count():
+>     """transition() increments turn_count by 1."""
+>     ds = DialogueState(conversation_id="conv_001", turn_count=3)
+>     new_ds = ds.transition(ConversationState.INTENT_DETECTED)
+>     assert new_ds.turn_count == 4
+  
+  
+> def test_transition_updates_last_updated():
+>     """transition() updates last_updated to current UTC time."""
+>     before = datetime.now(timezone.utc)
+>     ds = DialogueState(conversation_id="conv_001")
+>     new_ds = ds.transition(ConversationState.INTENT_DETECTED)
+>     after = datetime.now(timezone.utc)
+>     assert before <= new_ds.last_updated <= after
+  
+  
+> def test_transition_preserves_other_fields():
+>     """transition() preserves conversation_id, primary_intent, sub_intents, slots."""
+>     slot = DialogueSlot(name="dest", value="Paris", required=True, prompt="Where?")
+>     ds = DialogueState(
+>         conversation_id="conv_042",
+>         primary_intent="book_flight",
+>         sub_intents=["check_price", "check_weather"],
+>         slots={"dest": slot},
+>     )
+>     new_ds = ds.transition(ConversationState.INTENT_DETECTED)
+>     assert new_ds.conversation_id == "conv_042"
+>     assert new_ds.primary_intent == "book_flight"
+>     assert new_ds.sub_intents == ["check_price", "check_weather"]
+>     assert new_ds.slots == {"dest": slot}
+  
+  
+> def test_transition_returns_new_object():
+>     """transition() returns a new DialogueState instance, not the same object."""
+>     ds = DialogueState(conversation_id="conv_001")
+>     new_ds = ds.transition(ConversationState.INTENT_DETECTED)
+>     assert new_ds is not ds
+      # Original is unchanged
+>     assert ds.current_state == ConversationState.IDLE
+>     assert ds.turn_count == 0
+  
+  
+  # ── transition() — invalid transitions ─────────────────────────────────────────
+  
+> def test_transition_idle_to_processing_invalid():
+>     """IDLE → PROCESSING is not a valid transition."""
+>     ds = DialogueState(conversation_id="conv_001")
+>     with pytest.raises(ValueError, match="Invalid transition"):
+>         ds.transition(ConversationState.PROCESSING)
+  
+  
+> def test_transition_idle_to_resolved_invalid():
+>     """IDLE → RESOLVED is not a valid transition."""
+>     ds = DialogueState(conversation_id="conv_001")
+>     with pytest.raises(ValueError, match="Invalid transition"):
+>         ds.transition(ConversationState.RESOLVED)
+  
+  
+> def test_transition_resolved_to_any_invalid():
+>     """RESOLVED is terminal — no outgoing transitions."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.RESOLVED,
+>     )
+>     for target in ConversationState:
+>         with pytest.raises(ValueError, match="Invalid transition"):
+>             ds.transition(target)
+  
+  
+> def test_transition_escalated_to_processing_invalid():
+>     """ESCALATED → PROCESSING is not valid (only → RESOLVED)."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.ESCALATED,
+>     )
+>     with pytest.raises(ValueError, match="Invalid transition"):
+>         ds.transition(ConversationState.PROCESSING)
+  
+  
+> def test_transition_intent_detected_to_escalated_invalid():
+>     """INTENT_DETECTED → ESCALATED is not a valid direct transition."""
+>     ds = DialogueState(
+>         conversation_id="conv_001",
+>         current_state=ConversationState.INTENT_DETECTED,
+>     )
+>     with pytest.raises(ValueError, match="Invalid transition"):
+>         ds.transition(ConversationState.ESCALATED)
+  
+  
+> def test_transition_same_state_invalid():
+>     """Self-transitions (e.g. IDLE → IDLE) are not allowed."""
+>     ds = DialogueState(conversation_id="conv_001")
+>     with pytest.raises(ValueError, match="Invalid transition"):
+>         ds.transition(ConversationState.IDLE)
+  
+  
+  # ── Full conversation flow ─────────────────────────────────────────────────────
+  
+> def test_full_conversation_flow_to_resolved():
+>     """A complete happy-path conversation: IDLE → INTENT_DETECTED → PROCESSING → RESOLVED."""
+>     ds = DialogueState(conversation_id="conv_flow")
+  
+      # Message received
+>     ds = ds.transition(ConversationState.INTENT_DETECTED)
+>     assert ds.current_state == ConversationState.INTENT_DETECTED
+>     assert ds.turn_count == 1
+  
+      # All slots filled, go to processing
+>     ds = ds.transition(ConversationState.PROCESSING)
+>     assert ds.current_state == ConversationState.PROCESSING
+>     assert ds.turn_count == 2
+  
+      # Successful reply
+>     ds = ds.transition(ConversationState.RESOLVED)
+>     assert ds.current_state == ConversationState.RESOLVED
+>     assert ds.turn_count == 3
+  
+  
+> def test_full_conversation_flow_with_slot_filling():
+>     """A conversation requiring slot filling: IDLE → INTENT_DETECTED → SLOT_FILLING → AWAITING_CONFIRMATION → PROCESSING → RESOLVED."""
+>     ds = DialogueState(conversation_id="conv_slots")
+  
+>     ds = ds.transition(ConversationState.INTENT_DETECTED)
+>     assert ds.turn_count == 1
+  
+>     ds = ds.transition(ConversationState.SLOT_FILLING)
+>     assert ds.turn_count == 2
+  
+>     ds = ds.transition(ConversationState.AWAITING_CONFIRMATION)
+>     assert ds.turn_count == 3
+  
+>     ds = ds.transition(ConversationState.PROCESSING)
+>     assert ds.turn_count == 4
+  
+>     ds = ds.transition(ConversationState.RESOLVED)
+>     assert ds.turn_count == 5
+>     assert ds.current_state == ConversationState.RESOLVED
+  
+  
+> def test_full_conversation_flow_escalation_from_slot_filling():
+>     """After 3+ turns in slot filling with missing slots, escalate."""
+>     ds = DialogueState(
+>         conversation_id="conv_esc",
+>         current_state=ConversationState.SLOT_FILLING,
+>         turn_count=3,
+>         slots={"dest": DialogueSlot(name="dest", value=None, required=True, prompt="Where?")},
+>     )
+>     ds = ds.transition(ConversationState.ESCALATED)
+>     assert ds.current_state == ConversationState.ESCALATED
+>     assert ds.turn_count == 4
+  
+>     ds = ds.transition(ConversationState.RESOLVED)
+>     assert ds.current_state == ConversationState.RESOLVED
+>     assert ds.turn_count == 5
+  
+  
+> def test_full_conversation_flow_escalation_from_processing():
+>     """Low confidence in processing leads to escalation."""
+>     ds = DialogueState(
+>         conversation_id="conv_lowconf",
+>         current_state=ConversationState.PROCESSING,
+>         turn_count=2,
+>     )
+>     ds = ds.transition(ConversationState.ESCALATED)
+>     assert ds.current_state == ConversationState.ESCALATED
+  
+>     ds = ds.transition(ConversationState.RESOLVED)
+>     assert ds.current_state == ConversationState.RESOLVED
+  
+  
+> def test_slot_filling_deny_loop():
+>     """User denies confirmation → back to slot filling → confirm again."""
+>     ds = DialogueState(
+>         conversation_id="conv_deny",
+>         current_state=ConversationState.AWAITING_CONFIRMATION,
+>         turn_count=3,
+>     )
+      # User denies — go back to slot filling
+>     ds = ds.transition(ConversationState.SLOT_FILLING)
+>     assert ds.current_state == ConversationState.SLOT_FILLING
+>     assert ds.turn_count == 4
+  
+      # Fix slots, confirm again
+>     ds = ds.transition(ConversationState.AWAITING_CONFIRMATION)
+>     assert ds.current_state == ConversationState.AWAITING_CONFIRMATION
+>     assert ds.turn_count == 5
+  
+      # User confirms
+>     ds = ds.transition(ConversationState.PROCESSING)
+>     assert ds.current_state == ConversationState.PROCESSING
+>     assert ds.turn_count == 6

@@ -1,0 +1,217 @@
+> """[FR-16] PII Masking V2 — Credit Card + Luhn Check.
+  
+> Acceptance criteria:
+>   - PIIMaskingV2 inherits Phase 1 PIIMasking (phone/email/address)
+>   - Credit card pattern matched: \b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b
+>   - _luhn_check validates 16-digit numbers
+>   - Only Luhn-valid cards are masked → [credit_card_masked]
+>   - Right-to-left replacement to avoid index shift
+>   - should_escalate detects credit card keywords
+  
+> Citations: SRS.md:65-83, SAD.md:274-294
+> """
+  
+> from omnibot.pii import PIIMaskingV2, PIIMasking
+> from omnibot.pii import PIIMaskResult
+  
+  
+  # ── Helper ────────────────────────────────────────────────────────────────────
+  
+> _masking = PIIMaskingV2()
+  
+  
+  # ── Credit card masking (Luhn-valid) ──────────────────────────────────────────
+  
+> def test_luhn_valid_card_is_masked():
+>     """4242424242424242 passes Luhn check and is masked."""
+>     result = _masking.mask("我的卡號 4242424242424242 請勿外洩")
+>     assert "4242424242424242" not in result.masked_text
+>     assert "[credit_card_masked]" in result.masked_text
+>     assert result.mask_count >= 1
+>     assert "credit_card" in result.pii_types
+  
+  
+> def test_luhn_valid_card_with_dashes_is_masked():
+>     """4242-4242-4242-4242 passes Luhn and is masked."""
+>     result = _masking.mask("卡號 4242-4242-4242-4242")
+>     assert "4242" not in result.masked_text
+>     assert "[credit_card_masked]" in result.masked_text
+  
+  
+> def test_luhn_valid_card_with_spaces_is_masked():
+>     """4242 4242 4242 4242 passes Luhn and is masked."""
+>     result = _masking.mask("卡號 4242 4242 4242 4242")
+>     assert "[credit_card_masked]" in result.masked_text
+  
+  
+> def test_luhn_valid_mastercard():
+>     """5500000000000004 passes Luhn and is masked (MasterCard test number)."""
+>     result = _masking.mask("信用卡 5500000000000004")
+>     assert "[credit_card_masked]" in result.masked_text
+  
+  
+  # ── Luhn reject (false positive exclusion) ────────────────────────────────────
+  
+> def test_luhn_invalid_card_not_masked():
+>     """4242424242424241 fails Luhn and is NOT masked."""
+>     text = "卡號 4242424242424241"
+>     result = _masking.mask(text)
+>     assert "[credit_card_masked]" not in result.masked_text
+>     assert "4242424242424241" in result.masked_text
+>     assert "credit_card" not in result.pii_types
+  
+  
+> def test_random_16_digit_not_masked():
+>     """1234567812345678 fails Luhn and is NOT masked."""
+>     text = "號碼 1234567812345678"
+>     result = _masking.mask(text)
+>     assert "1234567812345678" in result.masked_text
+>     assert "credit_card" not in result.pii_types
+  
+  
+  # ── Non-16-digit sequences not masked ─────────────────────────────────────────
+  
+> def test_15_digit_not_masked():
+>     """15-digit sequence (incomplete card) is not masked."""
+>     text = "號碼 424242424242424"
+>     result = _masking.mask(text)
+>     assert "424242424242424" in result.masked_text
+  
+  
+> def test_17_digit_not_masked():
+>     """17-digit sequence is not masked."""
+>     text = "號碼 42424242424242424"
+>     result = _masking.mask(text)
+>     assert "42424242424242424" in result.masked_text
+  
+  
+  # ── Multiple cards (right-to-left) ────────────────────────────────────────────
+  
+> def test_multiple_valid_cards_all_masked():
+>     """Multiple valid cards are all masked."""
+>     result = _masking.mask("卡號1: 4242424242424242, 卡號2: 5500000000000004")
+>     assert result.mask_count >= 2
+>     assert result.masked_text.count("[credit_card_masked]") >= 2
+  
+  
+> def test_mixed_valid_invalid_only_valid_masked():
+>     """Only the Luhn-valid card is masked; invalid one is left in text."""
+>     result = _masking.mask("A: 4242424242424242, B: 1234567812345678")
+>     assert "[credit_card_masked]" in result.masked_text
+>     assert "1234567812345678" in result.masked_text
+>     assert "4242424242424242" not in result.masked_text
+  
+  
+  # ── PIIMaskResult integrity ───────────────────────────────────────────────────
+  
+> def test_pii_result_includes_credit_card_type():
+>     """PIIMaskResult.pii_types includes 'credit_card' when cards are masked."""
+>     result = _masking.mask("卡號 4242424242424242")
+>     assert "credit_card" in result.pii_types
+>     assert isinstance(result, PIIMaskResult)
+>     assert result.mask_count > 0
+>     assert result.masked_text != "卡號 4242424242424242"
+  
+  
+  # ── should_escalate ───────────────────────────────────────────────────────────
+  
+> def test_should_escalate_credit_card_keyword():
+>     """Messages with 信用卡號 trigger escalation."""
+>     assert _masking.should_escalate("我的信用卡號被盜") is True
+  
+  
+> def test_should_escalate_bank_account_keyword():
+>     """Messages with 銀行帳戶 trigger escalation."""
+>     assert _masking.should_escalate("銀行帳戶有異常") is True
+  
+  
+> def test_should_escalate_debit_card_keyword():
+>     """Messages with 提款卡 trigger escalation."""
+>     assert _masking.should_escalate("提款卡被鎖") is True
+  
+  
+> def test_should_escalate_password_keyword():
+>     """Messages with 密碼 trigger escalation."""
+>     assert _masking.should_escalate("我忘記密碼了") is True
+  
+  
+> def test_normal_message_no_escalation_v2():
+>     """Normal message does not trigger escalation."""
+>     assert _masking.should_escalate("我想查詢訂單狀態") is False
+  
+  
+  # ── Phase 1 patterns still work (inheritance) ──────────────────────────────────
+  
+> def test_phase1_phone_still_masked():
+>     """Phase 1 phone masking still works in V2."""
+>     result = _masking.mask("請打 0912-345-678 聯絡我")
+>     assert "[PHONE]" in result.masked_text
+>     assert "phone" in result.pii_types
+  
+  
+> def test_phase1_email_still_masked():
+>     """Phase 1 email masking still works in V2."""
+>     result = _masking.mask("請寄信到 johnny@example.com")
+>     assert "[EMAIL]" in result.masked_text
+>     assert "email" in result.pii_types
+  
+  
+> def test_phase1_address_still_masked():
+>     """Phase 1 address masking still works in V2."""
+>     result = _masking.mask("請寄到 台北市大安區信義路三段100號5樓")
+>     assert "[ADDR]" in result.masked_text
+>     assert "address" in result.pii_types
+  
+  
+> def test_combined_pii_all_types():
+>     """Text with phone, email, address, and credit card returns all types."""
+>     result = _masking.mask(
+>         "請打 0912-345-678 或寄信 johnny@example.com "
+>         "到 台北市大安區信義路三段100號 卡號 4242424242424242"
+>     )
+>     assert "phone" in result.pii_types
+>     assert "email" in result.pii_types
+>     assert "address" in result.pii_types
+>     assert "credit_card" in result.pii_types
+>     assert "[PHONE]" in result.masked_text
+>     assert "[EMAIL]" in result.masked_text
+>     assert "[ADDR]" in result.masked_text
+>     assert "[credit_card_masked]" in result.masked_text
+  
+  
+  # ── Luhn algorithm unit ───────────────────────────────────────────────────────
+  
+> def test_luhn_check_valid():
+>     """_luhn_check returns True for valid card number."""
+>     assert _masking._luhn_check("4242424242424242") is True
+  
+  
+> def test_luhn_check_invalid():
+>     """_luhn_check returns False for invalid card number."""
+>     assert _masking._luhn_check("4242424242424241") is False
+  
+  
+> def test_luhn_check_with_dashes():
+>     """_luhn_check strips dashes before validation."""
+>     assert _masking._luhn_check("4242-4242-4242-4242") is True
+  
+  
+> def test_luhn_check_with_spaces():
+>     """_luhn_check strips spaces before validation."""
+>     assert _masking._luhn_check("4242 4242 4242 4242") is True
+  
+  
+> def test_luhn_check_not_16_digits():
+>     """_luhn_check returns False for non-16-digit input."""
+>     assert _masking._luhn_check("12345") is False
+>     assert _masking._luhn_check("12345678901234567") is False
+  
+  
+> def test_luhn_check_empty_or_whitespace():
+>     """_luhn_check handles edge cases gracefully."""
+>     assert _masking._luhn_check("") is False
+  
+  
+> def test_luhn_check_all_zeros():
+>     """0000000000000000 passes Luhn (all positions produce 0, sum=0%10==0)."""
+>     assert _masking._luhn_check("0000000000000000") is True

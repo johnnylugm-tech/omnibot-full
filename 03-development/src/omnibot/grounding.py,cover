@@ -1,0 +1,102 @@
+> """[FR-21] GroundingChecker L5 -- Semantic Alignment Verification.
+  
+> Citations: SRS.md:191-209, SAD.md:311-332
+> """
+  
+> from __future__ import annotations
+  
+> import math
+> from dataclasses import dataclass
+> from typing import Callable
+  
+  
+> def _cosine_similarity(a: list[float], b: list[float]) -> float:
+>     """Cosine similarity between two vectors."""
+>     if len(a) != len(b):
+!         raise ValueError(f"Vector dimension mismatch: {len(a)} != {len(b)}")
+>     dot = sum(x * y for x, y in zip(a, b))
+>     norm_a = math.sqrt(sum(x * x for x in a))
+>     norm_b = math.sqrt(sum(x * x for x in b))
+>     if norm_a == 0.0 or norm_b == 0.0:
+>         return 0.0
+>     return dot / (norm_a * norm_b)
+  
+  
+> def _default_embedding_fn() -> Callable[[str], list[float]]:
+>     """Lazy-load the paraphrase-multilingual-MiniLM-L12-v2 model."""
+!     from sentence_transformers import SentenceTransformer
+  
+!     model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+!     return lambda text: model.encode(text).tolist()
+  
+  
+> @dataclass(frozen=True)
+> class GroundingResult:
+>     """Result of a grounding check.
+  
+>     Attributes:
+>         grounded: True if max cosine similarity >= threshold.
+>         score: Maximum cosine similarity across source texts.
+>         reason: "grounded", "below_threshold", or "no_source".
+>         best_match_index: Index of the best-matching source text, or -1.
+>     """
+  
+>     grounded: bool
+>     score: float
+>     reason: str
+>     best_match_index: int
+  
+  
+> class GroundingChecker:
+>     """L5 semantic alignment verification via cosine similarity.
+  
+>     Embeds the LLM output and each source text, computes cosine similarity,
+>     and checks whether the maximum score meets the grounding threshold.
+>     """
+  
+>     def __init__(
+>         self,
+>         threshold: float = 0.75,
+>         embedding_fn: Callable[[str], list[float]] | None = None,
+>     ) -> None:
+>         self._threshold = threshold
+>         self._embedding_fn = embedding_fn or _default_embedding_fn()
+  
+>     def check(self, llm_output: str, source_texts: list[str]) -> GroundingResult:
+>         """Check whether llm_output is grounded in source_texts.
+  
+>         Args:
+>             llm_output: The LLM-generated text to verify.
+>             source_texts: Retrieved knowledge-base texts to ground against.
+  
+>         Returns:
+>             GroundingResult with grounded status, max similarity score,
+>             reason string, and best-matching source index.
+>         """
+>         if not source_texts:
+>             return GroundingResult(
+>                 grounded=False,
+>                 score=0.0,
+>                 reason="no_source",
+>                 best_match_index=-1,
+>             )
+  
+>         output_embedding = self._embedding_fn(llm_output)
+>         max_score = -1.0
+>         best_index = -1
+  
+>         for i, text in enumerate(source_texts):
+>             source_embedding = self._embedding_fn(text)
+>             score = _cosine_similarity(output_embedding, source_embedding)
+>             if score > max_score:
+>                 max_score = score
+>                 best_index = i
+  
+>         grounded = max_score >= self._threshold
+>         reason = "grounded" if grounded else "below_threshold"
+>         return GroundingResult(
+>             grounded=grounded,
+>             score=max_score,
+>             reason=reason,
+>             best_match_index=best_index,
+>         )

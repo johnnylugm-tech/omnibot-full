@@ -1,0 +1,128 @@
+> """FR-12: Database Schema — All Core Tables.
+  
+> [FR-12] Acceptance criteria:
+>   - users: unified_user_id UUID, platform, platform_user_id, UNIQUE constraint
+>   - conversations: satisfaction_score, first_contact_resolution, scope_type, dst_state JSONB
+>   - messages: intent_detected, sentiment_category, sentiment_intensity, knowledge_source
+>   - knowledge_base: embeddings vector(384), keywords TEXT[], version
+>   - platform_configs: rate_limit_rps, webhook_secret_key_ref
+>   - escalation_queue: priority, sla_deadline (Phase 2)
+>   - user_feedback: feedback CHECK (thumbs_up / thumbs_down)
+>   - security_logs: layer, blocked, source_ip
+  
+> Citations: SRS.md FR-12 section, SAD.md 2.7.1 Schema Summary
+> """
+  
+> from omnibot.schema import get_schema_sql, TABLE_DEFS
+  
+  
+> def test_schema_has_eight_tables():
+>     """TABLE_DEFS contains exactly 8 table definitions."""
+>     assert len(TABLE_DEFS) == 8
+  
+  
+> def test_required_tables_exist():
+>     """All 8 required table names are present."""
+>     table_names = {name for name, _ in TABLE_DEFS}
+>     expected = {
+>         "users", "conversations", "messages", "knowledge_base",
+>         "platform_configs", "escalation_queue", "user_feedback", "security_logs",
+>     }
+>     assert table_names == expected
+  
+  
+> def test_users_columns():
+>     """users table has unified_user_id UUID, platform, platform_user_id."""
+>     sql = get_schema_sql()
+>     assert "unified_user_id" in sql
+>     assert "platform" in sql
+>     assert "platform_user_id" in sql
+>     assert "unique" in sql.lower()
+>     assert "users" in sql.lower()
+  
+  
+> def test_conversations_columns():
+>     """conversations table has satisfaction_score, first_contact_resolution, dst_state JSONB."""
+>     sql = get_schema_sql()
+>     assert "satisfaction_score" in sql
+>     assert "first_contact_resolution" in sql
+>     assert "scope_type" in sql
+>     assert "dst_state" in sql
+>     assert "JSONB" in sql.upper()
+  
+  
+> def test_messages_columns():
+>     """messages table has intent_detected, sentiment_category, sentiment_intensity, knowledge_source."""
+>     sql = get_schema_sql()
+>     assert "intent_detected" in sql
+>     assert "sentiment_category" in sql
+>     assert "sentiment_intensity" in sql
+>     assert "knowledge_source" in sql
+  
+  
+> def test_knowledge_base_columns():
+>     """knowledge_base table has embeddings vector(384), keywords TEXT[], version."""
+>     sql = get_schema_sql()
+>     assert "vector(384)" in sql.lower()
+>     assert "TEXT[]" in sql.upper()
+>     assert "keywords" in sql
+>     assert "version" in sql
+>     assert "is_active" in sql
+  
+  
+> def test_platform_configs_columns():
+>     """platform_configs has rate_limit_rps, webhook_secret_key_ref."""
+>     sql = get_schema_sql()
+>     assert "rate_limit_rps" in sql
+>     assert "webhook_secret_key_ref" in sql
+  
+  
+> def test_escalation_queue_columns():
+>     """escalation_queue has priority, sla_deadline (Phase 2 reserved)."""
+>     sql = get_schema_sql()
+>     assert "conversation_id" in sql
+>     assert "reason" in sql
+>     assert "assigned_agent" in sql
+>     assert "picked_at" in sql
+>     assert "resolved_at" in sql
+>     assert "priority" in sql
+>     assert "sla_deadline" in sql
+  
+  
+> def test_user_feedback_columns():
+>     """user_feedback has feedback column with CHECK constraint."""
+>     sql = get_schema_sql()
+>     assert "feedback" in sql
+>     assert "CHECK" in sql.upper()
+>     assert "thumbs_up" in sql.lower()
+>     assert "thumbs_down" in sql.lower()
+  
+  
+> def test_security_logs_columns():
+>     """security_logs has layer, blocked, source_ip."""
+>     sql = get_schema_sql()
+>     assert "layer" in sql
+>     assert "blocked" in sql
+>     assert "source_ip" in sql
+  
+  
+> def test_foreign_keys_present():
+>     """Schema includes FK references for conversations→users, messages→conversations, etc."""
+>     sql = get_schema_sql().upper()
+>     assert "REFERENCES" in sql
+      # inline REFERENCES on column defs (e.g. "user_id INTEGER REFERENCES users(id)")
+  
+  
+> def test_schema_is_valid_sql():
+>     """get_schema_sql() returns a non-empty string that starts with CREATE."""
+>     sql = get_schema_sql()
+>     assert isinstance(sql, str)
+>     assert len(sql) > 0
+>     assert "CREATE TABLE" in sql.upper()
+  
+  
+> def test_each_table_has_id():
+>     """Every table has an id column as primary key."""
+>     for _, ddl in TABLE_DEFS:
+>         assert "id" in ddl.lower()
+>         assert "PRIMARY KEY" in ddl.upper()

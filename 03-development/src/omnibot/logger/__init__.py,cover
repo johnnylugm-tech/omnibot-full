@@ -1,0 +1,55 @@
+> """[FR-09] Structured Logger — JSON Format.
+  
+> NDJSON stdout logger with timestamp/level/service/message schema.
+> Five levels: DEBUG, INFO, WARN, ERROR, CRITICAL.
+  
+> Citations: SRS.md FR-09 section, SAD.md 2.6.1 StructuredLogger
+> """
+  
+> import json
+> import sys
+> from datetime import datetime, timezone
+> from typing import Any
+  
+  
+> class StructuredLogger:
+>     """NDJSON stdout logger with structured schema.
+  
+>     Citations: SAD.md 2.6.1 StructuredLogger
+>     """
+  
+>     def __init__(self, service: str) -> None:
+>         self._service = service
+  
+>     def log(self, level: str, service: str, message: str, **kwargs: Any) -> None:
+>         """Emit a single NDJSON log entry to stdout."""
+>         ts = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+>         ts = ts.replace("+00:00", "Z")
+>         entry: dict[str, Any] = {
+>             "timestamp": ts,
+>             "level": level,
+>             "service": service,
+>             "message": message,
+>         }
+>         entry.update(kwargs)
+>         print(json.dumps(entry, ensure_ascii=False), file=sys.stdout)
+  
+>     def debug(self, message: str, **kwargs: Any) -> None:
+>         """Developer diagnostics: raw payload, sanitizer output."""
+>         self.log("DEBUG", self._service, message, **kwargs)
+  
+>     def info(self, message: str, **kwargs: Any) -> None:
+>         """Business events: new conversation, rule match, escalation."""
+>         self.log("INFO", self._service, message, **kwargs)
+  
+>     def warn(self, message: str, **kwargs: Any) -> None:
+>         """Non-fatal anomalies: low-confidence match, PII detected."""
+>         self.log("WARN", self._service, message, **kwargs)
+  
+>     def error(self, message: str, **kwargs: Any) -> None:
+>         """Fatal errors: DB failure, unhandled exception."""
+>         self.log("ERROR", self._service, message, **kwargs)
+  
+>     def critical(self, message: str, **kwargs: Any) -> None:
+>         """Integrity threats: signature bypass, repeated auth failure."""
+>         self.log("CRITICAL", self._service, message, **kwargs)

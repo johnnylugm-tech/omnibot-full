@@ -1,0 +1,124 @@
+> """[FR-02] SignatureVerifier — platform-agnostic HMAC signature verification.
+  
+> Citations: SAD.md:97-109
+> """
+  
+> from __future__ import annotations
+  
+> import hashlib
+> import hmac
+> import base64
+> from typing import Callable, Dict
+  
+> from fastapi import Request, HTTPException
+> from omnibot.models import Platform
+  
+  
+> def verify_telegram_signature(secret: str, body: bytes, signature: str) -> bool:
+>     """Verify Telegram HMAC-SHA256 signature.
+  
+>     Telegram uses SHA256(bot_token) as the secret key for HMAC.
+>     """
+>     secret_key = hashlib.sha256(secret.encode()).digest()
+>     expected = hmac.new(secret_key, body, hashlib.sha256).hexdigest()
+>     return hmac.compare_digest(expected, signature)
+  
+  
+> def verify_line_signature(secret: str, body: bytes, signature: str) -> bool:
+>     """Verify LINE HMAC-SHA256 + Base64 signature."""
+>     expected_bytes = hmac.new(secret.encode(), body, hashlib.sha256).digest()
+>     expected = base64.b64encode(expected_bytes).decode()
+>     return hmac.compare_digest(expected, signature)
+  
+  
+> def _verify_hub_signature(secret: str, body: bytes, signature: str) -> bool:
+>     """Verify HMAC-SHA256 signature with sha256= prefix (Messenger + WhatsApp).
+  
+>     Both platforms use: sha256= + HMAC-SHA256(app_secret, body).hexdigest()
+>     compared against the X-Hub-Signature-256 header using hmac.compare_digest().
+>     """
+>     digest = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+>     expected = f"sha256={digest}"
+>     return hmac.compare_digest(expected, signature)
+  
+  
+  # ── Verifier registry ─────────────────────────────────────────────────────────
+  
+> class PlatformVerifier:
+>     """Manages per-platform verifiers in an extensible registry.
+  
+>     Citations: SAD.md:107-108 (VERIFIERS dict registry)
+>     """
+  
+>     def __init__(self):
+>         self._verifiers: Dict[Platform, Callable[[str, bytes, str], bool]] = {
+>             Platform.TELEGRAM: verify_telegram_signature,
+>             Platform.LINE: verify_line_signature,
+>             Platform.MESSENGER: _verify_hub_signature,
+>             Platform.WHATSAPP: _verify_hub_signature,
+>         }
+  
+>     def register(self, platform: Platform, verifier: Callable[[str, bytes, str], bool]) -> None:
+>         """Register a new platform verifier."""
+!         self._verifiers[platform] = verifier
+  
+>     def verify(self, platform: Platform, secret: str, body: bytes, signature: str) -> bool:
+>         """Verify signature for a given platform."""
+>         verifier = self._verifiers.get(platform)
+>         if verifier is None:
+!             raise ValueError(f"No verifier registered for platform: {platform}")
+>         return verifier(secret, body, signature)
+  
+  
+> VERIFIERS = PlatformVerifier()
+  
+  
+  # ── FastAPI dependency ────────────────────────────────────────────────────────
+  
+> _PLATFORM_CONFIG: Dict[Platform, Dict[str, str]] = {
+>     Platform.TELEGRAM: {
+>         "secret_header": "X-Telegram-Bot-Token",
+>         "signature_header": "X-Telegram-Hmac-Signature",
+>     },
+>     Platform.LINE: {
+>         "secret_header": "X-Line-Channel-Secret",
+>         "signature_header": "X-Line-Signature",
+>     },
+>     Platform.MESSENGER: {
+>         "secret_header": "X-Messenger-App-Secret",
+>         "signature_header": "X-Hub-Signature-256",
+>     },
+>     Platform.WHATSAPP: {
+>         "secret_header": "X-WhatsApp-App-Secret",
+>         "signature_header": "X-Hub-Signature-256",
+>     },
+> }
+  
+  
+> async def verify_signature(request: Request, platform: Platform) -> bytes:
+>     """FastAPI dependency: verify webhook signature and return raw body bytes.
+  
+>     Raises HTTPException(401) if signature is missing or invalid.
+>     """
+>     config = _PLATFORM_CONFIG.get(platform)
+>     if config is None:
+!         raise HTTPException(status_code=400, detail=f"AUTH_UNSUPPORTED_PLATFORM: {platform.value}")
+  
+>     secret = request.headers.get(config["secret_header"])
+>     signature = request.headers.get(config["signature_header"])
+  
+>     if not secret or not signature:
+>         raise HTTPException(
+>             status_code=401,
+>             detail="AUTH_INVALID_SIGNATURE: missing credentials",
+>         )
+  
+>     body = await request.body()
+  
+>     if not VERIFIERS.verify(platform, secret, body, signature):
+>         raise HTTPException(
+>             status_code=401,
+>             detail="AUTH_INVALID_SIGNATURE: signature mismatch",
+>         )
+  
+>     return body
