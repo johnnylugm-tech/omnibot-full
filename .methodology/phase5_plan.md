@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-16
+> **Date**: 2026-05-18
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 5 - Verification & Delivery
 > **Status**: Full version (including Phase 5 detailed tasks)
@@ -33,6 +33,17 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 > - CHECKPOINT-11: Gate 1 / FR-11 *(local commit)*
 > - CHECKPOINT-12: Gate 1 / FR-12 *(local commit)*
 > - CHECKPOINT-13: Gate 1 / FR-13 *(local commit)*
+> - CHECKPOINT-14: Gate 1 / FR-14 *(local commit)*
+> - CHECKPOINT-15: Gate 1 / FR-15 *(local commit)*
+> - CHECKPOINT-16: Gate 1 / FR-16 *(local commit)*
+> - CHECKPOINT-17: Gate 1 / FR-17 *(local commit)*
+> - CHECKPOINT-18: Gate 1 / FR-18 *(local commit)*
+> - CHECKPOINT-19: Gate 1 / FR-19 *(local commit)*
+> - CHECKPOINT-20: Gate 1 / FR-20 *(local commit)*
+> - CHECKPOINT-21: Gate 1 / FR-21 *(local commit)*
+> - CHECKPOINT-22: Gate 1 / FR-22 *(local commit)*
+> - CHECKPOINT-23: Gate 1 / FR-23 *(local commit)*
+> - CHECKPOINT-24: Gate 1 / FR-24 *(local commit)*
 > - MILESTONE: P5-baseline push (BASELINE.md generated) → **HANDOVER.md**
 
 ### Entry Gate Verification
@@ -53,10 +64,10 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   1. `.github/workflows/harness_quality_gate.yml` exists
   2. Git hooks installed (`ls .git/hooks/prepare-commit-msg`)
   3. harness importable (submodule, PYTHONPATH, or vendored `quality_gate/`)
-  4. GitHub repo variable `CURRENT_PHASE` = 5 (updated by `advance-phase`)
+  4. Phase 5 confirmed in `.methodology/state.json` (`advance-phase` already run)
   > If stale: run `python3 harness_cli.py init-project --phase 5 --project $REPO --overwrite`
 
-### FR Verification Tasks (13 total)
+### FR Verification Tasks (24 total)
 
 #### FR-01: Verification
 - [ ] Confirm all acceptance criteria from SRS.md are met for FR-01
@@ -123,7 +134,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-01 \
     --prompt "Review FR-01 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-1: Gate 1 — FR-01
@@ -235,7 +246,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-02 \
     --prompt "Review FR-02 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-2: Gate 1 — FR-02
@@ -347,7 +358,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-03 \
     --prompt "Review FR-03 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-3: Gate 1 — FR-03
@@ -459,7 +470,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-04 \
     --prompt "Review FR-04 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-4: Gate 1 — FR-04
@@ -571,7 +582,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-05 \
     --prompt "Review FR-05 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-5: Gate 1 — FR-05
@@ -683,7 +694,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-06 \
     --prompt "Review FR-06 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-6: Gate 1 — FR-06
@@ -795,7 +806,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-07 \
     --prompt "Review FR-07 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-7: Gate 1 — FR-07
@@ -907,7 +918,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-08 \
     --prompt "Review FR-08 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-8: Gate 1 — FR-08
@@ -1019,7 +1030,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-09 \
     --prompt "Review FR-09 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-9: Gate 1 — FR-09
@@ -1131,7 +1142,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-10 \
     --prompt "Review FR-10 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-10: Gate 1 — FR-10
@@ -1243,7 +1254,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-11 \
     --prompt "Review FR-11 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-11: Gate 1 — FR-11
@@ -1355,7 +1366,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-12 \
     --prompt "Review FR-12 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-12: Gate 1 — FR-12
@@ -1467,7 +1478,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-13 \
     --prompt "Review FR-13 against SRS + SAD" --phase 5 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
 ### 🔒 CHECKPOINT-13: Gate 1 — FR-13
@@ -1514,6 +1525,1238 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
   > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
   > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
 
+#### FR-14: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-14
+- [ ] Run integration tests for FR-14
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-14** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-14]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-14 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-14" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-14 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-14.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-14 \
+    --prompt "Review FR-14 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-14: Gate 1 — FR-14
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-14 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_14*" "03-development/src/**/*fr-14*" "tests/**/test_fr_14*" "tests/**/test_fr-14*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-14:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-14 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-14 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-14:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-14
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-15: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-15
+- [ ] Run integration tests for FR-15
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-15** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-15]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-15 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-15" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-15 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-15.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-15 \
+    --prompt "Review FR-15 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-15: Gate 1 — FR-15
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-15 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_15*" "03-development/src/**/*fr-15*" "tests/**/test_fr_15*" "tests/**/test_fr-15*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-15:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-15 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-15 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-15:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-15
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-16: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-16
+- [ ] Run integration tests for FR-16
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-16** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-16]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-16 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-16" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-16 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-16.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-16 \
+    --prompt "Review FR-16 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-16: Gate 1 — FR-16
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-16 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_16*" "03-development/src/**/*fr-16*" "tests/**/test_fr_16*" "tests/**/test_fr-16*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-16:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-16 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-16 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-16:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-16
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-17: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-17
+- [ ] Run integration tests for FR-17
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-17** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-17]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-17 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-17" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-17 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-17.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-17 \
+    --prompt "Review FR-17 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-17: Gate 1 — FR-17
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-17 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_17*" "03-development/src/**/*fr-17*" "tests/**/test_fr_17*" "tests/**/test_fr-17*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-17:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-17 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-17 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-17:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-17
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-18: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-18
+- [ ] Run integration tests for FR-18
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-18** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-18]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-18 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-18" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-18 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-18.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-18 \
+    --prompt "Review FR-18 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-18: Gate 1 — FR-18
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-18 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_18*" "03-development/src/**/*fr-18*" "tests/**/test_fr_18*" "tests/**/test_fr-18*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-18:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-18 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-18 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-18:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-18
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-19: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-19
+- [ ] Run integration tests for FR-19
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-19** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-19]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-19 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-19" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-19 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-19.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-19 \
+    --prompt "Review FR-19 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-19: Gate 1 — FR-19
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-19 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_19*" "03-development/src/**/*fr-19*" "tests/**/test_fr_19*" "tests/**/test_fr-19*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-19:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-19 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-19 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-19:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-19
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-20: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-20
+- [ ] Run integration tests for FR-20
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-20** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-20]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-20 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-20" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-20 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-20.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-20 \
+    --prompt "Review FR-20 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-20: Gate 1 — FR-20
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-20 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_20*" "03-development/src/**/*fr-20*" "tests/**/test_fr_20*" "tests/**/test_fr-20*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-20:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-20 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-20 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-20:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-20
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-21: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-21
+- [ ] Run integration tests for FR-21
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-21** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-21]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-21 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-21" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-21 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-21.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-21 \
+    --prompt "Review FR-21 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-21: Gate 1 — FR-21
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-21 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_21*" "03-development/src/**/*fr-21*" "tests/**/test_fr_21*" "tests/**/test_fr-21*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-21:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-21 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-21 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-21:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-21
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-22: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-22
+- [ ] Run integration tests for FR-22
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-22** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-22]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-22 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-22" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-22 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-22.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-22 \
+    --prompt "Review FR-22 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-22: Gate 1 — FR-22
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-22 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_22*" "03-development/src/**/*fr-22*" "tests/**/test_fr_22*" "tests/**/test_fr-22*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-22:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-22 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-22 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-22:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-22
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-23: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-23
+- [ ] Run integration tests for FR-23
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-23** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-23]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-23 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-23" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-23 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-23.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-23 \
+    --prompt "Review FR-23 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-23: Gate 1 — FR-23
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-23 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_23*" "03-development/src/**/*fr-23*" "tests/**/test_fr_23*" "tests/**/test_fr-23*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-23:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-23 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-23 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-23:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-23
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
+#### FR-24: Verification
+- [ ] Confirm all acceptance criteria from SRS.md are met for FR-24
+- [ ] Run integration tests for FR-24
+- [ ] Verify edge cases and error paths
+- [ ] Confirm ≥80% branch coverage
+
+**A/B Work — FR-24** (HR-01: A≠B · HR-04: HybridWorkflow ON · HR-10: log required):
+- [ ] **[A-1]** Agent A (DEVELOPER): Verify FR acceptance criteria → confirm results match SRS → sign off
+  - Docstrings: `[FR-24]` tag + `Citations:` with line numbers (HR-15)
+  - FORBIDDEN: `app/infrastructure/` · `@covers: L1 Error` · `@type: edge`
+- [ ] **[A-2]** Agent A returns `{status, files, confidence, citations, summary}`
+- [ ] **[A-DISPATCH]** Dispatch Agent A:
+  ```bash
+  python3 harness_cli.py dispatch --role developer --fr-id FR-24 \
+    --prompt "Verify FR acceptance criteria → confirm results match SRS → sign off for FR-24" --phase 5 --project $REPO
+  ```
+- [ ] **[B-1]** Agent B (REVIEWER) for FR-24 — dispatch as **STATELESS** subagent:
+  > ⚠️  **STATELESS SANDBOX**: Agent B has ZERO access to local files or /tmp.
+  > NEVER write 'read 01-requirements/SRS.md' in the prompt — it will fail silently.
+  > ALL context must be pasted verbatim into the prompt text. This is mandatory.
+  >
+  > **Lesson (stateless agent)**: Rounds 2-3 failed because prompts used file paths.
+  > Round 4 succeeded only after embedding full document content directly.
+
+  **Embed these documents in full** (copy content, not paths):
+  - `01-requirements/SRS.md acceptance criteria for FR-XX`
+  - `03-development/src/…/fr_xx.py`
+  - `tests/…/test_fr_xx.py`
+  - `04-testing/TEST_RESULTS.md entry`
+
+  **Agent B prompt structure** (use this template verbatim):
+  ```
+  You are REVIEWER. Your task: review the following deliverable for FR-24.
+  You have NO access to any files — all context is provided below.
+
+  === [DOC 1: 01-requirements/SRS.md acceptance criteria for FR-XX] ===
+  {paste full content here}
+
+  === [DOC 2: 03-development/src/…/fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 3: tests/…/test_fr_xx.py] ===
+  {paste full content here}
+
+  === [DOC 4: 04-testing/TEST_RESULTS.md entry] ===
+  {paste full content here}
+
+  Review checklist:
+  - Acceptance criteria fully met?
+  - No regressions in related FRs?
+
+  Return JSON only:
+  {"status":"STAGE_PASS"|"REJECT","review_status":"APPROVE"|"REJECT",
+   "reason":"...","confidence":1-10,"citations":["file:line"],"gaps":[...]}
+  ```
+
+- [ ] **[B-2]** Agent B returns JSON — parse `review_status`:
+  - `APPROVE` → continue to next step
+  - `REJECT` → Agent A fixes gaps → re-dispatch B. Max 5 rounds (HR-12).
+
+- [ ] **[B-DISPATCH]** Dispatch Agent B:
+  ```bash
+  python3 harness_cli.py dispatch --role reviewer --fr-id FR-24 \
+    --prompt "Review FR-24 against SRS + SAD" --phase 5 --project $REPO
+  ```
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
+
+
+### 🔒 CHECKPOINT-24: Gate 1 — FR-24
+> Dimensions: linting(90) · type_safety(85) · test_coverage(80)
+> `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
+
+
+> **Delta-check mode** (P5): skip if FR-24 code unchanged since last Gate 1.
+- [ ] **[DELTA-CHECK]** Check if FR code changed since last Gate 1:
+  ```bash
+  git diff --quiet HEAD -- "03-development/src/**/*fr_24*" "03-development/src/**/*fr-24*" "tests/**/test_fr_24*" "tests/**/test_fr-24*" 2>/dev/null || echo '.'
+  ```
+  - Exit 0 (no changes) → skip G1a-G1c, re-use previous Gate 1 score from manifest
+  - Exit 1 (changes detected) → proceed to full re-evaluation below
+
+- [ ] **G1a** Prepare Gate 1 for FR-24:
+  ```bash
+  python3 harness_cli.py run-gate --gate 1 --phase 5 --fr-id FR-24 --delta
+  ```
+  Read the evaluation prompt printed above.
+
+- [ ] **G1b** Evaluate all Gate 1 dimensions for FR-24 inline:
+  - Follow `harness/ssi/prompts/evaluate_dimension.md`
+  - Write result to `.sessi-work/gate1_result.json`
+  - Schema: `harness/ssi/schemas/harness_gate_result.schema.json`
+
+- [ ] **G1c** Finalize Gate 1 for FR-24:
+  ```bash
+  python3 harness_cli.py finalize-gate --gate 1 --phase 5 --fr-id FR-24
+  ```
+  **If FAIL** (any dim below threshold): fix code → repeat G1a→G1b→G1c until PASS.
+  **Do NOT proceed to G1d until all dims PASS.**
+
+- [ ] **[SAB-SYNC]** Re-sync SAB.json after adding/moving source files:
+  ```bash
+  python3 scripts/generate_sab.py --project $REPO
+  ```
+  _(Keeps M2 SAB drift < 15% — postflight blocks gate finalization if exceeded)_
+
+- [ ] **G1d** ✅ Verify local commit saved (finalize-gate above already committed):
+  ```bash
+  git log --oneline -1
+  ```
+  > `finalize-gate --gate 1` calls `commit_fr_gate1()` — **local commit only, no push**.
+  > Push + HANDOVER.md happens at milestone: `push-milestone --type p5-mid` / `p5-pre-ssi` / Gate exit.
+
 - [ ] Integration tests pass
 - [ ] Performance tests meet targets
 - [ ] Security scan passes
@@ -1530,7 +2773,7 @@ Each FR ends with a Gate 1 re-evaluation (CHECKPOINT). No phase-exit gate — P5
 ### Phase 5 Deliverables
 - [ ] `BASELINE.md` - System baseline
 - [ ] `VERIFICATION_REPORT.md` - Verification report
-- [x] `sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
+- [x] `.methodology/sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
 - [ ] Gate 1 PASS for every FR
 
 #### ASPICE Traceability Requirements (enforced by postflight)

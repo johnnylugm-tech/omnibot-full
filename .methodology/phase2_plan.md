@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-17
+> **Date**: 2026-05-18
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 2 - Architecture Design
 > **Status**: Full version (including Phase 2 detailed tasks)
@@ -110,7 +110,7 @@ are not re-opened. This bounds backtracking to a single step.
 
   > ⚠️ **BLOCKING**: Do NOT start the next Sub-Task until this sub-task's current
   > round is fully APPROVED (including any required round 2).
-  > AgentSpawner auto-logs round-2 re-dispatch to `sessions_spawn.log` (HR-10).
+  > AgentSpawner auto-logs round-2 re-dispatch to `.methodology/sessions_spawn.log` (HR-10).
 
   > fr_id uses P2 as phase-level placeholder; replace with FR-XX for FR-specific plans.
 
@@ -177,7 +177,7 @@ are not re-opened. This bounds backtracking to a single step.
 
   > ⚠️ **BLOCKING**: Do NOT start the next Sub-Task until this sub-task's current
   > round is fully APPROVED (including any required round 2).
-  > AgentSpawner auto-logs round-2 re-dispatch to `sessions_spawn.log` (HR-10).
+  > AgentSpawner auto-logs round-2 re-dispatch to `.methodology/sessions_spawn.log` (HR-10).
 
   > fr_id uses P2 as phase-level placeholder; replace with FR-XX for FR-specific plans.
 
@@ -231,7 +231,7 @@ are not re-opened. This bounds backtracking to a single step.
 - [ ] `ADR.md` — Architecture Decision Records (tech stack, patterns, interfaces)
 - [ ] `.methodology/quality_manifest.json` — Quality manifest (FR list + SAB data)
 - [ ] `.methodology/SAB.json` — Machine-readable architecture baseline
-- [x] `sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
+- [x] `.methodology/sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
 
 
 ### 🔒 CHECKPOINT-1: Agent B Peer Review — Phase 2 Exit

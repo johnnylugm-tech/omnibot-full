@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-17
+> **Date**: 2026-05-18
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 1 - Requirements Specification
 > **Status**: Full version (including Phase 1 detailed tasks)
@@ -106,7 +106,7 @@ are not re-opened. This bounds backtracking to a single step.
 
   > ⚠️ **BLOCKING**: Do NOT start the next Sub-Task until this sub-task's current
   > round is fully APPROVED (including any required round 2).
-  > AgentSpawner auto-logs round-2 re-dispatch to `sessions_spawn.log` (HR-10).
+  > AgentSpawner auto-logs round-2 re-dispatch to `.methodology/sessions_spawn.log` (HR-10).
 
   > fr_id uses P1 as phase-level placeholder; replace with FR-XX for FR-specific plans.
 
@@ -168,7 +168,7 @@ are not re-opened. This bounds backtracking to a single step.
 
   > ⚠️ **BLOCKING**: Do NOT start the next Sub-Task until this sub-task's current
   > round is fully APPROVED (including any required round 2).
-  > AgentSpawner auto-logs round-2 re-dispatch to `sessions_spawn.log` (HR-10).
+  > AgentSpawner auto-logs round-2 re-dispatch to `.methodology/sessions_spawn.log` (HR-10).
 
   > fr_id uses P1 as phase-level placeholder; replace with FR-XX for FR-specific plans.
 
@@ -239,7 +239,7 @@ are not re-opened. This bounds backtracking to a single step.
 
   > ⚠️ **BLOCKING**: Do NOT start the next Sub-Task until this sub-task's current
   > round is fully APPROVED (including any required round 2).
-  > AgentSpawner auto-logs round-2 re-dispatch to `sessions_spawn.log` (HR-10).
+  > AgentSpawner auto-logs round-2 re-dispatch to `.methodology/sessions_spawn.log` (HR-10).
 
   > fr_id uses P1 as phase-level placeholder; replace with FR-XX for FR-specific plans.
 
@@ -324,7 +324,7 @@ are not re-opened. This bounds backtracking to a single step.
 - [ ] `SRS.md` - Software Requirements Specification (FRs + NFRs)
 - [ ] `SPEC_TRACKING.md` - Spec tracking matrix
 - [ ] `TRACEABILITY_MATRIX.md` - Requirements traceability matrix
-- [x] `sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
+- [x] `.methodology/sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
 
 
 ### 🔒 CHECKPOINT-1: Agent B Peer Review — Phase 1 Exit

@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-17
+> **Date**: 2026-05-18
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 3 - Implementation
 > **Status**: Full version (including Phase 3 detailed tasks)
@@ -135,10 +135,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-14 \
     --prompt "Review FR-14 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-1: Gate 1 — FR-14
+### 🔒 CHECKPOINT-14: Gate 1 — FR-14
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -237,10 +237,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-15 \
     --prompt "Review FR-15 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-2: Gate 1 — FR-15
+### 🔒 CHECKPOINT-15: Gate 1 — FR-15
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -339,10 +339,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-16 \
     --prompt "Review FR-16 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-3: Gate 1 — FR-16
+### 🔒 CHECKPOINT-16: Gate 1 — FR-16
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -441,10 +441,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-17 \
     --prompt "Review FR-17 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-4: Gate 1 — FR-17
+### 🔒 CHECKPOINT-17: Gate 1 — FR-17
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -543,10 +543,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-18 \
     --prompt "Review FR-18 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-5: Gate 1 — FR-18
+### 🔒 CHECKPOINT-18: Gate 1 — FR-18
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -645,10 +645,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-19 \
     --prompt "Review FR-19 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-6: Gate 1 — FR-19
+### 🔒 CHECKPOINT-19: Gate 1 — FR-19
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -747,10 +747,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-20 \
     --prompt "Review FR-20 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-7: Gate 1 — FR-20
+### 🔒 CHECKPOINT-20: Gate 1 — FR-20
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -849,10 +849,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-21 \
     --prompt "Review FR-21 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-8: Gate 1 — FR-21
+### 🔒 CHECKPOINT-21: Gate 1 — FR-21
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -951,10 +951,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-22 \
     --prompt "Review FR-22 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-9: Gate 1 — FR-22
+### 🔒 CHECKPOINT-22: Gate 1 — FR-22
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -1053,10 +1053,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-23 \
     --prompt "Review FR-23 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-10: Gate 1 — FR-23
+### 🔒 CHECKPOINT-23: Gate 1 — FR-23
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -1155,10 +1155,10 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   python3 harness_cli.py dispatch --role reviewer --fr-id FR-24 \
     --prompt "Review FR-24 against SRS + SAD" --phase 3 --project $REPO
   ```
-  > AgentSpawner auto-logs to `sessions_spawn.log` on dispatch (HR-10).
+  > AgentSpawner auto-logs to `.methodology/sessions_spawn.log` on dispatch (HR-10).
 
 
-### 🔒 CHECKPOINT-11: Gate 1 — FR-24
+### 🔒 CHECKPOINT-24: Gate 1 — FR-24
 > Dimensions: linting(90) · type_safety(85) · test_coverage(80)
 > `gate1_result.json` is overwritten each FR — `finalize-gate` reads it immediately.
 
@@ -1215,7 +1215,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > Last stable snapshot before SSI modifies files. HANDOVER.md + push.
 
 
-### 🔒 CHECKPOINT-12: Gate 2 — Phase 3 Exit
+### 🔒 CHECKPOINT-25: Gate 2 — Phase 3 Exit
 > linting(90) · type_safety(85) · test_coverage(80) · security(80) · secrets_scanning(100) · license_compliance(100) · mutation_testing(70)
 
 - [ ] **G2a** Prepare Gate 2:
@@ -1258,7 +1258,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 ### Phase 3 Deliverables
 - [ ] `03-development/src/` - All FR modules implemented
 - [ ] `tests/` - Unit tests (≥80% coverage per FR)
-- [x] `sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
+- [x] `.methodology/sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
 - [ ] Gate 1 PASS for every FR
 - [ ] Gate 2 PASS (phase exit, composite ≥ 75)
 
