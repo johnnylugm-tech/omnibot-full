@@ -2,8 +2,8 @@
   "state": "RUNNING",
   "current_phase": 6,
   "last_gate": 1,
-  "last_fr": "FR-11",
-  "last_update": "2026-05-18T20:55:01.831473+00:00",
+  "last_fr": "FR-12",
+  "last_update": "2026-05-18T20:55:05.057682+00:00",
   "phase_truth_passed": false,
-  "_seal": "e7bb8256a6db1699"
+  "_seal": "73995b5a96c967e4"
 }
