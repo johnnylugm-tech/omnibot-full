@@ -194,8 +194,8 @@
         "open_high": 0
       },
       "FR-16": {
-        "score": 100.0,
-        "quality_complete": false,
+        "score": 98.3,
+        "quality_complete": true,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
