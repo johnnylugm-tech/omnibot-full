@@ -153,7 +153,7 @@
       },
       "FR-10": {
         "score": 100.0,
-        "quality_complete": false,
+        "quality_complete": true,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
