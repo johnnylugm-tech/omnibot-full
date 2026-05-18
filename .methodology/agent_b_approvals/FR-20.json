@@ -1,10 +1,18 @@
 {
-  "fr_id": "FR-20",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. EscalationRequest frozen dataclass. EscalationReason 3 values (out_of_scope, low_confidence, emotion_trigger). SLA_BY_PRIORITY {0:30, 1:15, 2:5} configurable. create() computes sla_deadline=NOW+SLA_BY_PRIORITY[priority], returns id. assign() sets assigned_agent+picked_at. resolve() sets resolved_at. get_sla_breaches() queries resolved_at IS NULL AND sla_deadline < NOW(), order by priority DESC. Invalid priority raises ValueError. All 16/16 tests pass. Coverage 79% (escalation v1 lowers avg, v2 at 100%).",
+  "review_status": "APPROVE",
+  "reason": "All FR-20 acceptance criteria are met. EscalationRequest is a frozen dataclass with conversation_id (int), reason (EscalationReason), and priority (int 0/1/2). EscalationReason enum exposes out_of_scope, low_confidence, emotion_trigger as string values. SLA_BY_PRIORITY = {0:30, 1:15, 2:5} is a module-level dict (configurable). create() validates priority, computes sla_deadline = datetime.now(UTC)+timedelta(minutes=sla_minutes), inserts into escalation_queue with RETURNING id. assign() sets assigned_agent + picked_at=NOW() and raises KeyError if not found. resolve() sets resolved_at=NOW() with same guard. get_sla_breaches() correctly filters resolved_at IS NULL AND sla_deadline < NOW(), ordering priority DESC, created_at ASC. One minor naming note: SRS says 'queued_at ASC' but implementation uses 'created_at ASC' — functionally equivalent assuming the column is the insertion timestamp; not a defect. No regressions detected.",
   "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "escalation/v2.py", "tests/test_fr20.py", "TEST_RESULTS.md"],
-  "citations": ["test_fr20.py:83-91", "test_fr20.py:106-110", "test_fr20.py:113-115", "test_fr20.py:121-131", "test_fr20.py:135-152", "test_fr20.py:186-197", "test_fr20.py:211-221", "test_fr20.py:234-261"],
-  "gaps": []
+  "citations": [
+    "v2.py:21",
+    "v2.py:32-39",
+    "v2.py:43-49",
+    "v2.py:68-91",
+    "v2.py:93-112",
+    "v2.py:114-130",
+    "v2.py:132-162"
+  ],
+  "gaps": [
+    "get_sla_breaches ORDER BY uses created_at instead of queued_at (SRS wording); verify column name in DB schema to confirm equivalence"
+  ]
 }
