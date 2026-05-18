@@ -1,0 +1,10 @@
+{
+  "fr_id": "FR-06",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "reason": "All acceptance criteria verified. TokenBucket with configurable capacity/refill_rate, thread-safe via Lock. consume() returns True/False. RateLimiter per-user isolation with auto-create full bucket. All 5/5 tests pass. Coverage 100%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/rate_limiter/__init__.py", "tests/test_fr06.py", "TEST_RESULTS.md"],
+  "citations": ["rate_limiter/__init__.py:13-41", "rate_limiter/__init__.py:43-59", "test_fr06.py:17-22", "test_fr06.py:25-32", "test_fr06.py:35-42"],
+  "gaps": []
+}
