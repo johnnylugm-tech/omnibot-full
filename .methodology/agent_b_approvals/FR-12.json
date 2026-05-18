@@ -1,0 +1,10 @@
+{
+  "fr_id": "FR-12",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "reason": "All acceptance criteria verified. 8 core tables (users, conversations, messages, knowledge_base, platform_configs, escalation_queue, user_feedback, security_logs) with all required columns. pgvector extension, vector(384) in knowledge_base, JSONB dst_state, TEXT[] keywords, FK constraints. Phase 2 tables (emotion_history, edge_cases) and ivfflat index. All 13/13 tests pass. Coverage 100%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/schema/__init__.py", "tests/test_fr12.py", "TEST_RESULTS.md"],
+  "citations": ["schema/__init__.py:9-101", "schema/__init__.py:114-145", "test_fr12.py:19-31", "test_fr12.py:34-41", "test_fr12.py:63-69"],
+  "gaps": []
+}
