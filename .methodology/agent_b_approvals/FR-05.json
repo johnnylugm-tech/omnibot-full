@@ -1,0 +1,10 @@
+{
+  "fr_id": "FR-05",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "reason": "All acceptance criteria verified. PIIMasking masks Taiwan mobile (09XX), landline, email, address via regex. Sensitive keywords trigger should_escalate(). PIIMaskResult contains masked_text, mask_count, pii_types. All 10/10 tests pass. Coverage 100%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/pii/__init__.py", "tests/test_fr05.py", "TEST_RESULTS.md"],
+  "citations": ["pii/__init__.py:27-38", "pii/__init__.py:43-51", "pii/__init__.py:109-135", "test_fr05.py:17-24", "test_fr05.py:44-49", "test_fr05.py:63-68", "test_fr05.py:82-85"],
+  "gaps": []
+}
