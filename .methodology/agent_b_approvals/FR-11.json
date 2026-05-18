@@ -1,0 +1,10 @@
+{
+  "fr_id": "FR-11",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "reason": "All acceptance criteria verified. HealthCheckService with injectable postgres/redis probes. Both up=healthy, one down=degraded, both down=unhealthy. uptime_seconds from monotonic clock. HTTP GET /api/v1/health returns {status, postgres, redis, uptime_seconds}. All 9/9 tests pass. Coverage 100%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/health/__init__.py", "tests/test_fr11.py", "TEST_RESULTS.md"],
+  "citations": ["health/__init__.py:24-59", "test_fr11.py:23-28", "test_fr11.py:32-38", "test_fr11.py:55-61", "test_fr11.py:81-92"],
+  "gaps": []
+}
