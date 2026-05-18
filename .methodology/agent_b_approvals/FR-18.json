@@ -2,14 +2,9 @@
   "fr_id": "FR-18",
   "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "phase": 3,
+  "reason": "All acceptance criteria verified. ConversationState enum has all 7 states (IDLE, INTENT_DETECTED, SLOT_FILLING, AWAITING_CONFIRMATION, PROCESSING, RESOLVED, ESCALATED). DialogueSlot(name/value/required/prompt) frozen dataclass. DialogueState frozen with conversation_id/current_state/slots/turn_count/last_updated. transition() returns new immutable instance, turn_count+=1, last_updated=NOW. missing_slots() returns required slots with value=None. FSM transitions match spec. Invalid transitions raise ValueError. All 42/42 tests pass. Coverage 100%.",
   "confidence": 9,
-  "reason": "All 7 acceptance criteria satisfied. ConversationState 7-state enum, DialogueSlot frozen dataclass, DialogueState with immutable transition() and missing_slots(). 42 tests cover all valid/invalid transitions, full conversation flows, slot filling edge cases, and property immutability.",
-  "citations": [
-    "SRS.md:110-133",
-    "SAD.md:363-399",
-    "03-development/src/omnibot/dst.py",
-    "tests/test_fr18.py"
-  ],
+  "docs_embedded": ["SRS.md", "SAD.md", "dst.py", "tests/test_fr18.py", "TEST_RESULTS.md"],
+  "citations": ["test_fr18.py:29-37", "test_fr18.py:48-54", "test_fr18.py:91-100", "test_fr18.py:139-144", "test_fr18.py:223-229", "test_fr18.py:370-374", "test_fr18.py:424-441"],
   "gaps": []
 }

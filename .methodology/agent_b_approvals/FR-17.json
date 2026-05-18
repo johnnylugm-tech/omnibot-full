@@ -2,12 +2,9 @@
   "fr_id": "FR-17",
   "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "phase": 3,
-  "confidence": 10,
-  "reason": "All 7 acceptance criteria satisfied. EmotionCategory enum, EmotionScore frozen dataclass, EmotionTracker with exponential decay formula, consecutive-negative counting from tail, escalation at >=3, configurable half-life. 30 tests cover all edge cases.",
-  "citations": [
-    "omnibot/emotion.py",
-    "tests/test_fr17.py"
-  ],
+  "reason": "All acceptance criteria verified. EmotionCategory enum (POSITIVE/NEGATIVE/NEUTRAL). EmotionScore frozen dataclass intensity 0.0-1.0. EmotionTracker exponential decay = e^(-0.693*hours_ago/half_life). POSITIVE +intensity*decay, NEGATIVE -intensity*decay, weighted average. NEUTRAL=0 contribution. consecutive_negative_count from tail stops at non-NEGATIVE. should_escalate at >=3. Default half_life=24h, configurable. All 30/30 tests pass. Coverage 98%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "emotion.py", "tests/test_fr17.py", "TEST_RESULTS.md"],
+  "citations": ["test_fr17.py:84-86", "test_fr17.py:88-96", "test_fr17.py:128-147", "test_fr17.py:193-195", "test_fr17.py:259-260", "test_fr17.py:281-290", "test_fr17.py:328-331"],
   "gaps": []
 }

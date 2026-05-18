@@ -2,14 +2,9 @@
   "fr_id": "FR-19",
   "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "phase": 3,
-  "confidence": 10,
-  "reason": "All 4 layers implemented with correct thresholds. RRF uses original max confidence (not RRF score) for > 0.7 return check, source=rag. L1 fast-return > 0.9 rule, L2 pgvector Top-5, L3 defense+grounding+sandwich prompt, L4 escalate sentinel. 32 tests cover all layers, error paths, and edge cases.",
-  "citations": [
-    "SRS.md:139-164",
-    "SAD.md:403-451",
-    "03-development/src/omnibot/knowledge/v2.py",
-    "tests/test_fr19.py"
-  ],
+  "reason": "All acceptance criteria verified. KnowledgeResult frozen dataclass. _reciprocal_rank_fusion sum 1/(rank+k), sort desc, top-3. L1: SQL ILIKE+keywords, confidence>0.9 fast-return source=rule. L2: pgvector <=> Top-5 via embedding_fn. RRF L1+L2 fusion k=60, best>0.7 source=rag. L3: defense blocked->escalate, LLM timeout/empty/error->L4, grounding pass->llm. L4 source=escalate id=-1 confidence=0.0. L1 DB failure continues pipeline. All 32/32 tests pass. Coverage 89%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "knowledge/v2.py", "knowledge/__init__.py", "tests/test_fr19.py", "TEST_RESULTS.md"],
+  "citations": ["test_fr19.py:143-150", "test_fr19.py:177-186", "test_fr19.py:242-273", "test_fr19.py:346-368", "test_fr19.py:449-467", "test_fr19.py:533-551", "test_fr19.py:662-680", "test_fr19.py:704-712"],
   "gaps": []
 }

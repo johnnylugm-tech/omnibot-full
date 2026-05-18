@@ -2,14 +2,9 @@
   "fr_id": "FR-20",
   "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "phase": 3,
+  "reason": "All acceptance criteria verified. EscalationRequest frozen dataclass. EscalationReason 3 values (out_of_scope, low_confidence, emotion_trigger). SLA_BY_PRIORITY {0:30, 1:15, 2:5} configurable. create() computes sla_deadline=NOW+SLA_BY_PRIORITY[priority], returns id. assign() sets assigned_agent+picked_at. resolve() sets resolved_at. get_sla_breaches() queries resolved_at IS NULL AND sla_deadline < NOW(), order by priority DESC. Invalid priority raises ValueError. All 16/16 tests pass. Coverage 79% (escalation v1 lowers avg, v2 at 100%).",
   "confidence": 9,
-  "reason": "All acceptance criteria met. EscalationRequest frozen dataclass, EscalationReason enum (out_of_scope, low_confidence, emotion_trigger), EscalationManagerV2 with create (SLA deadline computation), assign, resolve, get_sla_breaches. SLA_BY_PRIORITY configurable dict. 16 tests cover all operations including edge cases.",
-  "citations": [
-    "SRS.md:170-186",
-    "SAD.md:454-477",
-    "03-development/src/omnibot/escalation/v2.py",
-    "tests/test_fr20.py"
-  ],
+  "docs_embedded": ["SRS.md", "SAD.md", "escalation/v2.py", "tests/test_fr20.py", "TEST_RESULTS.md"],
+  "citations": ["test_fr20.py:83-91", "test_fr20.py:106-110", "test_fr20.py:113-115", "test_fr20.py:121-131", "test_fr20.py:135-152", "test_fr20.py:186-197", "test_fr20.py:211-221", "test_fr20.py:234-261"],
   "gaps": []
 }

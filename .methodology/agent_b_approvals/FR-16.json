@@ -2,12 +2,9 @@
   "fr_id": "FR-16",
   "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "phase": 3,
-  "confidence": 10,
-  "reason": "All acceptance criteria met. PIIMaskingV2 correctly inherits PIIMasking, adds credit_card pattern with Luhn validation, excludes false positives, implements rightmost-first replacement, preserves Phase 1 masking. 27 tests cover all criteria including Luhn edge cases, combined PII, and V2 escalation keywords.",
-  "citations": [
-    "omnibot/pii/__init__.py",
-    "tests/test_fr16.py"
-  ],
+  "reason": "All acceptance criteria verified. PIIMaskingV2 inherits Phase 1 PIIMasking (phone/email/address). Credit card pattern matched with Luhn validation. Only Luhn-valid cards masked to [credit_card_masked]. Right-to-left replacement avoids index shift. should_escalate detects CC keywords. Phase 1 patterns preserved. All 37/37 tests (FR-05+FR-16) pass. Coverage 100%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "pii/__init__.py", "tests/test_fr16.py", "tests/test_fr05.py", "TEST_RESULTS.md"],
+  "citations": ["test_fr16.py:26-32", "test_fr16.py:56-61", "test_fr16.py:90-94", "test_fr16.py:118-121", "test_fr16.py:145-163", "test_fr16.py:184-196"],
   "gaps": []
 }

@@ -2,15 +2,9 @@
   "fr_id": "FR-22",
   "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "phase": 3,
+  "reason": "All acceptance criteria verified. PrometheusMetrics with 8 metrics: 1 Histogram (response_duration_seconds with buckets), 6 Counters (requests_total, fcr_total, knowledge_hit_total, pii_masked_total, emotion_escalation_total, llm_tokens_total), 1 Gauge (escalation_queue_size). All registered on default REGISTRY. get_metrics() returns bytes in Prometheus text format. GET /metrics wired in app.py. Label validation raises ValueError on mismatch. All 18/18 tests pass. Coverage 100%.",
   "confidence": 9,
-  "reason": "All acceptance criteria met. PrometheusMetrics class with all 8 metrics (6 counters, 1 histogram, 1 gauge) matching SRS spec exactly — names, types, labels, histogram buckets. GET /metrics endpoint wired in app.py returning Prometheus text format. 18 tests with 100% coverage covering all metric operations and label validation. Linting and type checking clean.",
-  "citations": [
-    "SRS.md:214-230",
-    "SAD.md:511-531",
-    "03-development/src/omnibot/metrics.py",
-    "03-development/src/omnibot/app.py",
-    "tests/test_fr22.py"
-  ],
+  "docs_embedded": ["SRS.md", "SAD.md", "metrics.py", "app.py", "tests/test_fr22.py", "TEST_RESULTS.md"],
+  "citations": ["test_fr22.py:43-49", "test_fr22.py:72-87", "test_fr22.py:102-111", "test_fr22.py:167-184", "test_fr22.py:200-205", "test_fr22.py:224-225"],
   "gaps": []
 }

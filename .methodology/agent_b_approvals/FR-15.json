@@ -2,12 +2,9 @@
   "fr_id": "FR-15",
   "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "phase": 3,
+  "reason": "All acceptance criteria verified. PromptInjectionDefense.check_input returns SecurityCheckResult(is_safe, blocked_reason, risk_level). Detects 10 case-insensitive regex patterns. NFKC normalization before pattern matching. Any pattern match -> is_safe=False, risk_level=high. build_sandwich_prompt has 4 sections ending with system reminder. All 26/26 tests pass. Coverage 100%.",
   "confidence": 9,
-  "reason": "All 10 injection patterns implemented with correct case-insensitive regex. SecurityCheckResult frozen dataclass matches spec. NFKC normalization applied before pattern matching. build_sandwich_prompt produces correct section order with exact system reminder text. 26 tests cover all acceptance criteria including each pattern individually, case-insensitive matching, NFKC normalization, sandwich structure, and false-positive avoidance.",
-  "citations": [
-    "omnibot/defense.py",
-    "tests/test_fr15.py"
-  ],
+  "docs_embedded": ["SRS.md", "SAD.md", "defense.py", "tests/test_fr15.py", "TEST_RESULTS.md"],
+  "citations": ["test_fr15.py:55-61", "test_fr15.py:88-100", "test_fr15.py:228-229", "test_fr15.py:259-276", "test_fr15.py:342-353"],
   "gaps": []
 }

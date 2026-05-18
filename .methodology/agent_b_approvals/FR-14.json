@@ -2,15 +2,9 @@
   "fr_id": "FR-14",
   "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "phase": 3,
-  "confidence": 10,
-  "reason": "All FR-14 acceptance criteria are met: both Messenger and WhatsApp webhook endpoints registered with correct HMAC-SHA256 verification, hmac.compare_digest() used for timing-attack resistance, VERIFIERS dict contains both keys, route table registers both platforms, docstrings carry [FR-14] tag + SAD citations, and 13 tests cover valid/invalid signatures, response timing (<3s), missing headers, platform enums, and verifier registration.",
-  "citations": [
-    "omnibot/adapters/messenger.py",
-    "omnibot/adapters/whatsapp.py",
-    "omnibot/router.py",
-    "omnibot/auth/verifier.py",
-    "tests/test_fr14.py"
-  ],
+  "reason": "All acceptance criteria verified. parse_messenger_webhook extracts sender/message/text to UnifiedMessage(MESSENGER). parse_whatsapp_webhook extracts from/messages/body to UnifiedMessage(WHATSAPP). _verify_hub_signature uses HMAC-SHA256 + compare_digest. VERIFIERS dict has MESSENGER+WHATSAPP. Invalid sig returns 401 AUTH_INVALID_SIGNATURE. Empty entry/messaging/changes/messages return 400. All 19/19 tests pass. Coverage 91%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "adapters/messenger.py", "adapters/whatsapp.py", "auth/verifier.py", "tests/test_fr14.py", "TEST_RESULTS.md"],
+  "citations": ["test_fr14.py:103-117", "test_fr14.py:130-144", "test_fr14.py:177-191", "test_fr14.py:251-261", "test_fr14.py:264-277", "test_fr14.py:332-336", "test_fr14.py:339-350"],
   "gaps": []
 }

@@ -2,14 +2,9 @@
   "fr_id": "FR-24",
   "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "phase": 3,
-  "confidence": 8,
-  "reason": "All acceptance criteria met. EdgeCaseCollector with ingest/approve/mark_for_regression/get_regression_set matching SAD spec. GOLDEN_DATASET with 510 records across 6 categories (85 each), all with Chinese edge case queries matching SRS examples. 13 tests with 100% coverage covering dataclass, all collector operations, dataset counts, category distribution, and field validation. Async DB patterns use MockPool/MockConnection pattern consistent with project conventions.",
-  "citations": [
-    "SRS.md:268-286",
-    "SAD.md:572-596",
-    "03-development/src/omnibot/dataset.py",
-    "tests/test_fr24.py"
-  ],
+  "reason": "All acceptance criteria verified. EdgeCase frozen dataclass with 7 fields. EdgeCaseCollector with ingest/approve/mark_for_regression/get_regression_set using asyncpg. GOLDEN_DATASET has 510 entries (6 categories x 85 each). 6 categories: asr_garbled, spelling_error, dialect, multi_intent, emotional_outburst, prompt_injection. Import-time assertion verifies >=500 entries and >=50 per category. get_category() correctly identifies all 6 categories. All 13/13 tests pass. Coverage 100%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "dataset.py", "tests/test_fr24.py", "TEST_RESULTS.md"],
+  "citations": ["test_fr24.py:76-93", "test_fr24.py:108-116", "test_fr24.py:119-128", "test_fr24.py:131-139", "test_fr24.py:142-157", "test_fr24.py:176-178", "test_fr24.py:235-246"],
   "gaps": []
 }
