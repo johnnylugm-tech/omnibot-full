@@ -2,9 +2,9 @@
   "state": "RUNNING",
   "current_phase": 5,
   "last_gate": 1,
-  "last_fr": "FR-21",
-  "last_update": "2026-05-18T20:39:47.195470+00:00",
-  "_seal": "1677035be6912f23",
+  "last_fr": "FR-22",
+  "last_update": "2026-05-18T20:40:58.474295+00:00",
+  "_seal": "104b135efb1bb33c",
   "last_milestone_command": "push-milestone --type p5-baseline",
   "last_milestone_at": "2026-05-18T16:30:05.627507+00:00"
 }

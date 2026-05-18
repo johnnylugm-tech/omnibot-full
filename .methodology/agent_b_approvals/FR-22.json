@@ -1,10 +1,23 @@
 {
-  "fr_id": "FR-22",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. PrometheusMetrics with 8 metrics: 1 Histogram (response_duration_seconds with buckets), 6 Counters (requests_total, fcr_total, knowledge_hit_total, pii_masked_total, emotion_escalation_total, llm_tokens_total), 1 Gauge (escalation_queue_size). All registered on default REGISTRY. get_metrics() returns bytes in Prometheus text format. GET /metrics wired in app.py. Label validation raises ValueError on mismatch. All 18/18 tests pass. Coverage 100%.",
-  "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "metrics.py", "app.py", "tests/test_fr22.py", "TEST_RESULTS.md"],
-  "citations": ["test_fr22.py:43-49", "test_fr22.py:72-87", "test_fr22.py:102-111", "test_fr22.py:167-184", "test_fr22.py:200-205", "test_fr22.py:224-225"],
-  "gaps": []
+  "review_status": "APPROVE",
+  "reason": "All 8 required Prometheus metrics are correctly implemented in PrometheusMetrics.__init__: (1) omnibot_response_duration_seconds as Histogram with labels=[platform,knowledge_source] and exact buckets [0.1,0.25,0.5,0.75,1.0,2.5,5.0]; (2) omnibot_requests_total as Counter with labels=[platform,status]; (3) omnibot_fcr_total as Counter with labels=[resolved]; (4) omnibot_knowledge_hit_total as Counter with labels=[layer]; (5) omnibot_pii_masked_total as Counter with labels=[pii_type]; (6) omnibot_escalation_queue_size as Gauge; (7) omnibot_emotion_escalation_total as Counter; (8) omnibot_llm_tokens_total as Counter with labels=[model,direction]. get_metrics() returns generate_latest(REGISTRY) in Prometheus text format. Tests verify all 8 names appear in registry output, no extra metrics exist (excluding _created suffixes), and the _clear_registry fixture correctly prevents duplicate-registration errors across test runs. One minor unverified item: the GET /metrics HTTP endpoint wiring is not shown in metrics.py — it is expected to live in a router/app file outside this excerpt. Since the test file explicitly notes 'No FastAPI app startup required' and the metrics module provides get_metrics() as the data source, this is not a deficiency in the module itself.",
+  "confidence": 8,
+  "citations": [
+    "metrics.py:23-28",
+    "metrics.py:29-34",
+    "metrics.py:35-40",
+    "metrics.py:41-46",
+    "metrics.py:47-52",
+    "metrics.py:53-57",
+    "metrics.py:58-62",
+    "metrics.py:63-68",
+    "metrics.py:70-72",
+    "test_fr22.py:_clear_registry fixture",
+    "test_fr22.py:test_all_eight_metrics_registered",
+    "test_fr22.py:test_no_extra_metrics_registered"
+  ],
+  "gaps": [
+    "GET /metrics HTTP endpoint not visible in provided context — assumed wired in a router file outside metrics.py"
+  ]
 }
