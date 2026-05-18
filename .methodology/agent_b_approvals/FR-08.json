@@ -1,0 +1,10 @@
+{
+  "fr_id": "FR-08",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "reason": "All acceptance criteria verified. EscalationManager.create() returns auto-incrementing ID, assign() sets agent + picked_at, resolve() sets resolved_at. KeyError on missing ID. sla_deadline field exists but is None (Phase 1). All 10/10 tests pass. Coverage 100%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/escalation/__init__.py", "tests/test_fr08.py", "TEST_RESULTS.md"],
+  "citations": ["escalation/__init__.py:30-71", "test_fr08.py:18-23", "test_fr08.py:45-52", "test_fr08.py:55-62", "test_fr08.py:65-70", "test_fr08.py:102-119"],
+  "gaps": []
+}
