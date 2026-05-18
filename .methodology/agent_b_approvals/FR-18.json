@@ -1,10 +1,14 @@
 {
-  "fr_id": "FR-18",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. ConversationState enum has all 7 states (IDLE, INTENT_DETECTED, SLOT_FILLING, AWAITING_CONFIRMATION, PROCESSING, RESOLVED, ESCALATED). DialogueSlot(name/value/required/prompt) frozen dataclass. DialogueState frozen with conversation_id/current_state/slots/turn_count/last_updated. transition() returns new immutable instance, turn_count+=1, last_updated=NOW. missing_slots() returns required slots with value=None. FSM transitions match spec. Invalid transitions raise ValueError. All 42/42 tests pass. Coverage 100%.",
+  "review_status": "APPROVE",
+  "reason": "All FR-18 acceptance criteria are fully met. ConversationState enum defines exactly 7 states (IDLE, INTENT_DETECTED, SLOT_FILLING, AWAITING_CONFIRMATION, PROCESSING, RESOLVED, ESCALATED) with string values matching their names. DialogueSlot is a frozen dataclass with name, value, required, and prompt fields; required slots with value=None will surface via missing_slots(). DialogueState is a frozen dataclass containing all required fields: conversation_id, current_state, primary_intent, sub_intents, slots dict, turn_count, last_updated. transition() is correctly immutable — returns a new DialogueState with turn_count+1 and fresh UTC timestamp, and raises ValueError on invalid transitions. missing_slots() correctly returns [s for s in slots.values() if s.required and s.value is None]. The _ALLOWED_TRANSITIONS frozenset encodes all 10 required transitions exactly as specified in the SRS, including the SLOT_FILLING→ESCALATED path for the 3-turn escalation trigger and PROCESSING→ESCALATED for low-confidence scenarios. No regressions detected; test file confirms enum membership, frozen immutability (FrozenInstanceError import present), and transition semantics.",
   "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "dst.py", "tests/test_fr18.py", "TEST_RESULTS.md"],
-  "citations": ["test_fr18.py:29-37", "test_fr18.py:48-54", "test_fr18.py:91-100", "test_fr18.py:139-144", "test_fr18.py:223-229", "test_fr18.py:370-374", "test_fr18.py:424-441"],
+  "citations": [
+    "dst.py:19-26",
+    "dst.py:30-35",
+    "dst.py:38-49",
+    "dst.py:53-75",
+    "dst.py:77-78"
+  ],
   "gaps": []
 }
