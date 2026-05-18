@@ -1,150 +1,150 @@
 {
-  "phase": 4,
-  "updated_at": "2026-05-18T15:04:21Z",
+  "phase": 5,
+  "updated_at": "2026-05-18T16:12:59Z",
   "frs": {
     "FR-01": {
       "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 4,
-      "timestamp": "2026-05-18T15:04:21Z"
+      "score": 0.0,
+      "phase": 5,
+      "timestamp": "2026-05-18T16:12:59Z"
     },
     "FR-02": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:08Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-03": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:08Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-04": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:08Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-05": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:09Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-06": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:09Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-07": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:09Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-08": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:09Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-09": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:09Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-10": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:09Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-11": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:09Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-12": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:09Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-13": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:09Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-14": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:10Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-15": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:10Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-16": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:10Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-17": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:10Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-18": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:10Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-19": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:10Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-20": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:10Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-21": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:10Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-22": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:10Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-23": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:11Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     },
     "FR-24": {
-      "status": "gate1_pass",
-      "score": 97.67,
-      "phase": 5,
-      "timestamp": "2026-05-17T17:51:11Z"
+      "status": "pending",
+      "score": 0,
+      "phase": 4,
+      "timestamp": ""
     }
   }
 }

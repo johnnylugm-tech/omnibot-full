@@ -5,8 +5,8 @@
 > ASPICE references: [SRS](../01-requirements/SRS.md) · [SPEC_TRACKING](../01-requirements/SPEC_TRACKING.md) · [TRACEABILITY_MATRIX](../01-requirements/TRACEABILITY_MATRIX.md) · [SAD](../02-architecture/SAD.md)
 
 ## Summary
-- **Total tests**: 390 | **Passed**: 390 | **Failed**: 0 | **Skipped**: 0
-- **Test coverage**: 98.39% (3350/3350 statements)
+- **Total tests**: 396 | **Passed**: 396 | **Failed**: 0 | **Skipped**: 0
+- **Test coverage**: 98% (854 source statements, 16 missed)
 - **pytest**: 9.0.3 | **Python**: 3.11 | **Coverage tool**: pytest-cov
 
 ## Per-FR Results
