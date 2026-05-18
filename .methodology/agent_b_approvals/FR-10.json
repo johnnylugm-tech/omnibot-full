@@ -1,0 +1,10 @@
+{
+  "fr_id": "FR-10",
+  "review_status": "APPROVE",
+  "status": "STAGE_PASS",
+  "reason": "All acceptance criteria verified. ApiResponse with success/data/error/error_code, Generic[T]. PaginatedResponse inherits with total/page/limit/has_next computed. ErrorCode enum: AUTH_INVALID_SIGNATURE, RATE_LIMIT_EXCEEDED, KNOWLEDGE_NOT_FOUND, VALIDATION_ERROR, INTERNAL_ERROR. All 13/13 tests pass. Coverage 100%.",
+  "confidence": 9,
+  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/api/__init__.py", "tests/test_fr10.py", "TEST_RESULTS.md"],
+  "citations": ["api/__init__.py:17-27", "api/__init__.py:29-37", "api/__init__.py:40-55", "test_fr10.py:15-21", "test_fr10.py:25-35", "test_fr10.py:51-63", "test_fr10.py:103-109"],
+  "gaps": []
+}

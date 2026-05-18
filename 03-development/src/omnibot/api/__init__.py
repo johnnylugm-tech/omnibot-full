@@ -49,7 +49,6 @@ class PaginatedResponse(ApiResponse[T]):
     limit: int = 20
 
     @computed_field
-    @property
     def has_next(self) -> bool:
         """True when there are more pages after this one."""
         return self.page * self.limit < self.total
