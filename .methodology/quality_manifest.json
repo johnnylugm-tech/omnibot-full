@@ -89,168 +89,168 @@
   "gate_results": {
     "gate1": {
       "FR-01": {
-        "score": 0.0,
-        "quality_complete": false,
+        "score": 100.0,
+        "quality_complete": true,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-02": {
-        "score": 0.0,
+        "score": 95.3,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-03": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-04": {
-        "score": 0.0,
+        "score": 95.7,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-05": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-06": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-07": {
-        "score": 0.0,
+        "score": 98.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-08": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-09": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-10": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-11": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-12": {
-        "score": 0.0,
+        "score": 95.7,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-13": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-14": {
-        "score": 0.0,
+        "score": 97.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-15": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-16": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-17": {
-        "score": 0.0,
+        "score": 99.3,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-18": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-19": {
-        "score": 0.0,
+        "score": 96.3,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-20": {
-        "score": 0.0,
+        "score": 93.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-21": {
-        "score": 0.0,
+        "score": 96.7,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-22": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-23": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
       },
       "FR-24": {
-        "score": 0.0,
+        "score": 100.0,
         "quality_complete": false,
         "rounds_used": 0,
         "open_critical": 0,

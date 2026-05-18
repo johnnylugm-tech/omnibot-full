@@ -1,6 +1,7 @@
 # Test Plan — OmniBot (FR-01–FR-24)
 
 > Generated: 2026-05-17 | Phase: 4 (Testing) | Source: 01-requirements/SRS.md v2.0
+> ASPICE references: [SRS](../01-requirements/SRS.md) · [SPEC_TRACKING](../01-requirements/SPEC_TRACKING.md) · [TRACEABILITY_MATRIX](../01-requirements/TRACEABILITY_MATRIX.md) · [SAD](../02-architecture/SAD.md)
 
 ## 1. Test Objectives
 
