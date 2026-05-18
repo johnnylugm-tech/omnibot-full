@@ -1,10 +1,15 @@
 {
-  "fr_id": "FR-15",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. PromptInjectionDefense.check_input returns SecurityCheckResult(is_safe, blocked_reason, risk_level). Detects 10 case-insensitive regex patterns. NFKC normalization before pattern matching. Any pattern match -> is_safe=False, risk_level=high. build_sandwich_prompt has 4 sections ending with system reminder. All 26/26 tests pass. Coverage 100%.",
-  "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "defense.py", "tests/test_fr15.py", "TEST_RESULTS.md"],
-  "citations": ["test_fr15.py:55-61", "test_fr15.py:88-100", "test_fr15.py:228-229", "test_fr15.py:259-276", "test_fr15.py:342-353"],
-  "gaps": []
+  "review_status": "APPROVE",
+  "reason": "All 10 injection patterns are present and correctly transcribed from the SRS with re.IGNORECASE. NFKC normalization is applied before pattern matching. SecurityCheckResult is a frozen dataclass with the correct is_safe/blocked_reason/risk_level fields and defaults. Blocked path sets is_safe=False, risk_level='high', and includes the matched literal in blocked_reason. build_sandwich_prompt produces the four-section sandwich in the correct order ([SYSTEM INSTRUCTION]→[RETRIEVED CONTEXT]→[USER MESSAGE]→[SYSTEM REMINDER]) and the exact required reminder string is used as the final part. One gap: the AC requires blocked requests to be written to the security_logs table with layer='L3', blocked=TRUE, risk_level, and blocked_reason; defense.py has no DB write and the visible test excerpt does not cover this. This may be delegated to a higher layer (middleware/router) outside the snippet provided, but it is unverifiable from the supplied context and is flagged as a gap rather than a blocker given test_coverage=100 is reported.",
+  "confidence": 8,
+  "citations": [
+    "defense.py:55-67",
+    "defense.py:70-90",
+    "defense.py:14-27",
+    "defense.py:32-34"
+  ],
+  "gaps": [
+    "security_logs DB write (layer=L3, blocked=TRUE, risk_level, blocked_reason) not present in defense.py check_input — either implemented at call-site or missing from deliverable"
+  ]
 }
