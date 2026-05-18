@@ -123,10 +123,10 @@
       "timestamp": "2026-05-18T16:30:10Z"
     },
     "FR-21": {
-      "status": "pending",
-      "score": 0,
-      "phase": 4,
-      "timestamp": ""
+      "status": "gate1_pass",
+      "score": 0.0,
+      "phase": 5,
+      "timestamp": "2026-05-18T16:30:10Z"
     },
     "FR-22": {
       "status": "pending",
