@@ -50,7 +50,7 @@ class PlatformVerifier:
     Citations: SAD.md:107-108 (VERIFIERS dict registry)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._verifiers: Dict[Platform, Callable[[str, bytes, str], bool]] = {
             Platform.TELEGRAM: verify_telegram_signature,
             Platform.LINE: verify_line_signature,

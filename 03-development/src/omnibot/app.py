@@ -59,7 +59,7 @@ health_service = HealthCheckService(
 
 
 @app.post("/api/v1/webhook/{platform}")
-async def webhook(platform: str, request: Request):
+async def webhook(platform: str, request: Request) -> JSONResponse:
     """Receive webhook from a platform, verify signature, parse into UnifiedMessage."""
     route = resolve_route(platform)
     if route is None:
@@ -82,14 +82,14 @@ async def webhook(platform: str, request: Request):
 
 
 @app.get("/api/v1/health")
-async def health():
+async def health() -> JSONResponse:
     """Health check endpoint — returns postgres/redis status and uptime."""
     result = health_service.check()
     return JSONResponse(content=result)
 
 
 @app.get("/metrics")
-async def metrics():
+async def metrics() -> Response:
     """Prometheus metrics endpoint — returns text format for scraping.
 
     Citations: SRS.md FR-22, SAD.md 2.5.9 PrometheusMetrics

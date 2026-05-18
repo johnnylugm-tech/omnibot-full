@@ -7,7 +7,7 @@ Citations: SRS.md FR-07 section
 """
 
 from dataclasses import dataclass
-from typing import List
+from typing import Any, Dict, List
 
 from omnibot.knowledge.v2 import HybridKnowledgeV2, KnowledgeResult, _reciprocal_rank_fusion  # noqa: F401
 
@@ -31,8 +31,8 @@ class KnowledgeBase:
     Confidence = number of matched keywords / total keywords in the best rule.
     """
 
-    def __init__(self):
-        self._rules: List[dict] = []
+    def __init__(self) -> None:
+        self._rules: List[Dict[str, Any]] = []
 
     def add_rule(self, keywords: List[str], response: str) -> None:
         """Add a keyword-triggered response rule."""
