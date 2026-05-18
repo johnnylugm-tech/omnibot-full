@@ -215,8 +215,8 @@
         "open_high": 0
       },
       "FR-19": {
-        "score": 96.3,
-        "quality_complete": false,
+        "score": 99.3,
+        "quality_complete": true,
         "rounds_used": 0,
         "open_critical": 0,
         "open_high": 0
