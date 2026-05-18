@@ -52,7 +52,7 @@ class EdgeCaseCollector:
                 expected_intent,
                 expected_answer,
             )
-            return row["id"]
+            return int(row["id"])
 
     async def approve(self, edge_case_id: int) -> None:
         """Mark an edge case as approved with current timestamp."""

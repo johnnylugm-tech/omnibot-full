@@ -24,7 +24,7 @@ def _cosine_similarity(a: list[float], b: list[float]) -> float:
 
 def _default_embedding_fn() -> Callable[[str], list[float]]:
     """Lazy-load the paraphrase-multilingual-MiniLM-L12-v2 model."""
-    from sentence_transformers import SentenceTransformer
+    from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
 
     model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
     return lambda text: model.encode(text).tolist()

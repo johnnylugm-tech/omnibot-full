@@ -24,7 +24,7 @@ _INJECTION_PATTERNS: List[Tuple[str, str]] = [
     (r"disregard\s+(your|the|all|previous)", "Pattern 10"),
 ]
 
-_COMPILED_PATTERNS: List[Tuple[re.Pattern, str]] = [
+_COMPILED_PATTERNS: List[Tuple[re.Pattern[str], str]] = [
     (re.compile(p, re.IGNORECASE), name) for p, name in _INJECTION_PATTERNS
 ]
 
