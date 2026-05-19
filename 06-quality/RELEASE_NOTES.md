@@ -30,3 +30,7 @@
 
 ## Known Issues
 - Zero critical or high-severity open issues
+
+## Reference Documents
+- [BASELINE](../05-verification/BASELINE.md) — Phase 5 acceptance baseline
+- [VERIFICATION_REPORT](../05-verification/VERIFICATION_REPORT.md) — Phase 5 verification outcomes

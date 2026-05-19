@@ -1,9 +1,9 @@
 {
   "state": "RUNNING",
   "current_phase": 6,
-  "last_gate": 1,
-  "last_fr": "FR-13",
-  "last_update": "2026-05-18T20:55:08.287362+00:00",
-  "phase_truth_passed": false,
-  "_seal": "613e7be9f232a6db"
+  "last_gate": 4,
+  "last_fr": null,
+  "last_update": "2026-05-19T11:46:17.698776+00:00",
+  "phase_truth_passed": true,
+  "_seal": "4b3c9c335ba77892"
 }

@@ -28,3 +28,7 @@ All 24 FRs implemented with Gate 1 PASS. Quality gate score 96.33.
 ## Phase 3 → Phase 4 Transition Approved
 
 Ready to begin Phase 4 (Testing) activities.
+
+## Reference Documents
+- [BASELINE](../05-verification/BASELINE.md) — Phase 5 acceptance baseline
+- [VERIFICATION_REPORT](../05-verification/VERIFICATION_REPORT.md) — Phase 5 verification outcomes

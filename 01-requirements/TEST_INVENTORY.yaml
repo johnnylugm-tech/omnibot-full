@@ -1,0 +1,418 @@
+# TEST_INVENTORY.yaml — Automated Test Function Inventory
+format_version: "1.0"
+
+fr_tests:
+  FR-01:
+    unit:
+      - test_telegram_webhook_text_message
+      - test_telegram_webhook_response_time
+      - test_line_webhook_text_message
+      - test_line_webhook_response_time
+      - test_unsupported_platform_returns_400
+      - test_line_empty_events_returns_400
+      - test_platform_enum_values
+      - test_message_type_enum_values
+  FR-02:
+    unit:
+      - test_telegram_webhook_valid_signature
+      - test_telegram_webhook_invalid_signature
+      - test_telegram_webhook_missing_signature_header
+      - test_line_webhook_valid_signature
+      - test_line_webhook_invalid_signature
+      - test_line_webhook_missing_signature_header
+      - test_timing_attack_resistance
+      - test_telegram_webhook_without_auth_headers_still_rejected
+  FR-03:
+    unit:
+      - test_unified_message_is_frozen
+      - test_unified_message_required_fields
+      - test_unified_message_defaults
+      - test_unified_message_reply_token
+      - test_unified_response_fields
+      - test_unified_response_escalate_defaults
+      - test_platform_enum_completeness
+      - test_message_type_enum_completeness
+      - test_platform_enum_from_string
+      - test_message_type_enum_from_string
+  FR-04:
+    unit:
+      - test_nfkc_normalization
+      - test_nfkc_combining_characters
+      - test_control_characters_removed
+      - test_newline_and_tab_preserved
+      - test_leading_trailing_whitespace_stripped
+      - test_empty_string
+      - test_only_whitespace
+      - test_unicode_emojis_preserved
+      - test_no_pattern_matching_performed
+      - test_idempotent
+      - test_zwj_emoji_preserved
+  FR-05:
+    unit:
+      - test_mask_taiwan_mobile
+      - test_mask_taiwan_landline
+      - test_phone_without_dashes
+      - test_mask_email
+      - test_mask_multiple_emails
+      - test_mask_taiwan_address
+      - test_no_false_positive_ordinary_text
+      - test_sensitive_keyword_triggers_escalation
+      - test_normal_message_no_escalation
+      - test_escalation_flag_dataclass
+  FR-06:
+    unit:
+      - test_token_bucket_allows_within_limit
+      - test_token_bucket_refills_over_time
+      - test_rate_limiter_per_user_isolation
+      - test_rate_limiter_new_user_gets_full_bucket
+      - test_rate_limiter_capacity_zero_blocks_all
+  FR-07:
+    unit:
+      - test_exact_match_confidence_095
+      - test_no_match_confidence_000
+      - test_partial_match_confidence_07
+      - test_question_exact_match_095
+      - test_multiple_rules_best_confidence
+      - test_version_tiebreaking
+      - test_inactive_rule_skipped
+      - test_active_rule_included
+      - test_knowledge_result_dataclass
+      - test_escalate_result_dataclass
+      - test_convenience_function
+  FR-08:
+    unit:
+      - test_create_returns_escalation_id
+      - test_create_stores_conversation_id_and_reason
+      - test_create_increments_id
+      - test_assign_sets_agent_and_picked_at
+      - test_resolve_sets_resolved_at
+      - test_phase1_no_sla
+      - test_assign_nonexistent_raises
+      - test_resolve_nonexistent_raises
+      - test_escalation_record_fields
+      - test_full_lifecycle
+  FR-09:
+    unit:
+      - test_log_output_is_valid_json
+      - test_log_output_is_single_line
+      - test_required_fields
+      - test_timestamp_is_iso8601_utc
+      - test_kwargs_as_extra_fields
+      - test_level_info
+      - test_level_warn
+      - test_level_error
+      - test_level_debug
+      - test_level_critical
+      - test_different_service_name
+      - test_log_method_accepts_level_string
+  FR-10:
+    unit:
+      - test_api_response_success
+      - test_api_response_error
+      - test_api_response_defaults
+      - test_api_response_generic_typed
+      - test_paginated_response_inherits_api
+      - test_paginated_response_fields
+      - test_paginated_response_no_next_page
+      - test_paginated_response_error
+      - test_error_code_enum_values
+      - test_error_code_from_string
+      - test_serialization_round_trip
+      - test_paginated_response_middle_page
+  FR-11:
+    unit:
+      - test_health_status_enum
+      - test_both_up_is_healthy
+      - test_both_down_is_unhealthy
+      - test_postgres_down_is_degraded
+      - test_redis_down_is_degraded
+      - test_uptime_seconds_present
+      - test_response_keys
+      - test_uptime_monotonic
+      - test_health_endpoint_http
+  FR-12:
+    unit:
+      - test_schema_has_eight_tables
+      - test_required_tables_exist
+      - test_users_columns
+      - test_conversations_columns
+      - test_messages_columns
+      - test_knowledge_base_columns
+      - test_platform_configs_columns
+      - test_escalation_queue_columns
+      - test_user_feedback_columns
+      - test_security_logs_columns
+      - test_foreign_keys_present
+      - test_schema_is_valid_sql
+      - test_each_table_has_id
+  FR-13:
+    unit:
+      - test_compose_file_exists
+      - test_dockerfile_exists
+      - test_three_services
+      - test_service_names
+      - test_postgres_image
+      - test_redis_image
+      - test_api_port_mapping
+      - test_postgres_healthcheck
+      - test_redis_healthcheck
+      - test_api_depends_on_both
+      - test_api_depends_condition_healthy
+      - test_redis_requirepass
+  FR-14:
+    unit:
+      - test_messenger_webhook_valid_signature_and_parse
+      - test_messenger_webhook_response_time
+      - test_messenger_webhook_invalid_signature
+      - test_messenger_webhook_missing_signature_header
+      - test_messenger_webhook_missing_secret_header
+      - test_whatsapp_webhook_valid_signature_and_parse
+      - test_whatsapp_webhook_response_time
+      - test_whatsapp_webhook_invalid_signature
+      - test_whatsapp_webhook_missing_signature_header
+      - test_whatsapp_webhook_missing_secret_header
+      - test_messenger_empty_entry
+      - test_messenger_empty_messaging
+      - test_whatsapp_empty_entry
+      - test_whatsapp_empty_changes
+      - test_whatsapp_empty_messages
+      - test_verifiers_dict_contains_messenger_and_whatsapp
+      - test_hub_signature_uses_compare_digest
+      - test_messenger_platform_enum
+      - test_whatsapp_platform_enum
+  FR-15:
+    unit:
+      - test_security_check_result_fields
+      - test_security_check_result_blocked
+      - test_security_check_result_is_frozen
+      - test_safe_input_returns_safe
+      - test_empty_string_is_safe
+      - test_normal_conversation_is_safe
+      - test_pattern_1_ignore_previous_instructions
+      - test_pattern_2_system_colon
+      - test_pattern_3_codeblock_system
+      - test_pattern_4_you_are_now
+      - test_pattern_5_pretend
+      - test_pattern_6_act_as
+      - test_pattern_7_forget
+      - test_pattern_8_new_instructions
+      - test_pattern_9_override
+      - test_pattern_10_disregard
+      - test_pattern_detection_after_nfkc_normalization
+      - test_legitimate_text_passes_after_nfkc
+      - test_blocked_reason_contains_pattern_info
+      - test_blocked_reason_risk_level_high
+      - test_build_sandwich_prompt_structure
+      - test_build_sandwich_prompt_includes_content
+      - test_build_sandwich_prompt_system_reminder_text
+      - test_build_sandwich_prompt_empty_context
+      - test_check_input_case_insensitive
+      - test_check_input_no_false_positive_on_similar
+  FR-16:
+    unit:
+      - test_luhn_valid_card_is_masked
+      - test_luhn_valid_card_with_dashes_is_masked
+      - test_luhn_valid_card_with_spaces_is_masked
+      - test_luhn_valid_mastercard
+      - test_luhn_invalid_card_not_masked
+      - test_random_16_digit_not_masked
+      - test_15_digit_not_masked
+      - test_17_digit_not_masked
+      - test_multiple_valid_cards_all_masked
+      - test_mixed_valid_invalid_only_valid_masked
+      - test_pii_result_includes_credit_card_type
+      - test_should_escalate_credit_card_keyword
+      - test_should_escalate_bank_account_keyword
+      - test_should_escalate_debit_card_keyword
+      - test_should_escalate_password_keyword
+      - test_normal_message_no_escalation_v2
+      - test_phase1_phone_still_masked
+      - test_phase1_email_still_masked
+      - test_phase1_address_still_masked
+      - test_combined_pii_all_types
+      - test_luhn_check_valid
+      - test_luhn_check_invalid
+      - test_luhn_check_with_dashes
+      - test_luhn_check_with_spaces
+      - test_luhn_check_not_16_digits
+      - test_luhn_check_empty_or_whitespace
+      - test_luhn_check_all_zeros
+  FR-17:
+    unit:
+      - test_emotion_category_values
+      - test_emotion_score_construction
+      - test_emotion_score_is_frozen
+      - test_add_appends_to_history
+      - test_add_multiple_scores
+      - test_weighted_score_empty_history
+      - test_weighted_score_single_positive_now
+      - test_weighted_score_single_negative_now
+      - test_weighted_score_neutral_is_zero_weight
+      - test_weighted_score_mixed_now
+      - test_weighted_score_decay_at_half_life
+      - test_weighted_score_respects_configurable_half_life
+      - test_weighted_score_very_old_decays_to_near_zero
+      - test_consecutive_negative_empty
+      - test_consecutive_negative_single
+      - test_consecutive_negative_stops_at_positive
+      - test_consecutive_negative_stops_at_neutral
+      - test_consecutive_negative_all_three
+      - test_consecutive_negative_four_followed_by_positive
+      - test_should_escalate_empty_history
+      - test_should_escalate_one_negative
+      - test_should_escalate_two_negatives
+      - test_should_escalate_three_negatives
+      - test_should_escalate_four_negatives
+      - test_should_escalate_broken_chain
+      - test_should_escalate_three_negatives_then_neutral
+      - test_default_half_life_hours
+      - test_custom_half_life_hours
+      - test_history_is_list
+      - test_tracker_independent_state
+  FR-18:
+    unit:
+      - test_conversation_state_has_seven_values
+      - test_conversation_state_values_are_uppercase_strings
+      - test_slot_construction_with_all_fields
+      - test_slot_construction_with_value_none
+      - test_slot_defaults
+      - test_slot_is_frozen
+      - test_slot_equality
+      - test_dialogue_state_defaults
+      - test_dialogue_state_construction_with_all_fields
+      - test_dialogue_state_is_frozen
+      - test_dialogue_state_slots_are_independent
+      - test_missing_slots_empty
+      - test_missing_slots_all_filled
+      - test_missing_slots_some_required_missing
+      - test_missing_slots_optional_are_ignored
+      - test_missing_slots_all_missing
+      - test_missing_slots_mixed_required_and_optional
+      - test_transition_idle_to_intent_detected
+      - test_transition_intent_detected_to_processing
+      - test_transition_intent_detected_to_slot_filling
+      - test_transition_slot_filling_to_awaiting_confirmation
+      - test_transition_slot_filling_to_escalated
+      - test_transition_awaiting_confirmation_to_processing
+      - test_transition_awaiting_confirmation_to_slot_filling
+      - test_transition_processing_to_resolved
+      - test_transition_processing_to_escalated
+      - test_transition_escalated_to_resolved
+      - test_transition_increments_turn_count
+      - test_transition_updates_last_updated
+      - test_transition_preserves_other_fields
+      - test_transition_returns_new_object
+      - test_transition_idle_to_processing_invalid
+      - test_transition_idle_to_resolved_invalid
+      - test_transition_resolved_to_any_invalid
+      - test_transition_escalated_to_processing_invalid
+      - test_transition_intent_detected_to_escalated_invalid
+      - test_transition_same_state_invalid
+      - test_full_conversation_flow_to_resolved
+      - test_full_conversation_flow_with_slot_filling
+      - test_full_conversation_flow_escalation_from_slot_filling
+      - test_full_conversation_flow_escalation_from_processing
+      - test_slot_filling_deny_loop
+  FR-19:
+    unit:
+      - test_knowledge_result_fields
+      - test_knowledge_result_frozen
+      - test_knowledge_result_source_values
+      - test_rrf_basic_fusion
+      - test_rrf_single_list
+      - test_rrf_empty_lists
+      - test_rrf_keeps_original_confidence
+      - test_rrf_preserves_original_confidence_regardless_of_k
+      - test_rrf_duplicate_id_uses_max_original_confidence
+      - test_constructor_accepts_dependencies
+      - test_compute_l1_confidence_full_match
+      - test_compute_l1_confidence_partial_match
+      - test_compute_l1_confidence_ilike_only
+      - test_compute_l1_confidence_no_match
+  FR-20:
+    unit:
+      - test_escalation_request_is_frozen
+      - test_escalation_request_fields
+      - test_escalation_reason_values
+      - test_sla_by_priority_default
+  FR-21:
+    unit:
+      - test_cosine_similarity_identical
+      - test_cosine_similarity_orthogonal
+      - test_cosine_similarity_opposite
+      - test_cosine_similarity_zero_vector
+      - test_grounding_result_fields
+      - test_grounding_result_is_frozen
+      - test_grounding_result_not_grounded
+      - test_empty_source_texts
+      - test_perfect_grounding
+      - test_no_match
+      - test_below_threshold
+      - test_multiple_sources_selects_best
+      - test_custom_threshold
+      - test_custom_threshold_strict
+      - test_threshold_exact_boundary
+      - test_embedding_fn_called_for_output_and_sources
+      - test_default_threshold
+  FR-22:
+    unit:
+      - test_all_eight_metrics_registered
+      - test_no_extra_metrics_registered
+      - test_metrics_registry_contains_all_names
+      - test_histogram_observe_and_buckets
+      - test_histogram_bucket_boundaries
+      - test_requests_total_counter
+      - test_fcr_total_counter
+      - test_knowledge_hit_total_counter
+      - test_pii_masked_total_counter
+      - test_llm_tokens_total_counter
+      - test_escalation_queue_size_gauge
+      - test_emotion_escalation_total_counter
+      - test_get_metrics_returns_bytes
+      - test_get_metrics_includes_help_and_type
+      - test_histogram_labels_must_match
+      - test_counter_labels_must_match
+      - test_gauge_no_labels
+      - test_custom_registry_isolation
+  FR-23:
+    unit:
+      - test_phase2_table_defs_has_two_entries
+      - test_phase2_table_names
+      - test_phase2_sql_contains_emotion_history
+      - test_phase2_sql_contains_edge_cases
+      - test_phase2_sql_contains_ivfflat_index
+      - test_phase2_sql_contains_emotion_history_index
+      - test_phase2_sql_no_phase1_duplication
+      - test_phase2_table_defs_no_phase1_duplication
+      - test_emotion_history_has_all_columns
+      - test_emotion_history_constraints
+      - test_edge_cases_has_all_columns
+      - test_edge_cases_constraints
+      - test_get_phase2_schema_sql_returns_str
+  FR-24:
+    unit:
+      - test_edge_case_fields
+      - test_edge_case_is_frozen
+      - test_golden_dataset_has_500_plus_entries
+      - test_each_category_has_50_plus_entries
+      - test_each_entry_has_required_fields
+      - test_category_distribution_even
+      - test_get_category_identifies_all_categories
+      - test_get_category_unknown
+cross_cutting:
+  security:
+    - test_timing_attack_resistance
+    - test_telegram_webhook_without_auth_headers_still_rejected
+  deployment:
+    - test_compose_file_exists
+    - test_dockerfile_exists
+    - test_three_services
+    - test_service_names
+    - test_postgres_image
+    - test_redis_image
+    - test_api_port_mapping
+    - test_postgres_healthcheck
+    - test_redis_healthcheck
+    - test_api_depends_on_both
+    - test_api_depends_condition_healthy
+    - test_redis_requirepass

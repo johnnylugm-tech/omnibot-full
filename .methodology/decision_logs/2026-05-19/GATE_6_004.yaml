@@ -1,0 +1,11 @@
+ctx:
+  agent_id: GATE
+  phase: 6
+  fr_id: null
+  trace_id: 1d4a95d1
+  timestamp: '2026-05-19T11:37:44.833447+00:00'
+decision: REVIEWER_REJECT
+reasoning: 'Gate 4 Hermes REJECT: '
+scores:
+  gate_score: 96.33
+metadata: {}
