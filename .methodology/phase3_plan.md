@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-18
+> **Date**: 2026-05-19
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 3 - Implementation
 > **Status**: Full version (including Phase 3 detailed tasks)
@@ -1216,7 +1216,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
 
 
 ### 🔒 CHECKPOINT-25: Gate 2 — Phase 3 Exit
-> linting(90) · type_safety(85) · test_coverage(80) · security(80) · secrets_scanning(100) · license_compliance(100) · mutation_testing(70)
+> linting(90) · type_safety(85) · test_coverage(80) · security(80) · secrets_scanning(100) · license_compliance(100) · mutation_testing(70) · integration_coverage(60) · test_assertion_quality(60)  [D4 TEST_INVENTORY.yaml imperative check ≥60%]
 
 - [ ] **G2a** Prepare Gate 2:
   ```bash
@@ -1249,11 +1249,7 @@ Each FR ends with a Gate 1 quality evaluation (CHECKPOINT). Phase exits via Gate
   > `HANDOVER.md` **before** committing + pushing. No separate push needed here.
   > If HANDOVER.md is missing, re-run `finalize-gate` (do **not** raw-push).
 
-- [ ] **[PHASE-TRUTH]** Verify Phase Truth ≥ 90% (HR-11):
-  ```bash
-  python3 harness_cli.py run-pipeline --phase-from 3
-  ```
-  Exit 0 = PASS, 11 = Phase Truth < 90%. Fix gaps before advancing.
+- [ ] **[PHASE-TRUTH]** Phase Truth ≥ 90% (HR-11) — verified by advance-phase
 
 ### Phase 3 Deliverables
 - [ ] `03-development/src/` - All FR modules implemented

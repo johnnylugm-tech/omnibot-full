@@ -2,7 +2,7 @@
 
 > **Version**: v2.3.0 (project plan)
 > **Project**: omnibot-full
-> **Date**: 2026-05-18
+> **Date**: 2026-05-19
 > **Framework**: harness-methodology v2.3.0
 > **Phase**: 1 - Requirements Specification
 > **Status**: Full version (including Phase 1 detailed tasks)
@@ -324,6 +324,7 @@ are not re-opened. This bounds backtracking to a single step.
 - [ ] `SRS.md` - Software Requirements Specification (FRs + NFRs)
 - [ ] `SPEC_TRACKING.md` - Spec tracking matrix
 - [ ] `TRACEABILITY_MATRIX.md` - Requirements traceability matrix
+- [ ] `TEST_INVENTORY.yaml` - Test inventory (I-1 P1 deliverable)
 - [x] `.methodology/sessions_spawn.log` — auto-populated by AgentSpawner (HR-10)
 
 
