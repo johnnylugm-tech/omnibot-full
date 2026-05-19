@@ -1,25 +1,17 @@
 {
-  "fr_id": "FR-02",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. Telegram uses SHA256(bot_token) as HMAC key. LINE uses HMAC-SHA256+Base64. verify_signature FastAPI dependency returns 401 AUTH_INVALID_SIGNATURE on failure. hmac.compare_digest() used for constant-time comparison. VERIFIERS dict supports TELEGRAM, LINE, MESSENGER, WHATSAPP with extensible register(). All 8/8 tests pass. Coverage 100%. Timing attack resistance confirmed.",
+  "review_status": "APPROVE",
+  "reason": "All FR-02 acceptance criteria are fully met. (1) Telegram verification correctly uses SHA256(bot_token) as the HMAC secret key via hashlib.sha256(secret.encode()).digest(). (2) LINE verification uses channel_secret with HMAC-SHA256 + Base64 encoding. (3) Verification failure raises HTTPException(status_code=401) with detail string containing AUTH_INVALID_SIGNATURE in both missing-credentials and mismatch branches. (4) hmac.compare_digest() is used in all three verifier functions (verify_telegram_signature, verify_line_signature, _verify_hub_signature). (5) VERIFIERS dict registry is implemented via PlatformVerifier class with a register() method for adding new platforms. Test file confirms correct helper functions mirror the implementation algorithms exactly (compute_telegram_signature, compute_line_signature). No regressions observed; Messenger and WhatsApp bonus verifiers follow same pattern correctly.",
   "confidence": 9,
-  "docs_embedded": [
-    "SRS.md",
-    "SAD.md",
-    "src/omnibot/auth/verifier.py",
-    "tests/test_fr02.py",
-    "TEST_RESULTS.md"
-  ],
   "citations": [
-    "verifier.py:17-24",
-    "verifier.py:27-31",
-    "verifier.py:34-42",
-    "verifier.py:54-59",
-    "verifier.py:98-124",
-    "test_fr02.py:73-86",
-    "test_fr02.py:89-103",
-    "test_fr02.py:171-211"
+    "auth/verifier.py:20",
+    "auth/verifier.py:27",
+    "auth/verifier.py:35",
+    "auth/verifier.py:60",
+    "auth/verifier.py:100",
+    "auth/verifier.py:106",
+    "tests/test_fr02.py:18",
+    "tests/test_fr02.py:24"
   ],
   "gaps": []
 }

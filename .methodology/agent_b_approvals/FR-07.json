@@ -1,10 +1,21 @@
 {
-  "fr_id": "FR-07",
-  "review_status": "APPROVE",
-  "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. KnowledgeBase with keyword rules, confidence scoring (matched/total), confidence > 0.7 direct reply, ≤ 0.7 escalate. Default rules for 退货/订单/客服. QueryResult dataclass. All 6/6 tests pass. Coverage 100%.",
-  "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/knowledge/__init__.py", "tests/test_fr07.py", "TEST_RESULTS.md"],
-  "citations": ["knowledge/__init__.py:27-63", "knowledge/__init__.py:68-70", "test_fr07.py:14-21", "test_fr07.py:23-29", "test_fr07.py:49-55", "test_fr07.py:58-61"],
-  "gaps": []
+  "status": "STAGE_FAIL",
+  "review_status": "REQUEST_CHANGES",
+  "reason": "Implementation is a pure in-memory keyword matcher; none of the SQL-specific acceptance criteria are met. (1) No SQL ILIKE on the question column — uses Python `kw in text` substring check instead. (2) No `is_active = TRUE` filter — rules have no such field. (3) Confidence scoring is `matched/total_keywords` (yields 1.0 for a single-keyword exact hit and 0.5 for 1-of-2 partial hit); the SRS mandates fixed values of 0.95 for exact and 0.7 for partial. (4) No version field on rules, no `ORDER BY version DESC` / take-max logic. (5) No-match path returns `QueryResult(confidence=0, source='escalate')` instead of `KnowledgeResult(id=-1, source='escalate')` — wrong type entirely. The `KnowledgeResult` import from `v2` exists but is never used in the public API. Tests exercise the in-memory implementation's behaviour only and do not verify any SQL, is_active, versioning, or correct fixed-confidence semantics, so green tests here do not validate the SRS requirements.",
+  "confidence": 2,
+  "citations": [
+    "knowledge/__init__.py:38-51",
+    "knowledge/__init__.py:22",
+    "tests/test_fr07.py:17-22",
+    "tests/test_fr07.py:30-35"
+  ],
+  "gaps": [
+    "SQL ILIKE on question column not implemented — in-memory substring used instead",
+    "ANY(keywords) SQL operator absent — Python loop used instead",
+    "is_active = TRUE filter missing from rules schema and query logic",
+    "Exact-match confidence must be 0.95, partial must be 0.7 — current formula is matched/len(keywords)",
+    "No version field; no ORDER BY version DESC / take-highest-version logic",
+    "No-match return type must be KnowledgeResult(id=-1, source='escalate'), not QueryResult",
+    "Tests do not cover SQL, is_active, versioning, or fixed-confidence thresholds"
+  ]
 }

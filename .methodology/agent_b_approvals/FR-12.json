@@ -1,10 +1,20 @@
 {
-  "fr_id": "FR-12",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. 8 core tables (users, conversations, messages, knowledge_base, platform_configs, escalation_queue, user_feedback, security_logs) with all required columns. pgvector extension, vector(384) in knowledge_base, JSONB dst_state, TEXT[] keywords, FK constraints. Phase 2 tables (emotion_history, edge_cases) and ivfflat index. All 13/13 tests pass. Coverage 100%.",
+  "review_status": "APPROVE",
+  "reason": "All 8 acceptance criteria are fully satisfied. (1) users: unified_user_id UUID with gen_random_uuid(), platform VARCHAR(32), platform_user_id VARCHAR(255), UNIQUE(platform, platform_user_id) present. (2) conversations: satisfaction_score FLOAT, first_contact_resolution BOOLEAN, scope_type VARCHAR(64), dst_state JSONB all present. (3) messages: intent_detected VARCHAR(128), sentiment_category VARCHAR(32), sentiment_intensity FLOAT, knowledge_source VARCHAR(64) all present. (4) knowledge_base: embeddings vector(384), keywords TEXT[] DEFAULT '{}', version INTEGER all present; pgvector extension created first. (5) platform_configs: rate_limit_rps INTEGER DEFAULT 10, webhook_secret_key_ref TEXT present. (6) escalation_queue: priority INTEGER DEFAULT 1, sla_deadline TIMESTAMPTZ present (Phase 2 column already reserved, no ALTER TABLE needed). (7) user_feedback: feedback VARCHAR(16) CHECK (feedback IN ('thumbs_up','thumbs_down')) present. (8) security_logs: layer VARCHAR(32) NOT NULL, blocked BOOLEAN NOT NULL DEFAULT FALSE, source_ip TEXT present. TABLE_DEFS contains exactly 8 tables; PHASE2_TABLE_DEFS is a separate structure, correctly isolated. Tests cover table count, name set, and column presence. No regressions detected.",
   "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/schema/__init__.py", "tests/test_fr12.py", "TEST_RESULTS.md"],
-  "citations": ["schema/__init__.py:9-101", "schema/__init__.py:114-145", "test_fr12.py:19-31", "test_fr12.py:34-41", "test_fr12.py:63-69"],
+  "citations": [
+    "schema/__init__.py:12-28",
+    "schema/__init__.py:30-43",
+    "schema/__init__.py:45-61",
+    "schema/__init__.py:63-76",
+    "schema/__init__.py:78-87",
+    "schema/__init__.py:89-101",
+    "schema/__init__.py:103-110",
+    "schema/__init__.py:112-120",
+    "tests/test_fr12.py:22-24",
+    "tests/test_fr12.py:27-36",
+    "tests/test_fr12.py:39-47"
+  ],
   "gaps": []
 }

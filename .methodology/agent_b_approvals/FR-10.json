@@ -1,10 +1,15 @@
 {
-  "fr_id": "FR-10",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. ApiResponse with success/data/error/error_code, Generic[T]. PaginatedResponse inherits with total/page/limit/has_next computed. ErrorCode enum: AUTH_INVALID_SIGNATURE, RATE_LIMIT_EXCEEDED, KNOWLEDGE_NOT_FOUND, VALIDATION_ERROR, INTERNAL_ERROR. All 13/13 tests pass. Coverage 100%.",
+  "review_status": "APPROVE",
+  "reason": "All FR-10 acceptance criteria are fully met. ApiResponse[T] contains success/data/error/error_code fields with correct Optional types and defaults. PaginatedResponse[T] properly inherits ApiResponse[T] and adds total/page/limit fields plus has_next as a computed_field derived from page*limit<total. ErrorCode enum defines all five required codes: AUTH_INVALID_SIGNATURE, RATE_LIMIT_EXCEEDED, KNOWLEDGE_NOT_FOUND, VALIDATION_ERROR, INTERNAL_ERROR. Tests cover success path, error path, defaults, and generic typing. Implementation uses Pydantic BaseModel with Generic[T] correctly.",
   "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/api/__init__.py", "tests/test_fr10.py", "TEST_RESULTS.md"],
-  "citations": ["api/__init__.py:17-27", "api/__init__.py:29-37", "api/__init__.py:40-55", "test_fr10.py:15-21", "test_fr10.py:25-35", "test_fr10.py:51-63", "test_fr10.py:103-109"],
+  "citations": [
+    "api/__init__.py:17-27",
+    "api/__init__.py:30-39",
+    "api/__init__.py:42-57",
+    "tests/test_fr10.py:20-35",
+    "tests/test_fr10.py:37-46",
+    "tests/test_fr10.py:48-55"
+  ],
   "gaps": []
 }

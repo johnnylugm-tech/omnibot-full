@@ -1,10 +1,16 @@
 {
-  "fr_id": "FR-08",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. EscalationManager.create() returns auto-incrementing ID, assign() sets agent + picked_at, resolve() sets resolved_at. KeyError on missing ID. sla_deadline field exists but is None (Phase 1). All 10/10 tests pass. Coverage 100%.",
+  "review_status": "APPROVE",
+  "reason": "All four FR-08 acceptance criteria are fully met. (1) create() writes a record with conversation_id + reason into the in-memory escalation_queue (_records dict), returning an auto-incremented escalation_id. (2) assign() sets assigned_agent and picked_at on the matching record, raising KeyError for unknown IDs. (3) resolve() sets resolved_at on the matching record, raising KeyError for unknown IDs. (4) Phase 1 has no SLA tracking — sla_deadline field exists on EscalationRecord but is initialised to None by default and is never populated by any Phase 1 code path. Tests cover all three lifecycle operations plus ID increment, conversation_id/reason storage, and the created_at timestamp type. No regressions observed.",
   "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/escalation/__init__.py", "tests/test_fr08.py", "TEST_RESULTS.md"],
-  "citations": ["escalation/__init__.py:30-71", "test_fr08.py:18-23", "test_fr08.py:45-52", "test_fr08.py:55-62", "test_fr08.py:65-70", "test_fr08.py:102-119"],
+  "citations": [
+    "escalation/__init__.py:44-52",
+    "escalation/__init__.py:54-60",
+    "escalation/__init__.py:62-67",
+    "escalation/__init__.py:30",
+    "tests/test_fr08.py:29-38",
+    "tests/test_fr08.py:40-49",
+    "tests/test_fr08.py:51-56"
+  ],
   "gaps": []
 }

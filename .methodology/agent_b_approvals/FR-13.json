@@ -1,10 +1,15 @@
 {
-  "fr_id": "FR-13",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. docker-compose.yml has 3 services: omnibot-api (port 8000, depends on postgres+redis healthy), postgres (pgvector/pgvector:pg16, healthcheck), redis (redis:7-alpine, healthcheck, requirepass). Dockerfile exists. All 12/12 tests pass. Coverage 97%.",
+  "review_status": "APPROVE",
+  "reason": "All four FR-13 acceptance criteria are satisfied. (1) Three services defined: omnibot-api on port 8000, postgres using pgvector/pgvector:pg16 on 5432, redis using redis:7-alpine on 6379. (2) Both postgres and redis have healthchecks with interval/timeout/retries configured — postgres uses pg_isready, redis uses redis-cli ping with password. (3) omnibot-api.depends_on sets condition:service_healthy for both postgres and redis. (4) Redis is password-protected via --requirepass with ${REDIS_PASSWORD:-dev_redis_password} fallback, and the REDIS_URL env var includes the credential. Docker Compose performs YAML-level variable substitution before passing the healthcheck test array to the daemon, so the ${...} expansion in the healthcheck CMD list is correct. No regressions observed.",
   "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "docker-compose.yml", "03-development/Dockerfile", "tests/test_fr13.py", "TEST_RESULTS.md"],
-  "citations": ["test_fr13.py:39-42", "test_fr13.py:51-55", "test_fr13.py:58-62", "test_fr13.py:65-69", "test_fr13.py:80-84", "test_fr13.py:87-91", "test_fr13.py:101-106"],
+  "citations": [
+    "docker-compose.yml:1",
+    "docker-compose.yml:17",
+    "docker-compose.yml:26",
+    "docker-compose.yml:32",
+    "docker-compose.yml:43",
+    "docker-compose.yml:48"
+  ],
   "gaps": []
 }

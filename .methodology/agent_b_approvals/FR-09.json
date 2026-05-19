@@ -1,10 +1,16 @@
 {
-  "fr_id": "FR-09",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. NDJSON stdout logger with timestamp (ISO8601 UTC Z), level, service, message fields. 5 levels: DEBUG, INFO, WARN, ERROR, CRITICAL. Shorthand methods for each. Extra kwargs as top-level fields. All 12/12 tests pass. Coverage 100%.",
+  "review_status": "APPROVE",
+  "reason": "All FR-09 acceptance criteria are fully met. The StructuredLogger emits NDJSON (one JSON object per line via print+json.dumps), includes all required fields (timestamp in ISO 8601 UTC with 'Z' suffix, level, service, message), supports all five levels (DEBUG/INFO/WARN/ERROR/CRITICAL) via dedicated shorthand methods, and kwargs are merged into the entry dict as additional fields. Docstrings correctly document INFO for business events, WARN for non-fatal anomalies, and ERROR for fatal errors. Tests verify valid JSON output, single-line NDJSON format, and required field presence. No regressions observed.",
   "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/logger/__init__.py", "tests/test_fr09.py", "TEST_RESULTS.md"],
-  "citations": ["logger/__init__.py:21-35", "logger/__init__.py:37-55", "test_fr09.py:32-37", "test_fr09.py:48-58", "test_fr09.py:72-78", "test_fr09.py:81-108"],
+  "citations": [
+    "logger/__init__.py:30",
+    "logger/__init__.py:34",
+    "logger/__init__.py:37",
+    "logger/__init__.py:40",
+    "tests/test_fr09.py:38",
+    "tests/test_fr09.py:45",
+    "tests/test_fr09.py:52"
+  ],
   "gaps": []
 }

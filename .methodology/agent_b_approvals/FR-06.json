@@ -1,10 +1,19 @@
 {
-  "fr_id": "FR-06",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. TokenBucket with configurable capacity/refill_rate, thread-safe via Lock. consume() returns True/False. RateLimiter per-user isolation with auto-create full bucket. All 5/5 tests pass. Coverage 100%.",
-  "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/rate_limiter/__init__.py", "tests/test_fr06.py", "TEST_RESULTS.md"],
-  "citations": ["rate_limiter/__init__.py:13-41", "rate_limiter/__init__.py:43-59", "test_fr06.py:17-22", "test_fr06.py:25-32", "test_fr06.py:35-42"],
-  "gaps": []
+  "review_status": "APPROVE",
+  "reason": "All core acceptance criteria are met. TokenBucket correctly implements capacity and refill_rate configuration. consume() atomically refills via time.monotonic() and returns True/False with proper token deduction. RateLimiter uses a per-key dict keyed by whatever string is passed (caller is responsible for 'platform:user_id' formatting), with default_capacity=100 and default_refill_rate=100.0 satisfying default_rps=100. Thread safety is correct: bucket-level lock in consume(), limiter-level lock only during bucket creation to avoid holding the global lock during consume. The 429 RATE_LIMIT_EXCEEDED response is an HTTP concern correctly deferred to the API layer (FR-10). Minor gaps: (1) allow() accepts a plain string and does not enforce 'platform:user_id' compound-key format — tests use 'user_a'/'user_b' instead of 'discord:user_a' etc., which means the key contract is implicit rather than explicit; (2) test_rate_limiter_new_user_gets_full_bucket body is truncated in the excerpt and cannot be verified. Neither gap blocks approval as the invariant (caller constructs the key) is a thin convention and the capacity initialization to float(capacity) guarantees a full bucket on creation.",
+  "confidence": 8,
+  "citations": [
+    "rate_limiter/__init__.py:24",
+    "rate_limiter/__init__.py:32",
+    "rate_limiter/__init__.py:44",
+    "rate_limiter/__init__.py:55",
+    "tests/test_fr06.py:28",
+    "tests/test_fr06.py:37",
+    "tests/test_fr06.py:45"
+  ],
+  "gaps": [
+    "allow() does not enforce 'platform:user_id' compound-key format — convention is implicit, not structural; tests use bare user IDs",
+    "test_rate_limiter_new_user_gets_full_bucket body truncated in excerpt — could not verify coverage"
+  ]
 }

@@ -1,25 +1,15 @@
 {
-  "fr_id": "FR-03",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. UnifiedMessage is frozen=True dataclass with all required fields (platform, platform_user_id, message_type, content). Platform enum covers TELEGRAM, LINE, MESSENGER, WHATSAPP. MessageType enum covers TEXT, IMAGE, STICKER, LOCATION, FILE. UnifiedResponse has content, source, confidence, knowledge_id. All 10/10 tests pass. Coverage 100%.",
+  "review_status": "APPROVE",
+  "reason": "All FR-03 acceptance criteria are fully met. (1) UnifiedMessage is decorated @dataclass(frozen=True) — mutation test confirms FrozenInstanceError is raised. (2) All seven required fields are present: platform, platform_user_id, unified_user_id, message_type, content, raw_payload, received_at. (3) Platform enum defines all four required values: TELEGRAM, LINE, MESSENGER, WHATSAPP. (4) MessageType enum defines all five required values: TEXT, IMAGE, STICKER, LOCATION, FILE. (5) UnifiedResponse carries content, source, confidence, knowledge_id — exact match to spec. One non-blocking observation: unified_user_id defaults to \"\" rather than being a positional required argument, and an extra reply_token field is present; neither violates the SRS and both are reasonable design extensions. Test coverage directly exercises frozen constraint and all required fields.",
   "confidence": 9,
-  "docs_embedded": [
-    "SRS.md",
-    "SAD.md",
-    "src/omnibot/models.py",
-    "tests/test_fr03.py",
-    "TEST_RESULTS.md"
-  ],
   "citations": [
-    "models.py:12-20",
-    "models.py:23-32",
-    "models.py:35-48",
-    "models.py:59-68",
-    "test_fr03.py:27-36",
-    "test_fr03.py:39-55",
-    "test_fr03.py:86-97",
-    "test_fr03.py:115-124"
+    "models.py:34",
+    "models.py:13",
+    "models.py:24",
+    "models.py:53",
+    "tests/test_fr03.py:25",
+    "tests/test_fr03.py:37"
   ],
   "gaps": []
 }

@@ -1,10 +1,16 @@
 {
-  "fr_id": "FR-04",
-  "review_status": "APPROVE",
   "status": "STAGE_PASS",
-  "reason": "All acceptance criteria verified. sanitize() calls unicodedata.normalize('NFKC', text), removes control characters (Cc category) except \\n and \\t, strips whitespace. No pattern matching performed. ZWJ emoji preserved. All 11/11 tests pass. Coverage 100%.",
+  "review_status": "APPROVE",
+  "reason": "All four acceptance criteria are fully met. (1) NFKC normalization is applied via unicodedata.normalize('NFKC', text) in Step 1. (2) Non-printable control characters are removed by checking unicodedata.category(ch)=='Cc' and excluding only U+000A (\\n) and U+0009 (\\t). (3) text.strip() is applied after cleaning. (4) No pattern matching is performed — the implementation explicitly delegates that to L3. Tests cover NFKC fullwidth normalization, combining-character composition, NUL/control removal, \\n/\\t preservation, leading/trailing whitespace stripping, and empty string. The ValueError on malformed Unicode is a defensive addition not required by the SRS but not in conflict with it. Test excerpt truncates before test_empty_string body but the function signature and docstring are present and consistent with the criterion.",
   "confidence": 9,
-  "docs_embedded": ["SRS.md", "SAD.md", "src/omnibot/sanitizer/__init__.py", "tests/test_fr04.py", "TEST_RESULTS.md"],
-  "citations": ["sanitizer/__init__.py:9-37", "test_fr04.py:15-19", "test_fr04.py:29-33", "test_fr04.py:36-40", "test_fr04.py:67-73", "test_fr04.py:84-88"],
+  "citations": [
+    "sanitizer/__init__.py:20",
+    "sanitizer/__init__.py:27-33",
+    "sanitizer/__init__.py:36",
+    "tests/test_fr04.py:17-22",
+    "tests/test_fr04.py:31-35",
+    "tests/test_fr04.py:37-41",
+    "tests/test_fr04.py:43-48"
+  ],
   "gaps": []
 }
