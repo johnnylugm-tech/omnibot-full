@@ -8,7 +8,8 @@ from datetime import datetime, timezone
 from fastapi.testclient import TestClient
 
 from omnibot.app import app
-from omnibot.knowledge import KnowledgeBase, QueryResult
+from omnibot.knowledge import KnowledgeBase
+from omnibot.knowledge.v2 import KnowledgeResult
 from omnibot.models import Platform, MessageType, UnifiedMessage, UnifiedResponse
 from omnibot.pii import mask_pii, PIIMaskResult
 from omnibot.rate_limiter import TokenBucket, RateLimiter
@@ -64,23 +65,23 @@ class TestKnowledgeBenchmark:
     def _build_kb(size: int = 50) -> KnowledgeBase:
         kb = KnowledgeBase()
         for i in range(size):
-            kb.add_rule(f"rule_{i}", f"pattern_{i}")
+            kb.add_rule([f"pattern_{i}"], f"response_{i}")
         return kb
 
     def test_query_small_kb(self, benchmark):
         kb = self._build_kb(20)
         result = benchmark(kb.query, "pattern_10")
-        assert isinstance(result, QueryResult)
+        assert isinstance(result, KnowledgeResult)
 
     def test_query_medium_kb(self, benchmark):
         kb = self._build_kb(100)
         result = benchmark(kb.query, "pattern_50")
-        assert isinstance(result, QueryResult)
+        assert isinstance(result, KnowledgeResult)
 
     def test_query_no_match(self, benchmark):
         kb = self._build_kb(50)
         result = benchmark(kb.query, "nonexistent_pattern")
-        assert result.confidence < 80.0
+        assert result.source == "escalate"
 
 
 class TestRateLimiterBenchmark:
